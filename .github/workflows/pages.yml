@@ -5,6 +5,12 @@ on:
     branches:
       - main  # default branch
 
+steps:
+- name: Checkout submodules
+  uses: srt32/git-actions@v0.0.3
+  with:
+    args: git submodule update --init --recursive
+
 jobs:
   pages:
     runs-on: ubuntu-latest
