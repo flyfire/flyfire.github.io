@@ -1,0 +1,3 @@
+[submodule "themes/pure"]
+	path = themes/pure
+	url = git@github.com:flyfire/hexo-theme-pure.git
