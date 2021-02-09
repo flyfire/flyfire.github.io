@@ -39,15 +39,15 @@ copyright = ""            # default: author.name ↓        # 默认为下面配
   identifier = "archives"
   url = "/post/"
 [[menu.main]]
-  name = "Tags"
+  name = "Projects"
   weight = 30
-  identifier = "tags"
-  url = "/tags/"
+  identifier = "projects"
+  url = "/projects/"
 [[menu.main]]
-  name = "Categories"
+  name = "About"
   weight = 40
-  identifier = "categories"
-  url = "/categories/"
+  identifier = "about"
+  url = "/about/"
 
 [params]
   version = "4.x"           # Used to give a friendly message when you have an incompatible update
@@ -73,7 +73,7 @@ copyright = ""            # default: author.name ↓        # 默认为下面配
   dateFormatToUse = "2006-01-02"
 
   # show word count and read time ?                       # 是否显示字数统计与阅读时间
-  moreMeta = false
+  moreMeta = true
 
   # Syntax highlighting by highlight.js
   highlightInClient = true
@@ -100,7 +100,7 @@ copyright = ""            # default: author.name ↓        # 默认为下面配
   livereUID = ""            # LiveRe UID                  # 来必力
 
   baiduPush = false        # baidu push                  # 百度
-  baiduAnalytics = ""      # Baidu Analytics
+  baiduAnalytics = "9689f78768a1999a6b08890d53ef1820"      # Baidu Analytics
   baiduVerification = ""   # Baidu Verification
   googleVerification = ""  # Google Verification         # 谷歌
 
@@ -163,15 +163,15 @@ copyright = ""            # default: author.name ↓        # 默认为下面配
     visitor = false
 
   [params.flowchartDiagrams]# see https://blog.olowolo.com/example-site/post/js-flowchart-diagrams/
-    enable = false
+    enable = true
     options = ""
 
   [params.sequenceDiagrams] # see https://blog.olowolo.com/example-site/post/js-sequence-diagrams/
-    enable = false
+    enable = true
     options = ""            # default: "{theme: 'simple'}"
 
   [params.busuanzi]         # count web traffic by busuanzi                             # 是否使用不蒜子统计站点访问量
-    enable = false
+    enable = true
     siteUV = true
     sitePV = true
     pagePV = true
@@ -185,18 +185,11 @@ copyright = ""            # default: author.name ↓        # 默认为下面配
     a-email = "mailto:rh.hou.work@email.com"
     b-stack-overflow = "https://stackoverflow.com/users/2573305/user2573305"
     c-twitter = "https://twitter.com/solarexcn"
-    d-facebook = "http://localhost:1313"
-    e-linkedin = "http://localhost:1313"
-    f-google = "http://localhost:1313"
-    g-github = "https://github.com/flyfire"
-    h-weibo = "https://weibo.com/solarex"
-    i-zhihu = "https://www.zhihu.com/people/solarex"
+    d-github = "https://github.com/flyfire"
+    e-weibo = "https://weibo.com/solarex"
+    f-zhihu = "https://www.zhihu.com/people/solarex"
     j-douban = "https://www.douban.com/people/solarexh/"
-    k-pocket = "http://localhost:1313"
-    l-tumblr = "http://localhost:1313"
-    m-instagram = "http://localhost:1313"
-    n-gitlab = "http://localhost:1313"
-    o-bilibili = "https://space.bilibili.com/8934511"
+    h-bilibili = "https://space.bilibili.com/8934511"
 
 # See https://gohugo.io/about/hugo-and-gdpr/
 [privacy]
