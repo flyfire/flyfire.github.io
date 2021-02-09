@@ -1,0 +1,52 @@
++++
+title = "Java Threadpoolexecutor"
+date = "2019-08-04"
+slug = "2019/08/04/java-threadpoolexecutor"
+Categories = ["java", "concurrency"]
++++
+
+本文主要对Executor框架以及Java平台线程池技术进行分析。
+
+<!-- more -->
+
+Executor框架主要由3大部分组成：
+
+- 任务。包括被执行任务需要实现的接口：Runnable接口或Callable接口
+- 任务的执行。包括任务执行机制的核心接口Executor，以及继承自Executor的ExecutorService接口。Executor框架有两个关键类实现了ExecutorService接口（ThreadPoolExecutor和ScheduledThreadPoolExecutor）
+- 异步计算的结果。包括接口Future和实现Future接口的FutureTask类。
+
+通过Executor框架的工具类Executors，可以创建3中类型的ThreadPoolExecutor：
+
+- FixedThreadPool
+- SingleThreadPool
+- CachedThreadPool
+
+ThreadPoolExecutor执行execute方法分下面4种情况：
+
+- 如果当前运行的线程少于corePoolSize，则创建新线程来执行任务（注意，执行这一步骤需要获取全局锁）
+- 如果运行的线程等于或多于corePoolSize，则将任务加入BlockingQueue。
+- 如果无法将任务加入BlockingQueue（队列已满），则创建新的线程来处理任务（注意，执行这一步骤需要获取全局锁）
+- 如果创建新线程将使当前运行的线程超出maximumPoolSize，任务将交给饱和策略来处理。
+
+RejectExecutionHandler(饱和策略)
+
+- AbortPolicy：直接抛出异常
+- CallerRunsPolicy：调用者线程来运行任务
+- DiscardOldestPolicy：丢弃队列中最近的一个任务，并执行当前任务
+- DiscardPolicy：不处理，丢弃掉
+
+关闭线程池：可以通过调用线程池的shutdown或shutdownNow方法来关闭线程池。它们的原理是遍历线程池中的工作线程，然后逐个调用线程的interrupt方法来中断线程，所以无法响应中断的任务可能永远无法终止。但是它们存在一定的区别，shutdownNow首先将线程池的状态设置成STOP，然后尝试停止所有的正在执行或暂停任务的线程，并返回等待执行任务的列表，而shutdown只是将线程池的状态设置成SHUTDOWN状态，然后中断所有没有正在执行任务的线程。只要调用了这两个关闭方法中的任意一个，isShutdown方法就会返回true，当所有的任务都已关闭后，才表示线程池关闭成功，这时调用isTerminated方法会返回true。
+
+FixedThreadPool的corePoolSize和maximumPoolSize都被设置为创建FixedThreadPool时指定的参数nThreads。当线程池中的线程数大于corePoolSize时，keepAliveTime为多余的空闲线程等待新任务的最长时间，超过这个时间后多余的线程将被终止。keepAliveTime设置为0意味着多余的空闲线程会被立即终止。FixedThreadPool使用无界队列LinkedBlockingQueue作为线程池的工作队列。当线程池的线程数达到corePoolSize后，新任务将在无界队列中等待，因此线程池中线程数不会超过corePoolSize，maximunPoolSize是无效的参数，keepAliveTime也变成了无效参数。
+
+SingleThreadExecutor的corePoolSize和maximumPoolSize被设置成1,其他参数与FixedThreadPool相同。
+
+CachedThreadPool是一个会根据需要创建新线程的线程池。CachedThreadPool的corePoolSize被设置为0，即corePoolSize为空，maximumPoolSize被设置为Integer.MAX_VALUE，即maximumPool是无界的，keepAliveTime被设置为60，意味着CachedThreadPool中的空闲线程等待新任务的最长时间是60s，空闲线程超过60s后将会被终止。CachedThreadPool使用没有容量的SynchronousQueue作为线程池的工作队列，但CachedThreadPool的maximumPool是无界的，这意味着，如果主线程提交任务的速度高于maximumPool中线程处理任务的速度时，CachedThreadPool会不断创建新线程，极端情况下，CachedThreadPool会因为创建过多线程而耗尽CPU和内存资源。
+
+ScheduledThreadPoolExecutor使用DelayQueue作为工作队列，DelayQueue是无界队列，所以maximumPoolSize参数无意义。ScheduledThreadPoolExecutor的执行主要分为两大部分：
+
+- 当调用ScheduledThreadPoolExecutor的scheduleAtFixedRate()方法或者scheduleWithFixedDelay()方法时，会向DelayQueue中添加一个实现了RunnableScheduledFuture接口的ScheduledFutureTask。
+- 线程池的线程从DelayQueue中获取ScheduledFutureTask，然后执行任务。
+
+可以自己[参考](https://github.com/flyfire/ReadJCIP/tree/master/src/main/java/com/solarexsoft/jcip/art/ch04)着实现一个简陋版的线程池。
+
