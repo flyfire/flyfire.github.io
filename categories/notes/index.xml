@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>notes on Solarex&#39;s Blog</title>
+    <link>https://flyfire.github.io/categories/notes/</link>
+    <description>Recent content in notes on Solarex&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Mon, 02 Jul 2018 00:00:00 +0000</lastBuildDate><atom:link href="https://flyfire.github.io/categories/notes/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Analysis of Hashmap</title>
+      <link>https://flyfire.github.io/post/2018/07/02/analysis-of-hashmap/</link>
+      <pubDate>Mon, 02 Jul 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2018/07/02/analysis-of-hashmap/</guid>
+      <description>HashMap是存储key-value的集合，底层采用Node&amp;lt;K,V&amp;gt;[] table实现，初始大小为2^4即16。 1 2 3 4 5 6</description>
+    </item>
+    
+    <item>
+      <title>Datastructure and Algorithms</title>
+      <link>https://flyfire.github.io/post/2018/07/01/datastructure-and-algorithms/</link>
+      <pubDate>Sun, 01 Jul 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2018/07/01/datastructure-and-algorithms/</guid>
+      <description>ArrayList 尾插效率高，支持随机访问 中间插入或者删除效率低 空间不够用时，自动增长为现有空间的1.5倍 底层使用Object数组来存储数据，使用Syste</description>
+    </item>
+    
+  </channel>
+</rss>

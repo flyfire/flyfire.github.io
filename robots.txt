@@ -1,0 +1,2 @@
+User-agent: *
+Sitemap: https://flyfire.github.io/sitemap.xml
