@@ -107,9 +107,10 @@ draft: false
 + [极客时间学习笔记gitbook](https://solarex.github.io/learning-notes/)
 + [android sticky notes](https://github.com/flyfire/android-sticky-notes)
 
-<h3 id='python-practice'>Python学习</h3>
+<h3 id='jvm'>自己动手实现JVM</h3>
 
-+ [DownloadTwitterLikes](https://github.com/flyfire/DownloadTwitterLikes)
++ [Go Version JVM](https://github.com/flyfire/SolarexJVMInGo)
++ [Java Version JVM](https://github.com/flyfire/SolarexJVMInJava)
 
 
 <h3 id='practice'>Android最佳实践</h3>
