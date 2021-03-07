@@ -117,6 +117,10 @@ draft: false
 
 + [Writing Better Adapters](https://github.com/flyfire/MultitypeBaseAdapter)
 
+<h3 id='python'>Python练习</h3>
+
++ [Python Practice](https://github.com/flyfire/PythonPractice)
+
 <h3 id='demo'>Demo</h3>
 
 + [TuringChat](https://github.com/flyfire/TuringChat)
