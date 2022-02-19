@@ -32,6 +32,51 @@ Thread的start方法开始时会检查线程状态，不能多次调用。在sta
 
 线程状态：新建，就绪，运行，阻塞，死亡
 
+<p><center><img src="/images/thread-state.jpg"/></center></p>
+
+``Lock``底层实现是``LockSupport``，所以使用显式锁Lock，线程会进入等待或者等待超时状态。只有在``synchronized``方法或者方法块中线程才会进入阻塞状态。
+
+``sleep``线程会进入等待/等待超时状态。
+
+阻塞是被动进入，等待时主动进入。
+
+死锁是指两个或两个以上的线程在执行过程中，由于竞争资源或者由于彼此通信而造成的一种阻塞的现象，若无外力作用，它们都将无法推进下去。此时称系统处于死锁状态或系统产生了死锁。
+
+死锁的发生条件
+
++ 多个操作者(M个M >= 2)争夺N个资源(N>=2),N <= M
++ 争夺资源的顺序不对
++ 拿到资源不放手
+
+打破``争夺资源的顺序不对``，规定必须先拿A锁再拿B锁。
+打破``拿到资源不放手``,``Lock.tryLock``
+
+```java
+while(true) {
+    if(lockA.tryLock()) {
+        try {
+            if(lockB.tryLock()) {
+                try {
+                    // do sth
+                } finally {
+                    lockB.unlock()
+                }
+            }
+        } finally {
+            lockA.unlock()
+        }
+    }
+    Thread.sleep(random)
+}
+```
+
++ 互斥条件
++ 请求保持
++ 不剥夺
++ 环路等待
+
+活锁
+
 yield方法将线程从运行转到可运行状态，让出CPU执行权，不会释放锁。
 threadA中调用threadB.join()等待threadB执行完之后继续执行操作。
 
@@ -164,3 +209,73 @@ class DBPool(private val initCap: Int) {
 ForkJoin
 
 CountDownLatch 发令枪，闭锁
+
+CAS Compare and Swap
+
+synchronized悲观锁，认为总有人要改我的值，先锁住再说
+CAS乐观锁，认为没人会改我的值。
+
+synchronized竞争锁会导致上下文切换。
+
+CAS自旋，死循环
+
+CAS的问题
++ ABA问题，加一个版本戳解决，AtomicMarkableReference/AtomicStampedReference
++ 开销问题，自旋导致CPU很忙
++ 只能保证一个共享变量的原子操作。AtomicReference
+
+AtomicMarkableReference 只关心有没有人改过
+AtomicStampedReference 关心改了多少次
+
+ThreadLocal 一个变量需要在线程内跨方法访问。
+
+BlockingQueue
+
++ ``add``,``remove``方法不阻塞，但会抛出异常。
++ ``offer``往里添加元素，如果添加不进去，会返回false，``poll``从里面取元素，如果没有会返回null
++ ``put``,``take``阻塞操作
+
+生产者、消费者性能不一致
+
++ ``ArrayBlockingQueue``,一个由数组结构组成的有界阻塞队列
++ ``LinkedBlockingQueue``，一个由链表结构组成的有界阻塞队列
++ ``PriorityBlockingQueue``,一个支持优先级排序的无界阻塞队列
++ ``DelayQueue``，一个使用优先级队列实现的无界阻塞队列
++ ``SynchronousQueue``，一个不存储元素的阻塞队列
++ ``LinkedTransferQueue``，一个由链表结构组成的无界阻塞队列
++ ``LinkedBlockingDeque``，一个由链表结构组成的双向阻塞队列
+
+有界，规定了最大容量
+
+无界，没有最大容量
+
+无界，插入不会阻塞，拿会阻塞。
+
+单机的缓存系统，``DelayQueue``
+
+``SynchronousQueue``数据的直接传递，生产者往里添加元素，必须有消费者把元素拿走
+
+``LinkedTransferQueue``，try尝试传输。生产者在往队列放元素的时候，如果正好有消费者在等待拿元素，直接把元素给消费者，不往里面放。
+
+``ThreadPoolExecutor`` 
+
+先启动corePoolSize的线程处理任务，corePoolSize的线程全都启动了，再来了任务就放入BlockingQueue里，BlockingQueue里放满了，继续来任务的话启动非核心线程，达到maxPoolSize之后，拒绝策略起作用。
+
+``RejectedExecutionHandler``
+
++ ``AbortPolicy`` 抛出异常
++ ``CallerRunsPolicy`` 调用线程运行任务
++ ``DiscardPolicy``,``DiscardOldestPolicy`` 丢弃提交的任务
+
++ ``shutdown``中断未执行的任务
++ ``shutdownNow``不管是正在运行的还是未运行的，都发出中断信号
+
+CPU密集型 最大线程数 CPU核心数+1  虚拟内存调度到内存，页缺失 避免线程上下文切换
+
+IO密集型  最大线程数 CPU核心数*2
+
+混合型 
+
+IO操作 DMA CPU向磁盘控制器提交任务，磁盘控制器完成任务后发起CPU中断。
+
+零拷贝 应用程序向内核空间申请空间，mmap，免去应用空间和内核空间来回拷贝 mmap direct memory
