@@ -279,3 +279,35 @@ IO密集型  最大线程数 CPU核心数*2
 IO操作 DMA CPU向磁盘控制器提交任务，磁盘控制器完成任务后发起CPU中断。
 
 零拷贝 应用程序向内核空间申请空间，mmap，免去应用空间和内核空间来回拷贝 mmap direct memory
+
+AQS 模板方法
+
++ ``tryAcquire`` 独占
+
++ ``tryAcquireShared`` 共享
+
+Java Memory Model
+
+CPU L1Cache L2Cache L3CPU共享Cache
+
+Java线程 工作内存线程独享 主内存
+
+变量 可见性，原子性
+
+volatile只能保证可见性，不能保证原子性。适合一个线程写，其他线程读的情况。
+
+synchronized既能保证可见性又能保证原子性。
+
+指令流水线和重排序，CPU可以同时执行多条指令。
+
+重排序缓存
+
+volatile 变量抑制指令重排序。
+
+volatile+CAS操作替换synchronized
+
+有volatile修饰的共享变量进行写操作的时候会使用CPU提供的Lock前缀指令
+
++ 将当前处理器缓存行的数据写回到系统内存
+
++ 这个写回内存的操作会使在其他CPU缓存里面缓存了该内存地址的数据无效//CPU缓存行失效
