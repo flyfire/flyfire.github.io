@@ -121,6 +121,7 @@ draft: false
 <h3 id='python'>Python练习</h3>
 
 + [Python Practice](https://github.com/flyfire/PythonPractice)
++ [python toys](https://github.com/flyfire/python-toys)
 
 <h3 id='demo'>Demo</h3>
 
