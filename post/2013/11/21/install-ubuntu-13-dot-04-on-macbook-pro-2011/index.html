@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Install Ubuntu 13.04 on MacBook Pro 2011 - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="之前已经在MacBook上装过Ubuntu了，不知怎么搞的，最近Ubuntu更新后，分辨率一直保持在1024×768，屏幕惨不忍睹，网上搜了" /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/2013/11/21/install-ubuntu-13-dot-04-on-macbook-pro-2011/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Install Ubuntu 13.04 on MacBook Pro 2011" />
+<meta property="og:description" content="之前已经在MacBook上装过Ubuntu了，不知怎么搞的，最近Ubuntu更新后，分辨率一直保持在1024×768，屏幕惨不忍睹，网上搜了" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/2013/11/21/install-ubuntu-13-dot-04-on-macbook-pro-2011/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2013-11-21T00:00:00+00:00" />
+<meta property="article:modified_time" content="2013-11-21T00:00:00+00:00" />
+<meta itemprop="name" content="Install Ubuntu 13.04 on MacBook Pro 2011">
+<meta itemprop="description" content="之前已经在MacBook上装过Ubuntu了，不知怎么搞的，最近Ubuntu更新后，分辨率一直保持在1024×768，屏幕惨不忍睹，网上搜了"><meta itemprop="datePublished" content="2013-11-21T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2013-11-21T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1468">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Install Ubuntu 13.04 on MacBook Pro 2011"/>
+<meta name="twitter:description" content="之前已经在MacBook上装过Ubuntu了，不知怎么搞的，最近Ubuntu更新后，分辨率一直保持在1024×768，屏幕惨不忍睹，网上搜了"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Install Ubuntu 13.04 on MacBook Pro 2011</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2013-11-21 </span>
+        <div class="post-category">
+            <a href="/categories/tools/"> tools </a>
+            </div>
+          <span class="more-meta"> 约 1468 字 </span>
+          <span class="more-meta"> 预计阅读 3 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <center><p><img src="/images/logoubuntu.png" width="200" height="200" alt="ubuntu"></p></center>
+<p>之前已经在MacBook上装过Ubuntu了，不知怎么搞的，最近Ubuntu更新后，分辨率一直保持在1024×768，屏幕惨不忍睹，网上搜了好多，都是使用<a href="https://wiki.ubuntu.com/X/Config/Resolution">xrandr</a>之类的，但是执行<code>xrandr</code>的时候老是报错，搜了下，貌似是一个bug。不管了，重装一下吧。</p>
+<p>首先在MacBook下用<code>Disk Utility</code>分区，Ubuntu需要一个swap分区，一个<code>/</code>分区，用U盘安装的话有这两个就够了。但是我没有U盘，就又划分了一个2G的分区，把Ubuntu的镜像写进去，这样也便于以后恢复。分区全部使用FAT32格式。</p>
+<p>分好区后就是写Ubuntu的镜像文件了，注意要从Ubuntu官方网站上面下载针对Mac特定版本的iso文件，下载下来后，校验下如果没错的话，就可以用<code>UNetbooin</code>来烧Ubuntu的镜像了，可以烧到U盘中也可以像我一样烧到一个专门的分区中。分区的编号可以通过命令<code>diskutil list</code>来查看。</p>
+<!-- more -->
+<p>然后下载<a href="http://refit.sourceforge.net/">rEFIt</a>并安装，重启，按下option键直到出现Windows启动项，选择进入，就可以看到<code>UNetbootin</code>生成的菜单了。选择<code>Install Ubuntu</code>剩下的就和平常安装Ubuntu没什么两样了。需要注意的是Ubuntu选择安装分区的时候，要把<code>bootloader</code>安装在Ubuntu将要安装的磁盘分区上，也就是在Mac下分区时创建的那个分配给<code>/</code>的那个分区。剩下的就没什么了，Ubuntu安装很快，稍等一会就可以重启了。</p>
+<p>重启后会看到有企鹅的图标，点进去，运气好的话就可以直接进Ubuntu了，但是我点进去的时候提示<code>Missing Operating System</code>，嗯，MBR貌似没有同步，没关系，重启，进Mac。安装<a href="%22http://sourceforge.net/projects/gptfdisk/%22">GPT fdisk</a>，在终端中敲入<code>sudo gdisk /dev/disk0</code>进入GPT fdisk菜单，按下<code>b</code>，会提示输入备份当前<code>mbr</code>的文件名称，输入并备份。现在需要更改<code>mbr</code>了，按下<code>r</code>再按下<code>p</code>，会打印出当前的分区信息，记住Mac和Ubuntu安装分区的编号，比如我的是2和6，现在按下<code>h</code>，会提示你输入分区编号，输入2 6回车，接下来会问是否把efi分区放在最前面，按下<code>y</code>，然后会让你输入每个分区的<code>mbr hex code</code>，mac的是AF，Windows的是07，Linux的是83，我的情况是2号分区安装mac，6号分区安装ubuntu，所以在提示输入2号分区的时候输入AF，接着提示设置boot flag时输入<code>n</code>，提示输入6号分区的时候输入83，接着提示输入设置boot flag时输入<code>n</code>，后面可能会提示发现free partition，是否使用其加密，<code>n</code>吧，如果使用加密的话启动时会卡在显示Mac和企鹅图标之前，必须按下Option键才能进入启动的选项菜单，太麻烦，还是直接否掉吧。OK，现在设置完了mbr，输入<code>w</code>保存覆盖掉旧的mbr文件。重启，选择企鹅图标，进入Ubuntu系统，Over，搞定了。</p>
+<p>接下来就是Ubuntu下的操作了。</p>
+<ul>
+<li>更换软件源，使用aliyun的镜像。</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">deb http://mirrors.aliyun.com/ubuntu/ raring main restricted
+</span></span><span class="line"><span class="cl">deb http://mirrors.aliyun.com/ubuntu/ raring-updates main restricted
+</span></span><span class="line"><span class="cl">deb http://mirrors.aliyun.com/ubuntu/ raring universe
+</span></span><span class="line"><span class="cl">deb http://mirrors.aliyun.com/ubuntu/ raring-updates universe
+</span></span><span class="line"><span class="cl">deb http://mirrors.aliyun.com/ubuntu/ raring multiverse
+</span></span><span class="line"><span class="cl">deb http://mirrors.aliyun.com/ubuntu/ raring-updates multiverse
+</span></span><span class="line"><span class="cl">deb http://mirrors.aliyun.com/ubuntu/ raring-backports main restricted universe multiverse
+</span></span><span class="line"><span class="cl">deb http://mirrors.aliyun.com/ubuntu/ raring-security main restricted
+</span></span><span class="line"><span class="cl">deb http://mirrors.aliyun.com/ubuntu/ raring-security universe
+</span></span><span class="line"><span class="cl">deb http://mirrors.aliyun.com/ubuntu/ raring-security multiverse
+</span></span><span class="line"><span class="cl">deb http://archive.canonical.com/ubuntu precise partner
+</span></span><span class="line"><span class="cl">deb-src http://archive.canonical.com/ubuntu precise partner
+</span></span><span class="line"><span class="cl">deb http://cz.archive.ubuntu.com/ubuntu trusty main universe
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>添加ppa</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo add-apt-repository ppa:fcitx-team/nightly
+</span></span><span class="line"><span class="cl">sudo add-apt-repository ppa:indicator-multiload/stable-daily
+</span></span><span class="line"><span class="cl">sudo add-apt-repository ppa:ubuntu-wine/ppa
+</span></span><span class="line"><span class="cl">sudo add-apt-repository ppa:synapse-core/ppa
+</span></span><span class="line"><span class="cl">sudo add-apt-repository ppa:fossfreedom/byzanz
+</span></span><span class="line"><span class="cl">sudo add-apt-repository ppa:kilian/f.lux
+</span></span><span class="line"><span class="cl">sudo add-apt-repository ppa:xdlailai/openyoudao
+</span></span><span class="line"><span class="cl">sudo apt-get update <span class="o">&amp;&amp;</span> sudo apt-get upgrade
+</span></span><span class="line"><span class="cl">sudo apt-get install fcitx fcitx-config-gtk fcitx-sunpinyin fcitx-googlepinyin fcitx-module-cloudpinyin  fcitx-sogoupinyin fcitx-table-all indicator-multiload wine synapse byzanz fluxgui openyoudao mtp-tools mtpfs
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>安装卸载软件</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo apt-get update <span class="o">&amp;&amp;</span> sudo apt-get upgrade
+</span></span><span class="line"><span class="cl">sudo apt-get install python3-dev python3-openssl libxss1 flashplugin-installer mplayer vim git-core tig xclip zathura unrar p7zip-full  p7zip-rar zip unzip rar chmsee bleachbit preload goldendict goldendict-wordnet tcpdump mtr curl nscd ack-grep meld pngquant
+</span></span><span class="line"><span class="cl">sudo apt-get purge ibus ibus-gtk ibus-gtk3 ibus-pinyin ibus-pinyin-db-android ibus-table
+</span></span><span class="line"><span class="cl">sudo apt-get autoremove unity-lens-music unity-lens-photos unity-lens-gwibber unity-lens-shopping unity-lens-video
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>sublime_text配置文件在<code>$HOME/.config/sublime_text_3/</code></li>
+<li><a href="https://gist.github.com/flyfire/3a9edce243c45b28dadd">bashrc</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2013-11-21
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/2013/11/29/git-basic-config/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Git Basic Config</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/2012/07/27/blog-on-github/">
+            <span class="next-text nav-default">Blog on Github</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Futuretask - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="本文主要对FutureTask源码进行分析。 Java中一般通过继承Thread类或实现Runnable接口来创建线程，但是这两种方式都有个缺" /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/2019/06/28/futuretask/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Futuretask" />
+<meta property="og:description" content="本文主要对FutureTask源码进行分析。 Java中一般通过继承Thread类或实现Runnable接口来创建线程，但是这两种方式都有个缺" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/2019/06/28/futuretask/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2019-06-28T00:00:00+00:00" />
+<meta property="article:modified_time" content="2019-06-28T00:00:00+00:00" />
+<meta itemprop="name" content="Futuretask">
+<meta itemprop="description" content="本文主要对FutureTask源码进行分析。 Java中一般通过继承Thread类或实现Runnable接口来创建线程，但是这两种方式都有个缺"><meta itemprop="datePublished" content="2019-06-28T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2019-06-28T00:00:00+00:00" />
+<meta itemprop="wordCount" content="5691">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Futuretask"/>
+<meta name="twitter:description" content="本文主要对FutureTask源码进行分析。 Java中一般通过继承Thread类或实现Runnable接口来创建线程，但是这两种方式都有个缺"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Futuretask</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2019-06-28 </span>
+        <div class="post-category">
+            <a href="/categories/java/"> java </a>
+            <a href="/categories/concurrency/"> concurrency </a>
+            </div>
+          <span class="more-meta"> 约 5691 字 </span>
+          <span class="more-meta"> 预计阅读 12 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#callable接口">Callable接口</a></li>
+            <li><a href="#future接口">Future接口</a></li>
+            <li><a href="#futuretask">FutureTask</a></li>
+            <li><a href="#reference">reference</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>本文主要对FutureTask源码进行分析。</p>
+<!-- more -->
+<p>Java中一般通过继承Thread类或实现Runnable接口来创建线程，但是这两种方式都有个缺陷，就是不能在线程执行完成后获取执行的结果，因此Java1.5之后提供了<code>Callable</code>和<code>Future</code>接口，通过他们就可以在任务执行完成之后获取到任务的执行结果。</p>
+<h3 id="callable接口">Callable接口</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * A task that returns a result and may throw an exception.
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * Implementors define a single method with no arguments called
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * {@code call}.
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * &lt;p&gt;The {@code Callable} interface is similar to {@link
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * java.lang.Runnable}, in that both are designed for classes whose
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * instances are potentially executed by another thread.  A
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * {@code Runnable}, however, does not return a result and cannot
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * throw a checked exception.
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * &lt;p&gt;The {@link Executors} class contains utility methods to
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * convert from other common forms to {@code Callable} classes.
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @see Executor
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @since 1.5
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @author Doug Lea
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @param &lt;V&gt; the result type of method {@code call}
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@FunctionalInterface</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Callable</span><span class="o">&lt;</span><span class="n">V</span><span class="o">&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Computes a result, or throws an exception if unable to do so.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return computed result
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @throws Exception if unable to compute a result
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="n">V</span> <span class="nf">call</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以看到<code>Callable</code>是个泛型接口，泛型V代表返回值的类型，执行任务过程中如果有异常会抛出异常。</p>
+<h3 id="future接口">Future接口</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span><span class="lnt">133
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * A {@code Future} represents the result of an asynchronous
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * computation.  Methods are provided to check if the computation is
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * complete, to wait for its completion, and to retrieve the result of
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * the computation.  The result can only be retrieved using method
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * {@code get} when the computation has completed, blocking if
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * necessary until it is ready.  Cancellation is performed by the
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * {@code cancel} method.  Additional methods are provided to
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * determine if the task completed normally or was cancelled. Once a
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * computation has completed, the computation cannot be cancelled.
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * If you would like to use a {@code Future} for the sake
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * of cancellability but not provide a usable result, you can
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * declare types of the form {@code Future&lt;?&gt;} and
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * return {@code null} as a result of the underlying task.
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * &lt;p&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * &lt;b&gt;Sample Usage&lt;/b&gt; (Note that the following classes are all
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * made-up.)
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * &lt;pre&gt; {@code
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * interface ArchiveSearcher { String search(String target); }
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * class App {
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *   ExecutorService executor = ...
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *   ArchiveSearcher searcher = ...
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *   void showSearch(final String target)
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *       throws InterruptedException {
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *     Future&lt;String&gt; future
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *       = executor.submit(new Callable&lt;String&gt;() {
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *         public String call() {
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *             return searcher.search(target);
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *         }});
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *     displayOtherThings(); // do other things while searching
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *     try {
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *       displayText(future.get()); // use future
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *     } catch (ExecutionException ex) { cleanup(); return; }
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *   }
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * }}&lt;/pre&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * The {@link FutureTask} class is an implementation of {@code Future} that
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * implements {@code Runnable}, and so may be executed by an {@code Executor}.
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * For example, the above construction with {@code submit} could be replaced by:
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * &lt;pre&gt; {@code
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * FutureTask&lt;String&gt; future =
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *   new FutureTask&lt;&gt;(new Callable&lt;String&gt;() {
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *     public String call() {
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *       return searcher.search(target);
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *   }});
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * executor.execute(future);}&lt;/pre&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * &lt;p&gt;Memory consistency effects: Actions taken by the asynchronous computation
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * &lt;a href=&#34;package-summary.html#MemoryVisibility&#34;&gt; &lt;i&gt;happen-before&lt;/i&gt;&lt;/a&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * actions following the corresponding {@code Future.get()} in another thread.
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @see FutureTask
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @see Executor
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @since 1.5
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @author Doug Lea
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @param &lt;V&gt; The result type returned by this Future&#39;s {@code get} method
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Future</span><span class="o">&lt;</span><span class="n">V</span><span class="o">&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Attempts to cancel execution of this task.  This attempt will
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * fail if the task has already completed, has already been cancelled,
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * or could not be cancelled for some other reason. If successful,
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * and this task has not started when {@code cancel} is called,
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * this task should never run.  If the task has already started,
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * then the {@code mayInterruptIfRunning} parameter determines
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * whether the thread executing this task should be interrupted in
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * an attempt to stop the task.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;p&gt;After this method returns, subsequent calls to {@link #isDone} will
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * always return {@code true}.  Subsequent calls to {@link #isCancelled}
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * will always return {@code true} if this method returned {@code true}.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param mayInterruptIfRunning {@code true} if the thread executing this
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * task should be interrupted; otherwise, in-progress tasks are allowed
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * to complete
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return {@code false} if the task could not be cancelled,
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * typically because it has already completed normally;
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * {@code true} otherwise
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">boolean</span> <span class="nf">cancel</span><span class="o">(</span><span class="kt">boolean</span> <span class="n">mayInterruptIfRunning</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Returns {@code true} if this task was cancelled before it completed
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * normally.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return {@code true} if this task was cancelled before it completed
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">boolean</span> <span class="nf">isCancelled</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Returns {@code true} if this task completed.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Completion may be due to normal termination, an exception, or
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * cancellation -- in all of these cases, this method will return
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * {@code true}.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return {@code true} if this task completed
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">boolean</span> <span class="nf">isDone</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Waits if necessary for the computation to complete, and then
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * retrieves its result.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return the computed result
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @throws CancellationException if the computation was cancelled
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @throws ExecutionException if the computation threw an
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * exception
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @throws InterruptedException if the current thread was interrupted
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * while waiting
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="n">V</span> <span class="nf">get</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">InterruptedException</span><span class="o">,</span> <span class="n">ExecutionException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Waits if necessary for at most the given time for the computation
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * to complete, and then retrieves its result, if available.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param timeout the maximum time to wait
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param unit the time unit of the timeout argument
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return the computed result
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @throws CancellationException if the computation was cancelled
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @throws ExecutionException if the computation threw an
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * exception
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @throws InterruptedException if the current thread was interrupted
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * while waiting
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @throws TimeoutException if the wait timed out
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="n">V</span> <span class="nf">get</span><span class="o">(</span><span class="kt">long</span> <span class="n">timeout</span><span class="o">,</span> <span class="n">TimeUnit</span> <span class="n">unit</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">throws</span> <span class="n">InterruptedException</span><span class="o">,</span> <span class="n">ExecutionException</span><span class="o">,</span> <span class="n">TimeoutException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>Future</code>代表任务异步执行的结果，通过<code>Future</code>接口可以查询任务执行的状态，取消任务执行，获取任务执行的结果。</p>
+<ul>
+<li>cancel方法尝试去取消任务的执行，如果任务已经完成，或者已经取消，或者由于其他原因无法被取消，cancel方法将返回false。如果cancel调用的时候，任务还没开始执行，任务将不被执行，cancel返回true。如果cancel调用的时候，任务已经开始执行，<code>mayInterruptIfRunning</code>决定执行任务的线程是否应该被中断来执行任务的执行。cancel方法调用返回true后，后续的<code>isDone</code>方法总是返回true，后续的<code>isCancelled</code>方法总是返回true。</li>
+<li>如果在任务完成之前被取消了，<code>isCancelled</code>方法会返回true。</li>
+<li>任务完成后，<code>isDone</code>方法会返回true。无论是正常的结束，抛出异常结束，被取消，<code>isDone</code>都会返回true。</li>
+<li>get方法会等待任务执行结束来获取任务执行的结果，如果任务已经执行结束，直接返回结果。可能抛出<code>CancellationException</code>如果任务被取消，<code>ExecutionException</code>如果任务执行过程中抛出了异常，<code>InterruptedException</code>如果当前线程在等待执行任务的线程的执行结果的过程中被中断了。</li>
+<li>get(long,TimeUnit)会等待最多设定的时间来获取结果。可能抛出<code>CancellationException</code>如果任务被取消，<code>ExecutionException</code>如果任务执行过程中抛出了异常，<code>InterruptedException</code>如果当前线程在等待执行任务的线程的执行结果的过程中被中断了，<code>TimeoutException</code>如果等待超时了。</li>
+</ul>
+<h3 id="futuretask">FutureTask</h3>
+<p><code>Future</code>只是一个接口，<code>FutureTask</code>是<code>Future</code>的实现类。确切的说<code>FutureTask</code>实现了<code>RunnableFuture</code>接口，<code>RunnableFuture</code>接口扩展了<code>Runnable</code>和<code>Future</code>接口。</p>
+<h4 id="futuretask任务执行的状态">FutureTask任务执行的状态</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * The run state of this task, initially NEW.  The run state
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * transitions to a terminal state only in methods set,
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * setException, and cancel.  During completion, state may take on
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * transient values of COMPLETING (while outcome is being set) or
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * INTERRUPTING (only while interrupting the runner to satisfy a
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * cancel(true)). Transitions from these intermediate to final
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * states use cheaper ordered/lazy writes because values are unique
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * and cannot be further modified.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Possible state transitions:
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * NEW -&gt; COMPLETING -&gt; NORMAL
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * NEW -&gt; COMPLETING -&gt; EXCEPTIONAL
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * NEW -&gt; CANCELLED
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * NEW -&gt; INTERRUPTING -&gt; INTERRUPTED
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kd">volatile</span> <span class="kt">int</span> <span class="n">state</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">NEW</span>          <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">COMPLETING</span>   <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">NORMAL</span>       <span class="o">=</span> <span class="mi">2</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">EXCEPTIONAL</span>  <span class="o">=</span> <span class="mi">3</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">CANCELLED</span>    <span class="o">=</span> <span class="mi">4</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">INTERRUPTING</span> <span class="o">=</span> <span class="mi">5</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">INTERRUPTED</span>  <span class="o">=</span> <span class="mi">6</span><span class="o">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以看到<code>FutureTask</code>使用<code>volatile</code>变量<code>state</code>来表示任务执行的状态，初始时是<code>NEW</code>，在<code>set</code>，<code>setException</code>和<code>cancel</code>方法中会对<code>state</code>进行赋值。可能的状态转换有<code>NEW -&gt; COMPLETING -&gt; NORMAL</code>，<code>NEW -&gt; COMPLETING -&gt; EXCEPTIONAL</code>，<code>NEW -&gt; CANCELLED</code>，<code>NEW -&gt; INTERRUPTING -&gt; INTERRUPTED</code>。</p>
+<h4 id="futuretask内部变量">FutureTask内部变量</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl">	<span class="cm">/** The underlying callable; nulled out after running */</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">Callable</span><span class="o">&lt;</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">callable</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="cm">/** The result to return or exception to throw from get() */</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">Object</span> <span class="n">outcome</span><span class="o">;</span> <span class="c1">// non-volatile, protected by state reads/writes
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="cm">/** The thread running the callable; CASed during run() */</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kd">volatile</span> <span class="n">Thread</span> <span class="n">runner</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="cm">/** Treiber stack of waiting threads */</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kd">volatile</span> <span class="n">WaitNode</span> <span class="n">waiters</span><span class="o">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>callable</code>表示将要执行的任务，<code>volatile</code>类型的变量<code>runner</code>表示执行任务的线程，<code>waiters</code>表示等待任务执行结果的线程队列。任务执行的结果用Object类型的<code>outcome</code>表示，可以看到并没有用<code>volatile</code>关键字来修饰，那不会有可见性问题吗？这个问题后面我们会提到。</p>
+<h4 id="futuretask任务执行run">FutureTask任务执行run</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(</span><span class="n">state</span> <span class="o">!=</span> <span class="n">NEW</span> <span class="o">||</span>
+</span></span><span class="line"><span class="cl">            <span class="o">!</span><span class="n">U</span><span class="o">.</span><span class="na">compareAndSwapObject</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">RUNNER</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="n">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">()))</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">Callable</span><span class="o">&lt;</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">c</span> <span class="o">=</span> <span class="n">callable</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">c</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">state</span> <span class="o">==</span> <span class="n">NEW</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">V</span> <span class="n">result</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">                <span class="kt">boolean</span> <span class="n">ran</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">                <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">result</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="na">call</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">ran</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Throwable</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">result</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">ran</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">setException</span><span class="o">(</span><span class="n">ex</span><span class="o">);</span> <span class="c1">// 任务执行抛出异常走setException
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="o">}</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="o">(</span><span class="n">ran</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">set</span><span class="o">(</span><span class="n">result</span><span class="o">);</span> <span class="c1">// 任务正常执行完成走set
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// runner must be non-null until state is settled to
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="c1">// prevent concurrent calls to run()
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">runner</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// state must be re-read after nulling runner to prevent
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="c1">// leaked interrupts
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="kt">int</span> <span class="n">s</span> <span class="o">=</span> <span class="n">state</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">s</span> <span class="o">&gt;=</span> <span class="n">INTERRUPTING</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="n">handlePossibleCancellationInterrupt</span><span class="o">(</span><span class="n">s</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>run</code>方法首先对状态进行判断，并尝试CAS替换<code>runner</code>为当前线程，如果失败，表明已经有线程在执行任务了，直接返回，否则执行任务，如果任务执行过程中抛出了异常，走<code>setException</code>分支，如果任务正常结束，走<code>set</code>分支，下面看下这两个方法。</p>
+<h4 id="futuretask的set和setexception方法">FutureTask的set和setException方法</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Sets the result of this future to the given value unless
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * this future has already been set or has been cancelled.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;p&gt;This method is invoked internally by the {@link #run} method
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * upon successful completion of the computation.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param v the value
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">set</span><span class="o">(</span><span class="n">V</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(</span><span class="n">U</span><span class="o">.</span><span class="na">compareAndSwapInt</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">STATE</span><span class="o">,</span> <span class="n">NEW</span><span class="o">,</span> <span class="n">COMPLETING</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">outcome</span> <span class="o">=</span> <span class="n">v</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">U</span><span class="o">.</span><span class="na">putOrderedInt</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">STATE</span><span class="o">,</span> <span class="n">NORMAL</span><span class="o">);</span> <span class="c1">// final state
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">finishCompletion</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Removes and signals all waiting threads, invokes done(), and
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * nulls out callable.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">finishCompletion</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// assert state &gt; COMPLETING;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">for</span> <span class="o">(</span><span class="n">WaitNode</span> <span class="n">q</span><span class="o">;</span> <span class="o">(</span><span class="n">q</span> <span class="o">=</span> <span class="n">waiters</span><span class="o">)</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">;)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">U</span><span class="o">.</span><span class="na">compareAndSwapObject</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">WAITERS</span><span class="o">,</span> <span class="n">q</span><span class="o">,</span> <span class="kc">null</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">for</span> <span class="o">(;;)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">Thread</span> <span class="n">t</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="na">thread</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">if</span> <span class="o">(</span><span class="n">t</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                        <span class="n">q</span><span class="o">.</span><span class="na">thread</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">                        <span class="n">LockSupport</span><span class="o">.</span><span class="na">unpark</span><span class="o">(</span><span class="n">t</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">WaitNode</span> <span class="n">next</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="na">next</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">if</span> <span class="o">(</span><span class="n">next</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                        <span class="k">break</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">q</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span> <span class="c1">// unlink to help gc
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                    <span class="n">q</span> <span class="o">=</span> <span class="n">next</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span>
+</span></span><span class="line"><span class="cl">                <span class="k">break</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">done</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">callable</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>        <span class="c1">// to reduce footprint
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Causes this future to report an {@link ExecutionException}
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * with the given throwable as its cause, unless this future has
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * already been set or has been cancelled.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;p&gt;This method is invoked internally by the {@link #run} method
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * upon failure of the computation.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param t the cause of failure
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">setException</span><span class="o">(</span><span class="n">Throwable</span> <span class="n">t</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(</span><span class="n">U</span><span class="o">.</span><span class="na">compareAndSwapInt</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">STATE</span><span class="o">,</span> <span class="n">NEW</span><span class="o">,</span> <span class="n">COMPLETING</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">outcome</span> <span class="o">=</span> <span class="n">t</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">U</span><span class="o">.</span><span class="na">putOrderedInt</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">STATE</span><span class="o">,</span> <span class="n">EXCEPTIONAL</span><span class="o">);</span> <span class="c1">// final state
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">finishCompletion</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以看到<code>set</code>和<code>setException</code>方法都是CAS对<code>state</code>进行赋值，并对<code>outcome</code>进行赋值，同时调用<code>finishCompletion</code>方法唤醒等待队列中的线程去获取任务执行的结果。在这里可以看到对<code>outcome</code>的写发生在对<code>volatile</code>变量<code>state</code>写之前，因此保证了<code>state</code>为<code>NORMAL</code>或<code>EXCEPTIONAL</code>时<code>outcome</code>变量的可见性。在<code>finishCompletion</code>中可以看到是对等待队列上的线程进行唤醒操作，那么这些线程是什么时候进行等待队列并阻塞的呢，接下来看<code>get</code>方法。</p>
+<h4 id="futuretask的get方法">FutureTask的get方法</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @throws CancellationException {@inheritDoc}
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">V</span> <span class="nf">get</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">InterruptedException</span><span class="o">,</span> <span class="n">ExecutionException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">int</span> <span class="n">s</span> <span class="o">=</span> <span class="n">state</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(</span><span class="n">s</span> <span class="o">&lt;=</span> <span class="n">COMPLETING</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">s</span> <span class="o">=</span> <span class="n">awaitDone</span><span class="o">(</span><span class="kc">false</span><span class="o">,</span> <span class="mi">0</span><span class="n">L</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">report</span><span class="o">(</span><span class="n">s</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @throws CancellationException {@inheritDoc}
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">V</span> <span class="nf">get</span><span class="o">(</span><span class="kt">long</span> <span class="n">timeout</span><span class="o">,</span> <span class="n">TimeUnit</span> <span class="n">unit</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">throws</span> <span class="n">InterruptedException</span><span class="o">,</span> <span class="n">ExecutionException</span><span class="o">,</span> <span class="n">TimeoutException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(</span><span class="n">unit</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">throw</span> <span class="k">new</span> <span class="n">NullPointerException</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">int</span> <span class="n">s</span> <span class="o">=</span> <span class="n">state</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(</span><span class="n">s</span> <span class="o">&lt;=</span> <span class="n">COMPLETING</span> <span class="o">&amp;&amp;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">(</span><span class="n">s</span> <span class="o">=</span> <span class="n">awaitDone</span><span class="o">(</span><span class="kc">true</span><span class="o">,</span> <span class="n">unit</span><span class="o">.</span><span class="na">toNanos</span><span class="o">(</span><span class="n">timeout</span><span class="o">)))</span> <span class="o">&lt;=</span> <span class="n">COMPLETING</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">throw</span> <span class="k">new</span> <span class="n">TimeoutException</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">report</span><span class="o">(</span><span class="n">s</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Awaits completion or aborts on interrupt or timeout.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param timed true if use timed waits
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param nanos time to wait, if timed
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return state upon completion or at timeout
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kt">int</span> <span class="nf">awaitDone</span><span class="o">(</span><span class="kt">boolean</span> <span class="n">timed</span><span class="o">,</span> <span class="kt">long</span> <span class="n">nanos</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">throws</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// The code below is very delicate, to achieve these goals:
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="c1">// - call nanoTime exactly once for each call to park
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="c1">// - if nanos &lt;= 0L, return promptly without allocation or nanoTime
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="c1">// - if nanos == Long.MIN_VALUE, don&#39;t underflow
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="c1">// - if nanos == Long.MAX_VALUE, and nanoTime is non-monotonic
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="c1">//   and we suffer a spurious wakeup, we will do no worse than
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="c1">//   to park-spin for a while
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="kt">long</span> <span class="n">startTime</span> <span class="o">=</span> <span class="mi">0</span><span class="n">L</span><span class="o">;</span>    <span class="c1">// Special value 0L means not yet parked
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">WaitNode</span> <span class="n">q</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">boolean</span> <span class="n">queued</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="o">(;;)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="kt">int</span> <span class="n">s</span> <span class="o">=</span> <span class="n">state</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">s</span> <span class="o">&gt;</span> <span class="n">COMPLETING</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="o">(</span><span class="n">q</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">q</span><span class="o">.</span><span class="na">thread</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="n">s</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">s</span> <span class="o">==</span> <span class="n">COMPLETING</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">// We may have already promised (via isDone) that we are done
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="c1">// so never return empty-handed or throw InterruptedException
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="n">Thread</span><span class="o">.</span><span class="na">yield</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">Thread</span><span class="o">.</span><span class="na">interrupted</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">removeWaiter</span><span class="o">(</span><span class="n">q</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                <span class="k">throw</span> <span class="k">new</span> <span class="n">InterruptedException</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">q</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="o">(</span><span class="n">timed</span> <span class="o">&amp;&amp;</span> <span class="n">nanos</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="n">L</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">return</span> <span class="n">s</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">                <span class="n">q</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WaitNode</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="k">else</span> <span class="k">if</span> <span class="o">(!</span><span class="n">queued</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="n">queued</span> <span class="o">=</span> <span class="n">U</span><span class="o">.</span><span class="na">compareAndSwapObject</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">WAITERS</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">                                                <span class="n">q</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="n">waiters</span><span class="o">,</span> <span class="n">q</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">timed</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="kd">final</span> <span class="kt">long</span> <span class="n">parkNanos</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="o">(</span><span class="n">startTime</span> <span class="o">==</span> <span class="mi">0</span><span class="n">L</span><span class="o">)</span> <span class="o">{</span> <span class="c1">// first time
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                    <span class="n">startTime</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">nanoTime</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">if</span> <span class="o">(</span><span class="n">startTime</span> <span class="o">==</span> <span class="mi">0</span><span class="n">L</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                        <span class="n">startTime</span> <span class="o">=</span> <span class="mi">1L</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">parkNanos</span> <span class="o">=</span> <span class="n">nanos</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="kt">long</span> <span class="n">elapsed</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">nanoTime</span><span class="o">()</span> <span class="o">-</span> <span class="n">startTime</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">if</span> <span class="o">(</span><span class="n">elapsed</span> <span class="o">&gt;=</span> <span class="n">nanos</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                        <span class="n">removeWaiter</span><span class="o">(</span><span class="n">q</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                        <span class="k">return</span> <span class="n">state</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">                    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">parkNanos</span> <span class="o">=</span> <span class="n">nanos</span> <span class="o">-</span> <span class="n">elapsed</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">// nanoTime may be slow; recheck before parking
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="k">if</span> <span class="o">(</span><span class="n">state</span> <span class="o">&lt;</span> <span class="n">COMPLETING</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">LockSupport</span><span class="o">.</span><span class="na">parkNanos</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">parkNanos</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="k">else</span>
+</span></span><span class="line"><span class="cl">                <span class="n">LockSupport</span><span class="o">.</span><span class="na">park</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Returns result or throws exception for completed task.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param s completed state value
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">&#34;unchecked&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">V</span> <span class="nf">report</span><span class="o">(</span><span class="kt">int</span> <span class="n">s</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">ExecutionException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Object</span> <span class="n">x</span> <span class="o">=</span> <span class="n">outcome</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(</span><span class="n">s</span> <span class="o">==</span> <span class="n">NORMAL</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="o">(</span><span class="n">V</span><span class="o">)</span><span class="n">x</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(</span><span class="n">s</span> <span class="o">&gt;=</span> <span class="n">CANCELLED</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">throw</span> <span class="k">new</span> <span class="n">CancellationException</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">throw</span> <span class="k">new</span> <span class="n">ExecutionException</span><span class="o">((</span><span class="n">Throwable</span><span class="o">)</span><span class="n">x</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以看到<code>get</code>的两个方法都是调用了<code>awaitDone</code>方法，下面重点看下<code>awaitDone</code>方法。</p>
+<p><code>awaitDone</code>方法里面有个for死循环，退出循环的只有<code>state &gt; COMPLETING</code>时<code>return state</code>，或者是在<code>Thread.interrupted()</code>返回true表示线程被中断时将线程从等待队列中移除并抛出<code>InterruptedException</code>。</p>
+<p>进入for循环的时候如果任务的状态已经完成或者任务执行的时候抛出了异常，也即<code>state &gt; COMPLETING</code>时，直接返回<code>state</code>，在<code>set</code>或者<code>setException</code>中会根据<code>state</code>进行<code>report</code>调用返回不同的状态。</p>
+<p>在for循环中如果当前线程被中断，则将当前线程从等待队列中移除并抛出<code>InterruptedException</code>异常。</p>
+<p>如果任务的状态<code>state &lt; COMPLETING</code>也即任务正在执行，当前线程也没有被中断，第一次进入for循环的时候会进入<code>q == null</code>分支，创建<code>WaitNode</code>节点。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Simple linked list nodes to record waiting threads in a Treiber
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * stack.  See other classes such as Phaser and SynchronousQueue
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * for more detailed explanation.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">static</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">WaitNode</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">volatile</span> <span class="n">Thread</span> <span class="n">thread</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">volatile</span> <span class="n">WaitNode</span> <span class="n">next</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">WaitNode</span><span class="o">()</span> <span class="o">{</span> <span class="n">thread</span> <span class="o">=</span> <span class="n">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">();</span> <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>下次再进入for循环会进入<code>!queued</code>分支，尝试将刚创建的<code>WaitNode</code>节点的next指针指向<code>FutureTask</code>的<code>waiters</code>，并CAS替换<code>FutureTask</code>的<code>waiters</code>为刚创建的<code>WaitNode</code>节点，如果CAS失败，说明有其他线程也在进行CAS替换<code>FutureTask</code>的<code>waiters</code>的操作，并且成功了，下次再进for循环继续进行这个CAS操作，直到返回true，<code>queued</code>为true为止。到此，线程进入到了等待队列中，下次再进入for循环会根据是否<code>timed</code>来进行<code>LockSupport.parkNanos</code>或<code>LockSupport.park</code>阻塞线程操作，等待其他线程<code>unpark</code>来唤醒当前线程。那什么时候唤醒呢，其实在分析<code>run</code>方法的时候我们已经看到了在执行完后会进行<code>finishCompletion</code>操作，在<code>finishCompletion</code>方法中会唤醒等待队列中的线程。</p>
+<h4 id="futuretask的cancel方法">FutureTask的cancel方法</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">cancel</span><span class="o">(</span><span class="kt">boolean</span> <span class="n">mayInterruptIfRunning</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(!(</span><span class="n">state</span> <span class="o">==</span> <span class="n">NEW</span> <span class="o">&amp;&amp;</span>
+</span></span><span class="line"><span class="cl">              <span class="n">U</span><span class="o">.</span><span class="na">compareAndSwapInt</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">STATE</span><span class="o">,</span> <span class="n">NEW</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">                  <span class="n">mayInterruptIfRunning</span> <span class="o">?</span> <span class="n">INTERRUPTING</span> <span class="o">:</span> <span class="n">CANCELLED</span><span class="o">)))</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">try</span> <span class="o">{</span>    <span class="c1">// in case call to interrupt throws exception
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="k">if</span> <span class="o">(</span><span class="n">mayInterruptIfRunning</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">Thread</span> <span class="n">t</span> <span class="o">=</span> <span class="n">runner</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">if</span> <span class="o">(</span><span class="n">t</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                        <span class="n">t</span><span class="o">.</span><span class="na">interrupt</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span> <span class="c1">// final state
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                    <span class="n">U</span><span class="o">.</span><span class="na">putOrderedInt</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">STATE</span><span class="o">,</span> <span class="n">INTERRUPTED</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">finishCompletion</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>如果<code>state == NEW &amp;&amp; U.compareAndSwapInt(this, STATE, NEW,mayInterruptIfRunning ? INTERRUPTING : CANCELLED)</code>返回false说明任务的<code>state</code>已经不是<code>NEW</code>了，直接返回false。否则根据<code>mayInterruptIfRunning</code>来对执行任务的线程<code>runner</code>进行中断操作。最后在<code>finally</code>块中进行了<code>finishCompletion</code>操作，来唤醒等待队列中的线程。</p>
+<h4 id="futuretask的runandreset方法">FutureTask的runAndReset方法</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Executes the computation without setting its result, and then
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * resets this future to initial state, failing to do so if the
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * computation encounters an exception or is cancelled.  This is
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * designed for use with tasks that intrinsically execute more
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * than once.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return {@code true} if successfully run and reset
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">protected</span> <span class="kt">boolean</span> <span class="nf">runAndReset</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(</span><span class="n">state</span> <span class="o">!=</span> <span class="n">NEW</span> <span class="o">||</span>
+</span></span><span class="line"><span class="cl">            <span class="o">!</span><span class="n">U</span><span class="o">.</span><span class="na">compareAndSwapObject</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">RUNNER</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="n">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">()))</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">boolean</span> <span class="n">ran</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">int</span> <span class="n">s</span> <span class="o">=</span> <span class="n">state</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">Callable</span><span class="o">&lt;</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">c</span> <span class="o">=</span> <span class="n">callable</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">c</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">s</span> <span class="o">==</span> <span class="n">NEW</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">c</span><span class="o">.</span><span class="na">call</span><span class="o">();</span> <span class="c1">// don&#39;t set result
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                    <span class="n">ran</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Throwable</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">setException</span><span class="o">(</span><span class="n">ex</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// runner must be non-null until state is settled to
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="c1">// prevent concurrent calls to run()
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">runner</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// state must be re-read after nulling runner to prevent
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="c1">// leaked interrupts
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">s</span> <span class="o">=</span> <span class="n">state</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">s</span> <span class="o">&gt;=</span> <span class="n">INTERRUPTING</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="n">handlePossibleCancellationInterrupt</span><span class="o">(</span><span class="n">s</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">ran</span> <span class="o">&amp;&amp;</span> <span class="n">s</span> <span class="o">==</span> <span class="n">NEW</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>runAndReset</code>方法相比<code>run</code>方法是在调用完<code>callable</code>的<code>call</code>方法后没有调用<code>set(result)</code>，没有对<code>state</code>任务状态进行转换，没有对<code>outcome</code>进行赋值，如果任务正常执行结束，<code>state</code>应该还是<code>NEW</code>，因此可以被重复调用。</p>
+<h4 id="futuretask的iscancelled和isdone方法">FutureTask的isCancelled和isDone方法</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isCancelled</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">state</span> <span class="o">&gt;=</span> <span class="n">CANCELLED</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isDone</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">state</span> <span class="o">!=</span> <span class="n">NEW</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>都是对<code>state</code>的判断</p>
+<h3 id="reference">reference</h3>
+<ul>
+<li><a href="https://stackoverflow.com/questions/14432400/why-outcome-object-in-futuretask-is-non-volatile">why outcome object in FutureTask is non-volatile?</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2019-06-28
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/2019/07/28/aqs/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Aqs</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/2019/05/28/thread/">
+            <span class="next-text nav-default">Thread</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

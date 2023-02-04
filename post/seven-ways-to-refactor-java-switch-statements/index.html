@@ -1,0 +1,1896 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Seven Ways to Refactor Java Switch Statements - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="最近在浏览V2ex的时候发现一个帖子很有趣，Java 代码 switch 分支过多，怎么改写比较优雅呢？，在留言里面发现一篇文章，觉得挺好，转载在这。 Is a well-known" /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/seven-ways-to-refactor-java-switch-statements/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Seven Ways to Refactor Java Switch Statements" />
+<meta property="og:description" content="最近在浏览V2ex的时候发现一个帖子很有趣，Java 代码 switch 分支过多，怎么改写比较优雅呢？，在留言里面发现一篇文章，觉得挺好，转载在这。 Is a well-known" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/seven-ways-to-refactor-java-switch-statements/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2023-02-04T21:16:50+08:00" />
+<meta property="article:modified_time" content="2023-02-04T21:16:50+08:00" />
+<meta itemprop="name" content="Seven Ways to Refactor Java Switch Statements">
+<meta itemprop="description" content="最近在浏览V2ex的时候发现一个帖子很有趣，Java 代码 switch 分支过多，怎么改写比较优雅呢？，在留言里面发现一篇文章，觉得挺好，转载在这。 Is a well-known"><meta itemprop="datePublished" content="2023-02-04T21:16:50+08:00" />
+<meta itemprop="dateModified" content="2023-02-04T21:16:50+08:00" />
+<meta itemprop="wordCount" content="3399">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Seven Ways to Refactor Java Switch Statements"/>
+<meta name="twitter:description" content="最近在浏览V2ex的时候发现一个帖子很有趣，Java 代码 switch 分支过多，怎么改写比较优雅呢？，在留言里面发现一篇文章，觉得挺好，转载在这。 Is a well-known"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Seven Ways to Refactor Java Switch Statements</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2023-02-04 </span>
+        
+          <span class="more-meta"> 约 3399 字 </span>
+          <span class="more-meta"> 预计阅读 7 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#1-implementing-the-strategy-pattern-via-java-enum">1. Implementing the Strategy Pattern via Java Enum</a>
+          <ul>
+            <li><a href="#application-name-switchtostrategyenumhttpsgithubcomanghelleonardrefactortreemasterswitchswitchtostrategyenum">Application Name: <a href="https://github.com/AnghelLeonard/Refactor/tree/master/Switch/SwitchToStrategyEnum">SwitchToStrategyEnum</a></a></li>
+            <li><a href="#rely-on-enum-type-with-constant-specific-method-implementation">Rely on Enum Type with Constant-specific Method Implementation</a></li>
+          </ul>
+        </li>
+        <li><a href="#2-implementing-the-command-pattern">2. Implementing the Command Pattern</a>
+          <ul>
+            <li><a href="#application-name-switchtocommandhttpsgithubcomanghelleonardrefactortreemasterswitchswitchtocommand">Application Name: <a href="https://github.com/AnghelLeonard/Refactor/tree/master/Switch/SwitchToCommand">SwitchToCommand</a></a></li>
+            <li><a href="#implementing-the-command-design-pattern">Implementing the Command Design Pattern</a></li>
+          </ul>
+        </li>
+        <li><a href="#3-using-the-java-8-supplier">3. Using the Java 8+ Supplier</a>
+          <ul>
+            <li><a href="#application-name-switchtosupplierhttpsgithubcomanghelleonardrefactortreemasterswitchswitchtosupplier">Application Name: <a href="https://github.com/AnghelLeonard/Refactor/tree/master/Switch/SwitchToSupplier">SwitchToSupplier</a></a></li>
+          </ul>
+        </li>
+        <li><a href="#4-defining-a-custom-functional-interface">4. Defining a Custom Functional Interface</a>
+          <ul>
+            <li><a href="#application-name-switchtotrifunctionhttpsgithubcomanghelleonardrefactortreemasterswitchswitchtotrifunction">Application Name: <a href="https://github.com/AnghelLeonard/Refactor/tree/master/Switch/SwitchToTriFunction">SwitchToTriFunction</a></a></li>
+            <li><a href="#implementing-the-trifunction-functional-interface">Implementing the TriFunction Functional Interface</a></li>
+          </ul>
+        </li>
+        <li><a href="#5-relying-on-abstract-factory">5. Relying on Abstract Factory</a>
+          <ul>
+            <li><a href="#application-name-switchtoabstractfactoryhttpsgithubcomanghelleonardrefactortreemasterswitchswitchtoabstractfactory-switchtopolymorphismhttpsgithubcomanghelleonardrefactortreemasterswitchswitchtopolymorphism">Application Name: <a href="https://github.com/AnghelLeonard/Refactor/tree/master/Switch/SwitchToAbstractFactory">SwitchToAbstractFactory</a>, <a href="https://github.com/AnghelLeonard/Refactor/tree/master/Switch/SwitchToPolymorphism">SwitchToPolymorphism</a></a></li>
+            <li><a href="#implementing-the-abstract-factory-pattern">Implementing the Abstract Factory Pattern</a></li>
+          </ul>
+        </li>
+        <li><a href="#6-implementing-a-state-pattern">6. Implementing a State Pattern</a>
+          <ul>
+            <li><a href="#application-name-switchtostatehttpsgithubcomanghelleonardrefactortreemasterswitchswitchtostate">Application Name: <a href="https://github.com/AnghelLeonard/Refactor/tree/master/Switch/SwitchToState">SwitchToState</a></a></li>
+            <li><a href="#implementing-a-state-pattern">Implementing a State Pattern</a></li>
+          </ul>
+        </li>
+        <li><a href="#implementing-via-predicate">Implementing via Predicate</a>
+          <ul>
+            <li><a href="#application-name-switchtopredicatehttpsgithubcomanghelleonardrefactortreemasterswitchswitchtopredicate">Application Name: <a href="https://github.com/AnghelLeonard/Refactor/tree/master/Switch/SwitchToPredicate">SwitchToPredicate</a></a></li>
+          </ul>
+        </li>
+        <li><a href="#summary">Summary</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>最近在浏览V2ex的时候发现一个帖子很有趣，<a href="https://www.v2ex.com/t/911506">Java 代码 switch 分支过多，怎么改写比较优雅呢？</a>，在留言里面发现一篇文章，觉得挺好，转载在这。</p>
+<p>Is a well-known fact that switch statements and SOLID principles—Single Responsibility Principle and Open-Closed Principle—are not good friends and usually we can choose better alternatives than switch. This is especially true when we deal with switch nested in large methods, interdependent switches and large switches (with many instructions under cases and/or many case branches).</p>
+<p>In this article, we will pick up some switch examples, and we will try to provide several alternatives that eliminate or hide the switch statements.</p>
+<h2 id="1-implementing-the-strategy-pattern-via-java-enum">1. Implementing the Strategy Pattern via Java Enum</h2>
+<h3 id="application-name-switchtostrategyenumhttpsgithubcomanghelleonardrefactortreemasterswitchswitchtostrategyenum">Application Name: <a href="https://github.com/AnghelLeonard/Refactor/tree/master/Switch/SwitchToStrategyEnum">SwitchToStrategyEnum</a></h3>
+<p>A typical case involves the existence of a Java enum and one (or more) switch statements based on it. Let’s suppose that we have the following simple Java enum:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">enum</span> <span class="n">PlayerTypes</span> <span class="o">{</span> <span class="n">TENNIS</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">   <span class="n">FOOTBALL</span><span class="o">,</span> <span class="n">SNOOKER</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>And, the following switch statement that is used to create different types of players:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PlayerCreator</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="n">Player</span> <span class="nf">createPlayer</span><span class="o">(</span><span class="n">PlayerTypes</span> <span class="n">playerType</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">         <span class="o">{</span> <span class="k">switch</span> <span class="o">(</span><span class="n">playerType</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">case</span> <span class="n">TENNIS</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">         <span class="k">return</span> <span class="k">new</span> <span class="n">TennisPlayer</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="k">case</span> <span class="n">FOOTBALL</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">         <span class="k">return</span> <span class="k">new</span> <span class="n">FootballPlayer</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="k">case</span> <span class="n">SNOOKER</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">         <span class="k">return</span> <span class="k">new</span> <span class="n">SnookerPlayer</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="nl">
+</span></span></span><span class="line"><span class="cl"><span class="nl">      default:</span>
+</span></span><span class="line"><span class="cl">         <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span><span class="s">&#34;Invalid player type: &#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">+</span> <span class="n">playerType</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Creating a tennis player, PlayerTypes.TENNIS:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">PlayerCreator</span> <span class="n">playerCreator</span> <span class="o">=</span> <span class="k">new</span> <span class="n">PlayerCreator</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="n">Player</span> <span class="n">tennisPlayer</span> <span class="o">=</span>
+</span></span><span class="line"><span class="cl">   <span class="n">playerCreator</span><span class="o">.</span><span class="na">createPlayer</span><span class="o">(</span><span class="n">PlayerTypes</span><span class="o">.</span><span class="na">TENNIS</span><span class="o">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="rely-on-enum-type-with-constant-specific-method-implementation">Rely on Enum Type with Constant-specific Method Implementation</h3>
+<p>But, there is a better way to link a behavior with each enum constant. This way is known as “enum type with constant-specific method implementation,” and it is described in Effective Java, 2nd Edition, by Joshua Bloch. Following the idea, we can enrich our PlayerTypes with an abstract method, and for each value, we provide an implementation, as follows:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">enum</span> <span class="n">PlayerTypes</span> <span class="o">{</span> <span class="n">TENNIS</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">   <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="n">Player</span> <span class="nf">createPlayer</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="k">new</span> <span class="n">TennisPlayer</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">},</span>
+</span></span><span class="line"><span class="cl"><span class="n">FOOTBALL</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">   <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="n">Player</span> <span class="nf">createPlayer</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="k">new</span> <span class="n">FootballPlayer</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">},</span>
+</span></span><span class="line"><span class="cl"><span class="n">SNOOKER</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">   <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">      <span class="kd">public</span> <span class="n">Player</span> <span class="nf">createPlayer</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">         <span class="k">return</span> <span class="k">new</span> <span class="n">SnookerPlayer</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">   <span class="o">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">Player</span> <span class="nf">createPlayer</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Creating a football player, PlayerTypes.FOOTBALL:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Player</span> <span class="n">footballPlayer</span> <span class="o">=</span>
+</span></span><span class="line"><span class="cl">   <span class="n">PlayerTypes</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="s">&#34;FOOTBALL&#34;</span><span class="o">).</span><span class="na">createPlayer</span><span class="o">();</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="2-implementing-the-command-pattern">2. Implementing the Command Pattern</h2>
+<h3 id="application-name-switchtocommandhttpsgithubcomanghelleonardrefactortreemasterswitchswitchtocommand">Application Name: <a href="https://github.com/AnghelLeonard/Refactor/tree/master/Switch/SwitchToCommand">SwitchToCommand</a></h3>
+<p>This time, let’s write the same switch logic, but based on a string value. In Java 7+, we can use a String object in the expression of a switch statement. After all, most Java compilers will generate more efficient bytecode for this implementation than for an if-else-if chain. Well, this is not so bad 🙂 But, a switch is still involved, and the drawbacks remain the same.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PlayerCreator</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="n">Player</span> <span class="nf">createPlayer</span><span class="o">(</span><span class="n">String</span> <span class="n">playerType</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">switch</span> <span class="o">(</span><span class="n">playerType</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">         <span class="k">case</span> <span class="s">&#34;TENNIS&#34;</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="k">new</span> <span class="n">TennisPlayer</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">         <span class="k">case</span> <span class="s">&#34;FOOTBALL&#34;</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="k">new</span> <span class="n">FootballPlayer</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">         <span class="k">case</span> <span class="s">&#34;SNOOKER&#34;</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="k">new</span> <span class="n">SnookerPlayer</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="nl">
+</span></span></span><span class="line"><span class="cl"><span class="nl">         default:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span>
+</span></span><span class="line"><span class="cl">               <span class="o">(</span><span class="s">&#34;Invalid player type: &#34;</span> <span class="o">+</span> <span class="n">playerType</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Creating a tennis player, &ldquo;TENNIS&rdquo;:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">PlayerCreator</span> <span class="n">playerCreator</span> <span class="o">=</span> <span class="k">new</span> <span class="n">PlayerCreator</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="n">Player</span> <span class="n">tennisPlayer</span> <span class="o">=</span> <span class="n">playerCreator</span><span class="o">.</span><span class="na">createPlayer</span><span class="o">(</span><span class="s">&#34;TENNIS&#34;</span><span class="o">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="implementing-the-command-design-pattern">Implementing the Command Design Pattern</h3>
+<p>Alternatively, we can rely on the “Command” design pattern. We can shape this design pattern in two steps. First, we define an interface:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Command</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="n">Player</span> <span class="nf">create</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Second, we provide implementations of this interface for each player type:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CreatePlayerCommand</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Command</span><span class="o">&gt;</span> <span class="n">PLAYERS</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">static</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="kd">final</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Command</span><span class="o">&gt;</span> <span class="n">players</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;&gt;();</span>
+</span></span><span class="line"><span class="cl">      <span class="n">players</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;TENNIS&#34;</span><span class="o">,</span> <span class="k">new</span> <span class="n">Command</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">         <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">         <span class="kd">public</span> <span class="n">Player</span> <span class="nf">create</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="k">new</span> <span class="n">TennisPlayer</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">         <span class="o">}</span>
+</span></span><span class="line"><span class="cl">      <span class="o">});</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="n">players</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;FOOTBALL&#34;</span><span class="o">,</span> <span class="k">new</span> <span class="n">Command</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">         <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">         <span class="kd">public</span> <span class="n">Player</span> <span class="nf">create</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="k">new</span> <span class="n">FootballPlayer</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">         <span class="o">}</span>
+</span></span><span class="line"><span class="cl">      <span class="o">});</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="n">players</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;SNOOKER&#34;</span><span class="o">,</span> <span class="k">new</span> <span class="n">Command</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">         <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">         <span class="kd">public</span> <span class="n">Player</span> <span class="nf">create</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="k">new</span> <span class="n">SnookerPlayer</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">         <span class="o">}</span>
+</span></span><span class="line"><span class="cl">      <span class="o">});</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="n">PLAYERS</span> <span class="o">=</span> <span class="n">Collections</span><span class="o">.</span><span class="na">unmodifiableMap</span><span class="o">(</span><span class="n">players</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="n">Player</span> <span class="nf">createPlayer</span><span class="o">(</span><span class="n">String</span> <span class="n">playerType</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">Command</span> <span class="n">command</span> <span class="o">=</span> <span class="n">PLAYERS</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">playerType</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="o">(</span><span class="n">command</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">         <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span><span class="s">&#34;Invalid player type: &#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">+</span> <span class="n">playerType</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">command</span><span class="o">.</span><span class="na">create</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Creating a snooker player:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">CreatePlayerCommand</span> <span class="n">createCommand</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CreatePlayerCommand</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="n">Player</span> <span class="n">snookerPlayer</span> <span class="o">=</span> <span class="n">createCommand</span><span class="o">.</span><span class="na">createPlayer</span><span class="o">(</span><span class="s">&#34;SNOOKER&#34;</span><span class="o">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="3-using-the-java-8-supplier">3. Using the Java 8+ Supplier</h2>
+<h3 id="application-name-switchtosupplierhttpsgithubcomanghelleonardrefactortreemasterswitchswitchtosupplier">Application Name: <a href="https://github.com/AnghelLeonard/Refactor/tree/master/Switch/SwitchToSupplier">SwitchToSupplier</a></h3>
+<p>Transforming a switch statement into a Map is a common approach. The idea is to place each case as a value in the Map and use the case‘s condition as a key. Starting with Java 8+, we can take advantage of a Supplier and constructor reference as well. So, let’s create a Map containing references to constructors using their names and the keyword new:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PlayerSupplier</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Supplier</span><span class="o">&lt;</span><span class="n">Player</span><span class="o">&gt;&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="n">PLAYER_SUPPLIER</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">static</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="kd">final</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Supplier</span><span class="o">&lt;</span><span class="n">Player</span><span class="o">&gt;&gt;</span>
+</span></span><span class="line"><span class="cl">         <span class="n">players</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;&gt;();</span>
+</span></span><span class="line"><span class="cl">      <span class="n">players</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;TENNIS&#34;</span><span class="o">,</span> <span class="n">TennisPlayer</span><span class="o">::</span><span class="k">new</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">players</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;FOOTBALL&#34;</span><span class="o">,</span> <span class="n">FootballPlayer</span><span class="o">::</span><span class="k">new</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">players</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;SNOOKER&#34;</span><span class="o">,</span> <span class="n">SnookerPlayer</span><span class="o">::</span><span class="k">new</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="n">PLAYER_SUPPLIER</span> <span class="o">=</span> <span class="n">Collections</span><span class="o">.</span><span class="na">unmodifiableMap</span><span class="o">(</span><span class="n">players</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="n">Player</span> <span class="nf">supplyPlayer</span><span class="o">(</span><span class="n">String</span> <span class="n">playerType</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">Supplier</span><span class="o">&lt;</span><span class="n">Player</span><span class="o">&gt;</span> <span class="n">player</span> <span class="o">=</span> <span class="n">PLAYER_SUPPLIER</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">playerType</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="o">(</span><span class="n">player</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">         <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span><span class="s">&#34;Invalid player type: &#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">+</span> <span class="n">playerType</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">player</span><span class="o">.</span><span class="na">get</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Creating a snooker player:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">PlayerSupplier</span> <span class="n">playerSupplier</span> <span class="o">=</span> <span class="k">new</span> <span class="n">PlayerSupplier</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="n">Player</span> <span class="n">snookerPlayer</span> <span class="o">=</span> <span class="n">playerSupplier</span><span class="o">.</span><span class="na">supplyPlayer</span><span class="o">(</span><span class="s">&#34;SNOOKER&#34;</span><span class="o">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="4-defining-a-custom-functional-interface">4. Defining a Custom Functional Interface</h2>
+<h3 id="application-name-switchtotrifunctionhttpsgithubcomanghelleonardrefactortreemasterswitchswitchtotrifunction">Application Name: <a href="https://github.com/AnghelLeonard/Refactor/tree/master/Switch/SwitchToTriFunction">SwitchToTriFunction</a></h3>
+<p>An implementation almost similar with the one from Point 3 can be used for cases as shown next:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">ComputeTennisPlayerStatistics</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">private</span> <span class="nf">ComputeTennisPlayerStatistics</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">throw</span> <span class="k">new</span> <span class="n">AssertionError</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">computeTrend</span><span class="o">(</span><span class="n">TennisPlayer</span> <span class="n">tennisPlayer</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">         <span class="n">Period</span> <span class="n">period</span><span class="o">,</span> <span class="n">String</span> <span class="n">owner</span><span class="o">,</span> <span class="n">String</span> <span class="n">trend</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">switch</span> <span class="o">(</span><span class="n">trend</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">         <span class="k">case</span> <span class="s">&#34;SERVE&#34;</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">Statistics</span><span class="o">.</span><span class="na">computeServeTrend</span><span class="o">(</span><span class="n">tennisPlayer</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">               <span class="n">period</span><span class="o">,</span> <span class="n">owner</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">         <span class="k">case</span> <span class="s">&#34;FOREHAND&#34;</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">Statistics</span><span class="o">.</span><span class="na">computeForehandTrend</span><span class="o">(</span><span class="n">tennisPlayer</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">               <span class="n">period</span><span class="o">,</span> <span class="n">owner</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">         <span class="k">case</span> <span class="s">&#34;BACKHAND&#34;</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">Statistics</span><span class="o">.</span><span class="na">computeBackhandTrend</span><span class="o">(</span><span class="n">tennisPlayer</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">               <span class="n">period</span><span class="o">,</span> <span class="n">owner</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="nl">
+</span></span></span><span class="line"><span class="cl"><span class="nl">         default:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span>
+</span></span><span class="line"><span class="cl">               <span class="o">(</span><span class="s">&#34;Invalid trend attribute: &#34;</span> <span class="o">+</span> <span class="n">trend</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Getting the SERVE trend (we use dummy arguments, because they are not relevant):</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">String</span> <span class="n">serveTrend</span> <span class="o">=</span> <span class="n">ComputeTennisPlayerStatistics</span><span class="o">.</span>
+</span></span><span class="line"><span class="cl"><span class="nf">computeTrend</span><span class="o">(</span><span class="k">new</span> <span class="n">TennisPlayer</span><span class="o">(),</span> <span class="n">Period</span><span class="o">.</span><span class="na">ZERO</span><span class="o">,</span> <span class="s">&#34;TENNIS MAGAZINE&#34;</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">   <span class="s">&#34;SERVE&#34;</span><span class="o">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="implementing-the-trifunction-functional-interface">Implementing the TriFunction Functional Interface</h3>
+<p>This time, each case invokes a static method that receives three arguments and returns a String. In such cases, a Supplier is not helpful. Because we have more than two arguments, we cannot rely on BiFunction either. An approach here will consist in defining our own functional interface and, afterward, use a Map as we did earlier.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@FunctionalInterface</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">TriFunction</span><span class="o">&lt;</span><span class="n">T</span><span class="o">,</span> <span class="n">U</span><span class="o">,</span> <span class="n">V</span><span class="o">,</span> <span class="n">R</span><span class="o">&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="n">R</span> <span class="nf">apply</span><span class="o">(</span><span class="n">T</span> <span class="n">t</span><span class="o">,</span> <span class="n">U</span> <span class="n">u</span><span class="o">,</span> <span class="n">V</span> <span class="n">v</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">FunctionalStatistics</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">private</span> <span class="nf">FunctionalStatistics</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">throw</span> <span class="k">new</span> <span class="n">AssertionError</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">TriFunction</span><span class="o">&lt;</span><span class="n">TennisPlayer</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">         <span class="n">Period</span><span class="o">,</span> <span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="n">STATISTICS</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;&gt;();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">static</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">STATISTICS</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;SERVE&#34;</span><span class="o">,</span> <span class="n">Statistics</span><span class="o">::</span><span class="n">computeServeTrend</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">STATISTICS</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;FOREHAND&#34;</span><span class="o">,</span> <span class="n">Statistics</span><span class="o">::</span><span class="n">computeForehandTrend</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">STATISTICS</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;BACKHAND&#34;</span><span class="o">,</span> <span class="n">Statistics</span><span class="o">::</span><span class="n">computeBackhandTrend</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">computeTrend</span><span class="o">(</span><span class="n">TennisPlayer</span> <span class="n">tennisPlayer</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">      <span class="n">Period</span> <span class="n">period</span><span class="o">,</span> <span class="n">String</span> <span class="n">owner</span><span class="o">,</span> <span class="n">String</span> <span class="n">trend</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">TriFunction</span><span class="o">&lt;</span><span class="n">TennisPlayer</span><span class="o">,</span> <span class="n">Period</span><span class="o">,</span> <span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">function</span> <span class="o">=</span> <span class="n">STATISTICS</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">trend</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="o">(</span><span class="n">function</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">         <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span><span class="s">&#34;Invalid trend type: &#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">+</span> <span class="n">trend</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">         <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">function</span><span class="o">.</span><span class="na">apply</span><span class="o">(</span><span class="n">tennisPlayer</span><span class="o">,</span> <span class="n">period</span><span class="o">,</span> <span class="n">owner</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Getting the FOREHAND trend (we use dummy arguments, because they are not relevant):</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">String</span> <span class="n">forehandTrend</span> <span class="o">=</span> <span class="n">FunctionalStatistics</span><span class="o">.</span>
+</span></span><span class="line"><span class="cl"><span class="nf">computeTrend</span><span class="o">(</span><span class="k">new</span> <span class="n">TennisPlayer</span><span class="o">(),</span> <span class="n">Period</span><span class="o">.</span><span class="na">ZERO</span><span class="o">,</span> <span class="s">&#34;SPORT TV&#34;</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">   <span class="s">&#34;FOREHAND&#34;</span><span class="o">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="5-relying-on-abstract-factory">5. Relying on Abstract Factory</h2>
+<h3 id="application-name-switchtoabstractfactoryhttpsgithubcomanghelleonardrefactortreemasterswitchswitchtoabstractfactory-switchtopolymorphismhttpsgithubcomanghelleonardrefactortreemasterswitchswitchtopolymorphism">Application Name: <a href="https://github.com/AnghelLeonard/Refactor/tree/master/Switch/SwitchToAbstractFactory">SwitchToAbstractFactory</a>, <a href="https://github.com/AnghelLeonard/Refactor/tree/master/Switch/SwitchToPolymorphism">SwitchToPolymorphism</a></h3>
+<p>In this section, let’s follow the Clean Code book by Robert C. Martin. We start with a switch that can be “hidden” via the Abstract Factory design pattern.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ClassicPlayer</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">private</span> <span class="kd">final</span> <span class="n">Type</span> <span class="n">type</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">private</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">delta</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="nf">ClassicPlayer</span><span class="o">(</span><span class="n">Type</span> <span class="n">type</span><span class="o">,</span> <span class="kt">int</span> <span class="n">delta</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">this</span><span class="o">.</span><span class="na">type</span> <span class="o">=</span> <span class="n">type</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">this</span><span class="o">.</span><span class="na">delta</span> <span class="o">=</span> <span class="n">delta</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="n">Type</span> <span class="nf">getType</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">type</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getDelta</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">delta</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Statistics</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="kt">int</span> <span class="nf">playerEndurance</span><span class="o">(</span><span class="n">ClassicPlayer</span> <span class="n">player</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="kt">int</span> <span class="n">delta</span> <span class="o">=</span> <span class="n">player</span><span class="o">.</span><span class="na">getDelta</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="k">switch</span> <span class="o">(</span><span class="n">player</span><span class="o">.</span><span class="na">getType</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">         <span class="k">case</span> <span class="n">TENNIS</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">ComputeEnduranceAlgorithm</span><span class="o">.</span><span class="na">basicEndurance</span><span class="o">(</span><span class="n">delta</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">               <span class="o">+</span> <span class="n">ComputeEnduranceAlgorithm</span><span class="o">.</span><span class="na">hardEndurance</span><span class="o">(</span><span class="n">delta</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">         <span class="k">case</span> <span class="n">FOOTBALL</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">ComputeEnduranceAlgorithm</span><span class="o">.</span><span class="na">hardEndurance</span><span class="o">(</span><span class="n">delta</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">               <span class="o">*</span> <span class="n">ComputeEnduranceAlgorithm</span><span class="o">.</span><span class="na">factorEndurance</span><span class="o">(</span><span class="n">delta</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">         <span class="k">case</span> <span class="n">SNOOKER</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">ComputeEnduranceAlgorithm</span><span class="o">.</span><span class="na">basicEndurance</span><span class="o">(</span><span class="n">delta</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="nl">
+</span></span></span><span class="line"><span class="cl"><span class="nl">         default:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span>
+</span></span><span class="line"><span class="cl">               <span class="o">(</span><span class="s">&#34;Invalid player type: &#34;</span> <span class="o">+</span> <span class="n">player</span><span class="o">.</span><span class="na">getType</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Computing endurance for a tennis player:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Statistics</span> <span class="n">statistics</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Statistics</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">ClassicPlayer</span> <span class="n">player</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ClassicPlayer</span><span class="o">(</span><span class="n">Type</span><span class="o">.</span><span class="na">TENNIS</span><span class="o">,</span> <span class="mi">54</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="n">tennisPlayerEndurance</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="na">playerEndurance</span><span class="o">(</span><span class="n">player</span><span class="o">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Well, this is a messy implementation! Imagine that you need to add another method for computing the reaction speed for a player. This will require another switch statement, or probably you’ll nest more ifs in each case and rename the above method something as playerStatistics. Each time a new method will need to be added, this code needs to be adapted accordingly.</p>
+<h3 id="implementing-the-abstract-factory-pattern">Implementing the Abstract Factory Pattern</h3>
+<p>We can re-write this code by using polymorphism and an implementation of Abstract Factory design pattern. To start, we drop the ClasssicPlayer class and create an abstract Player, as follows:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">Player</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">private</span> <span class="kd">final</span> <span class="n">Type</span> <span class="n">type</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">private</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">delta</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="nf">Player</span><span class="o">(</span><span class="n">Type</span> <span class="n">type</span><span class="o">,</span> <span class="kt">int</span> <span class="n">delta</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">this</span><span class="o">.</span><span class="na">type</span> <span class="o">=</span> <span class="n">type</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">this</span><span class="o">.</span><span class="na">delta</span> <span class="o">=</span> <span class="n">delta</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="n">Type</span> <span class="nf">getType</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">type</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getDelta</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">delta</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="kd">abstract</span> <span class="kt">int</span> <span class="nf">playerEndurance</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="c1">// More similar methods
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Now, we can implement a football, tennis, and snooker player. For example, the SnookerPlayer can be the following:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SnookerPlayer</span> <span class="kd">extends</span> <span class="n">Player</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="nf">SnookerPlayer</span><span class="o">(</span><span class="n">Type</span> <span class="n">type</span><span class="o">,</span> <span class="kt">int</span> <span class="n">delta</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="kd">super</span><span class="o">(</span><span class="n">type</span><span class="o">,</span> <span class="n">delta</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="kt">int</span> <span class="nf">playerEndurance</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">ComputeEnduranceAlgorithm</span><span class="o">.</span><span class="na">basicEndurance</span>
+</span></span><span class="line"><span class="cl">         <span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">getDelta</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Further, we define the PlayerFactory interface:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">AbstractPlayerFactory</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="n">Player</span> <span class="nf">createPlayer</span><span class="o">(</span><span class="n">Type</span> <span class="n">type</span><span class="o">,</span> <span class="kt">int</span> <span class="n">delta</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Finally, we “bury” the switch in the implementation of this interface, as follows:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PlayerFactory</span> <span class="kd">implements</span> <span class="n">AbstractPlayerFactory</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="n">Player</span> <span class="nf">createPlayer</span><span class="o">(</span><span class="n">Type</span> <span class="n">type</span><span class="o">,</span> <span class="kt">int</span> <span class="n">delta</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">switch</span> <span class="o">(</span><span class="n">type</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">         <span class="k">case</span> <span class="n">TENNIS</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="k">new</span> <span class="n">TennisPlayer</span><span class="o">(</span><span class="n">type</span><span class="o">,</span> <span class="n">delta</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">         <span class="k">case</span> <span class="n">FOOTBALL</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="k">new</span> <span class="n">FootballPlayer</span><span class="o">(</span><span class="n">type</span><span class="o">,</span> <span class="n">delta</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">         <span class="k">case</span> <span class="n">SNOOKER</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="k">new</span> <span class="n">SnookerPlayer</span><span class="o">(</span><span class="n">type</span><span class="o">,</span> <span class="n">delta</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="nl">
+</span></span></span><span class="line"><span class="cl"><span class="nl">         default:</span>
+</span></span><span class="line"><span class="cl">         <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span><span class="s">&#34;Invalid player type: &#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">+</span> <span class="n">type</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Computing endurance for a snooker player:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">PlayerFactory</span> <span class="n">playerFactory</span> <span class="o">=</span> <span class="k">new</span> <span class="n">PlayerFactory</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="n">Player</span> <span class="n">snookerPlayer</span> <span class="o">=</span> <span class="n">playerFactory</span><span class="o">.</span><span class="na">createPlayer</span><span class="o">(</span><span class="n">Type</span><span class="o">.</span><span class="na">SNOOKER</span><span class="o">,</span> <span class="mi">8</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="n">snookerPlayerEndurance</span> <span class="o">=</span> <span class="n">snookerPlayer</span><span class="o">.</span><span class="na">playerEndurance</span><span class="o">();</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Or, we can instantiate the right Player class directly, and drop the switch:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">SnookerPlayer</span> <span class="n">snookerPlayer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SnookerPlayer</span><span class="o">(</span><span class="mi">7</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="n">snookerPlayerEndurance</span>  <span class="o">=</span> <span class="n">snookerPlayer</span><span class="o">.</span><span class="na">playerEndurance</span><span class="o">();</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="6-implementing-a-state-pattern">6. Implementing a State Pattern</h2>
+<h3 id="application-name-switchtostatehttpsgithubcomanghelleonardrefactortreemasterswitchswitchtostate">Application Name: <a href="https://github.com/AnghelLeonard/Refactor/tree/master/Switch/SwitchToState">SwitchToState</a></h3>
+<p>Let’s suppose that we have the following two interdependent switches:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ClassicPlayer</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">private</span> <span class="kt">int</span> <span class="n">state</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="kt">void</span> <span class="nf">register</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">switch</span> <span class="o">(</span><span class="n">state</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">         <span class="k">case</span> <span class="mi">0</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">         <span class="n">state</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Registering ...&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">         <span class="k">break</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">default</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">         <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Aready Registered ...&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="kt">void</span> <span class="nf">unregister</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">switch</span> <span class="o">(</span><span class="n">state</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">         <span class="k">case</span> <span class="mi">1</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">state</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Un-registering ...&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">break</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">         <span class="k">default</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Aready Unregistered ...&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>For brevity, in this example, we have only two interdependent switch structures, and we can call them as in the following example:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">ClassicPlayer</span> <span class="n">classicPlayer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ClassicPlayer</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="n">classicPlayer</span><span class="o">.</span><span class="na">register</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="n">classicPlayer</span><span class="o">.</span><span class="na">unregister</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// Causes &#34;Already Unregistered ...&#34; message
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">classicPlayer</span><span class="o">.</span><span class="na">unregister</span><span class="o">();</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="implementing-a-state-pattern">Implementing a State Pattern</h3>
+<p>Further, let’s apply the State design pattern to eliminate these switch statements. We start with a simple interface meant to define a contract for our states (actions), register and unregister:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">PlayerState</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kt">void</span> <span class="nf">register</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">   <span class="kt">void</span> <span class="nf">unregister</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Next, we define a Player class that implements the PlayerState interface:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Player</span> <span class="kd">implements</span> <span class="n">PlayerState</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">private</span> <span class="n">PlayerState</span> <span class="n">registered</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">private</span> <span class="n">PlayerState</span> <span class="n">unregistered</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">private</span> <span class="n">PlayerState</span> <span class="n">state</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="nf">Player</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">this</span><span class="o">.</span><span class="na">registered</span> <span class="o">=</span> <span class="k">new</span> <span class="n">PlayerRegister</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="k">this</span><span class="o">.</span><span class="na">unregistered</span> <span class="o">=</span> <span class="k">new</span> <span class="n">PlayerUnregister</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="k">this</span><span class="o">.</span><span class="na">state</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">unregistered</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="kt">void</span> <span class="nf">register</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">state</span><span class="o">.</span><span class="na">register</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="kt">void</span> <span class="nf">unregister</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">state</span><span class="o">.</span><span class="na">unregister</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="n">PlayerState</span> <span class="nf">getRegistered</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">registered</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setRegistered</span><span class="o">(</span><span class="n">PlayerState</span> <span class="n">registered</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">this</span><span class="o">.</span><span class="na">registered</span> <span class="o">=</span> <span class="n">registered</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="n">PlayerState</span> <span class="nf">getUnregistered</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">unregistered</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setUnregistered</span><span class="o">(</span><span class="n">PlayerState</span> <span class="n">unregistered</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">this</span><span class="o">.</span><span class="na">unregistered</span> <span class="o">=</span> <span class="n">unregistered</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="n">PlayerState</span> <span class="nf">getState</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">state</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setState</span><span class="o">(</span><span class="n">PlayerState</span> <span class="n">state</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">this</span><span class="o">.</span><span class="na">state</span> <span class="o">=</span> <span class="n">state</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The PlayerRegister and PlayerUnregister code are listed below:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PlayerRegister</span> <span class="kd">implements</span> <span class="n">PlayerState</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">private</span> <span class="kd">final</span> <span class="n">Player</span> <span class="n">player</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="nf">PlayerRegister</span><span class="o">(</span><span class="n">Player</span> <span class="n">player</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">this</span><span class="o">.</span><span class="na">player</span> <span class="o">=</span> <span class="n">player</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="kt">void</span> <span class="nf">register</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Already Registered ...&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="kt">void</span> <span class="nf">unregister</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Unregistering ...&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">player</span><span class="o">.</span><span class="na">setState</span><span class="o">(</span><span class="n">player</span><span class="o">.</span><span class="na">getUnregistered</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PlayerUnregister</span> <span class="kd">implements</span> <span class="n">PlayerState</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">private</span> <span class="kd">final</span> <span class="n">Player</span> <span class="n">player</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="nf">PlayerUnregister</span><span class="o">(</span><span class="n">Player</span> <span class="n">player</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">this</span><span class="o">.</span><span class="na">player</span> <span class="o">=</span> <span class="n">player</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="kt">void</span> <span class="nf">register</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Registering ...&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">player</span><span class="o">.</span><span class="na">setState</span><span class="o">(</span><span class="n">player</span><span class="o">.</span><span class="na">getRegistered</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="kt">void</span> <span class="nf">unregister</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Already Unregistered ...&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Now, we can create a Player and “play” with the state:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Player</span> <span class="n">player</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Player</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="n">player</span><span class="o">.</span><span class="na">register</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="n">player</span><span class="o">.</span><span class="na">unregister</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// Causes an &#34;Already Unregistered ...&#34; message
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">player</span><span class="o">.</span><span class="na">unregister</span><span class="o">();</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="implementing-via-predicate">Implementing via Predicate</h2>
+<h3 id="application-name-switchtopredicatehttpsgithubcomanghelleonardrefactortreemasterswitchswitchtopredicate">Application Name: <a href="https://github.com/AnghelLeonard/Refactor/tree/master/Switch/SwitchToPredicate">SwitchToPredicate</a></h3>
+<p>In this final example, let’s suppose a switch that contains if branches in cases, as below:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PlayerCreator</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="n">Player</span> <span class="nf">createPlayer</span><span class="o">(</span><span class="n">String</span> <span class="n">playerType</span><span class="o">,</span> <span class="kt">int</span> <span class="n">rank</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">switch</span> <span class="o">(</span><span class="n">playerType</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">         <span class="k">case</span> <span class="s">&#34;TENNIS&#34;</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">               <span class="k">return</span> <span class="k">new</span> <span class="n">TennisPlayer</span><span class="o">(</span><span class="s">&#34;Rafael Nadal&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">rank</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="o">&amp;&amp;</span> <span class="n">rank</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">               <span class="k">return</span> <span class="k">new</span> <span class="n">TennisPlayer</span><span class="o">(</span><span class="s">&#34;Roger Federer&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">rank</span> <span class="o">&gt;=</span> <span class="mi">5</span> <span class="o">&amp;&amp;</span> <span class="n">rank</span> <span class="o">&lt;=</span> <span class="mi">10</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">               <span class="k">return</span> <span class="k">new</span> <span class="n">TennisPlayer</span><span class="o">(</span><span class="s">&#34;Andy Murray&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">         <span class="k">case</span> <span class="s">&#34;FOOTBALL&#34;</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span> <span class="o">||</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">2</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">               <span class="k">return</span> <span class="k">new</span> <span class="n">FootballPlayer</span><span class="o">(</span><span class="s">&#34;Lionel Messi&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">rank</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="o">&amp;&amp;</span> <span class="n">rank</span> <span class="o">&lt;=</span> <span class="mi">10</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">               <span class="k">return</span> <span class="k">new</span> <span class="n">FootballPlayer</span><span class="o">(</span><span class="s">&#34;Cristiano Ronaldo&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">         <span class="k">case</span> <span class="s">&#34;SNOOKER&#34;</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">               <span class="k">return</span> <span class="k">new</span> <span class="n">SnookerPlayer</span><span class="o">(</span><span class="s">&#34;Ronnie O&#39;Sullivan&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">2</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">               <span class="k">return</span> <span class="k">new</span> <span class="n">SnookerPlayer</span><span class="o">(</span><span class="s">&#34;Mark Selby&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">rank</span> <span class="o">&gt;</span> <span class="mi">3</span> <span class="o">&amp;&amp;</span> <span class="n">rank</span> <span class="o">&lt;</span> <span class="mi">7</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">               <span class="k">return</span> <span class="k">new</span> <span class="n">SnookerPlayer</span><span class="o">(</span><span class="s">&#34;John Higgins&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">rank</span> <span class="o">&gt;=</span> <span class="mi">7</span> <span class="o">&amp;&amp;</span> <span class="n">rank</span> <span class="o">&lt;=</span> <span class="mi">10</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">               <span class="k">return</span> <span class="k">new</span> <span class="n">SnookerPlayer</span><span class="o">(</span><span class="s">&#34;Neil Robertson&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="nl">
+</span></span></span><span class="line"><span class="cl"><span class="nl">         default:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span>
+</span></span><span class="line"><span class="cl">               <span class="o">(</span><span class="s">&#34;Invalid player type: &#34;</span> <span class="o">+</span> <span class="n">playerType</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Obtaining the output, Tennis player: Andy Murray:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">PlayerCreator</span> <span class="n">playerCreator</span> <span class="o">=</span> <span class="k">new</span> <span class="n">PlayerCreator</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="n">Player</span> <span class="n">tennisPlayer</span> <span class="o">=</span> <span class="n">playerCreator</span><span class="o">.</span><span class="na">createPlayer</span><span class="o">(</span><span class="s">&#34;TENNIS&#34;</span><span class="o">,</span> <span class="mi">5</span><span class="o">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>If we assume that the if statements can be considered Predicate<Integer>, we can reshape this in an utility class, as follows:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">PlayerSupplier</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">private</span> <span class="nf">PlayerSupplier</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">throw</span> <span class="k">new</span> <span class="n">AssertionError</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">      <span class="n">Map</span><span class="o">&lt;</span><span class="n">Predicate</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;,</span>
+</span></span><span class="line"><span class="cl">      <span class="n">Supplier</span><span class="o">&lt;</span><span class="n">Player</span><span class="o">&gt;&gt;&gt;</span> <span class="n">PLAYER_CREATOR</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">static</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="kd">final</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">Predicate</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;,</span>
+</span></span><span class="line"><span class="cl">         <span class="n">Supplier</span><span class="o">&lt;</span><span class="n">Player</span><span class="o">&gt;&gt;&gt;</span> <span class="n">playerCreator</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;&gt;();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="kd">final</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">Predicate</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;,</span>
+</span></span><span class="line"><span class="cl">         <span class="n">Supplier</span><span class="o">&lt;</span><span class="n">Player</span><span class="o">&gt;&gt;</span> <span class="n">tennisPlayers</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;&gt;();</span>
+</span></span><span class="line"><span class="cl">      <span class="n">tennisPlayers</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">rank</span> <span class="o">-&gt;</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span>
+</span></span><span class="line"><span class="cl">         <span class="k">new</span> <span class="n">TennisPlayer</span><span class="o">(</span><span class="s">&#34;Rafael Nadal&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">      <span class="n">tennisPlayers</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">rank</span> <span class="o">-&gt;</span> <span class="n">rank</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="o">&amp;&amp;</span> <span class="n">rank</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span>
+</span></span><span class="line"><span class="cl">         <span class="k">new</span> <span class="n">TennisPlayer</span><span class="o">(</span><span class="s">&#34;Roger Federer&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">      <span class="n">tennisPlayers</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">rank</span> <span class="o">-&gt;</span> <span class="n">rank</span> <span class="o">&gt;=</span> <span class="mi">5</span> <span class="o">&amp;&amp;</span> <span class="n">rank</span> <span class="o">&lt;=</span> <span class="mi">10</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span>
+</span></span><span class="line"><span class="cl">         <span class="k">new</span> <span class="n">TennisPlayer</span><span class="o">(</span><span class="s">&#34;Andy Murray&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="kd">final</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">Predicate</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;,</span> <span class="n">Supplier</span><span class="o">&lt;</span><span class="n">Player</span><span class="o">&gt;&gt;</span>
+</span></span><span class="line"><span class="cl">         <span class="n">footballPlayers</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;&gt;();</span>
+</span></span><span class="line"><span class="cl">      <span class="n">footballPlayers</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">rank</span> <span class="o">-&gt;</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span> <span class="o">||</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">2</span><span class="o">,()-&gt;</span>
+</span></span><span class="line"><span class="cl">         <span class="k">new</span> <span class="n">TennisPlayer</span><span class="o">(</span><span class="s">&#34;Lionel Messsi&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">      <span class="n">footballPlayers</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">rank</span> <span class="o">-&gt;</span> <span class="n">rank</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="o">&amp;&amp;</span> <span class="n">rank</span> <span class="o">&lt;=</span> <span class="mi">10</span><span class="o">,()-&gt;</span>
+</span></span><span class="line"><span class="cl">         <span class="k">new</span> <span class="n">TennisPlayer</span><span class="o">(</span><span class="s">&#34;Cristiano Ronaldo&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="kd">final</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">Predicate</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;,</span> <span class="n">Supplier</span><span class="o">&lt;</span><span class="n">Player</span><span class="o">&gt;&gt;</span>
+</span></span><span class="line"><span class="cl">         <span class="n">snookerPlayers</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;&gt;();</span>
+</span></span><span class="line"><span class="cl">      <span class="n">snookerPlayers</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">rank</span> <span class="o">-&gt;</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span>
+</span></span><span class="line"><span class="cl">         <span class="k">new</span> <span class="n">TennisPlayer</span><span class="o">(</span><span class="s">&#34;Ronnie O&#39;Sullivan&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">      <span class="n">snookerPlayers</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">rank</span> <span class="o">-&gt;</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">2</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span>
+</span></span><span class="line"><span class="cl">         <span class="k">new</span> <span class="n">TennisPlayer</span><span class="o">(</span><span class="s">&#34;Mark Selby&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">      <span class="n">snookerPlayers</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">rank</span> <span class="o">-&gt;</span> <span class="n">rank</span> <span class="o">&gt;</span> <span class="mi">3</span> <span class="o">&amp;&amp;</span> <span class="n">rank</span> <span class="o">&lt;</span> <span class="mi">7</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span>
+</span></span><span class="line"><span class="cl">         <span class="k">new</span> <span class="n">TennisPlayer</span><span class="o">(</span><span class="s">&#34;John Higgins&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">      <span class="n">snookerPlayers</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">rank</span> <span class="o">-&gt;</span> <span class="n">rank</span> <span class="o">&gt;=</span> <span class="mi">7</span> <span class="o">&amp;&amp;</span> <span class="n">rank</span> <span class="o">&lt;=</span> <span class="mi">10</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span>
+</span></span><span class="line"><span class="cl">         <span class="k">new</span> <span class="n">TennisPlayer</span><span class="o">(</span><span class="s">&#34;Neil Robertson&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="n">playerCreator</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;TENNIS&#34;</span><span class="o">,</span> <span class="n">tennisPlayers</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">playerCreator</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;FOOTBALL&#34;</span><span class="o">,</span> <span class="n">footballPlayers</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">playerCreator</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;SNOOKER&#34;</span><span class="o">,</span> <span class="n">snookerPlayers</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="n">PLAYER_CREATOR</span> <span class="o">=</span> <span class="n">Collections</span><span class="o">.</span><span class="na">unmodifiableMap</span><span class="o">(</span><span class="n">playerCreator</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Player</span> <span class="nf">supplyPlayer</span><span class="o">(</span><span class="n">String</span> <span class="n">playerType</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">         <span class="kt">int</span> <span class="n">rank</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="o">(</span><span class="n">rank</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="o">||</span> <span class="n">rank</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">         <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span><span class="s">&#34;Invalid rank: &#34;</span> <span class="o">+</span>
+</span></span><span class="line"><span class="cl">            <span class="n">rank</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="o">(!</span><span class="n">PLAYER_CREATOR</span><span class="o">.</span><span class="na">containsKey</span><span class="o">(</span><span class="n">playerType</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">         <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span><span class="s">&#34;Invalid player type: &#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">+</span> <span class="n">playerType</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="n">Map</span><span class="o">&lt;</span><span class="n">Predicate</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;,</span> <span class="n">Supplier</span><span class="o">&lt;</span><span class="n">Player</span><span class="o">&gt;&gt;</span> <span class="n">players</span> <span class="o">=</span>
+</span></span><span class="line"><span class="cl">         <span class="n">PLAYER_CREATOR</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">playerType</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="k">for</span> <span class="o">(</span><span class="n">Entry</span><span class="o">&lt;</span><span class="n">Predicate</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;,</span> <span class="n">Supplier</span><span class="o">&lt;</span><span class="n">Player</span><span class="o">&gt;&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">entry</span> <span class="o">:</span> <span class="n">players</span><span class="o">.</span><span class="na">entrySet</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">         <span class="k">if</span> <span class="o">(</span><span class="n">entry</span><span class="o">.</span><span class="na">getKey</span><span class="o">().</span><span class="na">test</span><span class="o">(</span><span class="n">rank</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">entry</span><span class="o">.</span><span class="na">getValue</span><span class="o">().</span><span class="na">get</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">         <span class="o">}</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalStateException</span><span class="o">(</span><span class="s">&#34;The players map is
+</span></span></span><span class="line"><span class="cl"><span class="s">         corrupted&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The usage for obtaining the Football player: Cristiano Ronaldo result:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Player</span> <span class="n">footballPlayer</span> <span class="o">=</span> <span class="n">PlayerSupplier</span><span class="o">.</span><span class="na">supplyPlayer</span><span class="o">(</span><span class="s">&#34;FOOTBALL&#34;</span><span class="o">,</span> <span class="mi">6</span><span class="o">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Another approach will consist in using an enum, as follows:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">enum</span> <span class="n">PlayerTypes</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="n">TENNIS</span><span class="o">(</span><span class="n">Collections</span><span class="o">.</span><span class="na">unmodifiableList</span><span class="o">(</span><span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">      <span class="o">()</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">TennisPlayer</span><span class="o">(</span><span class="s">&#34;Rafael Nadal&#34;</span><span class="o">),</span>
+</span></span><span class="line"><span class="cl">      <span class="o">()</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">TennisPlayer</span><span class="o">(</span><span class="s">&#34;Roger Federer&#34;</span><span class="o">),</span>
+</span></span><span class="line"><span class="cl">      <span class="o">()</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">TennisPlayer</span><span class="o">(</span><span class="s">&#34;Andy Murray&#34;</span><span class="o">))</span>
+</span></span><span class="line"><span class="cl">   <span class="o">),</span>
+</span></span><span class="line"><span class="cl">   <span class="n">Collections</span><span class="o">.</span><span class="na">unmodifiableList</span><span class="o">(</span><span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">      <span class="n">rank</span> <span class="o">-&gt;</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="o">,</span> <span class="n">rank</span> <span class="o">-&gt;</span> <span class="n">rank</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="o">&amp;&amp;</span>
+</span></span><span class="line"><span class="cl">      <span class="n">rank</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="o">,</span> <span class="n">rank</span> <span class="o">-&gt;</span> <span class="n">rank</span> <span class="o">&gt;=</span> <span class="mi">5</span> <span class="o">&amp;&amp;</span> <span class="n">rank</span> <span class="o">&lt;=</span> <span class="mi">10</span><span class="o">))</span>
+</span></span><span class="line"><span class="cl">   <span class="o">),</span>
+</span></span><span class="line"><span class="cl">   <span class="n">FOOTBALL</span><span class="o">(</span><span class="n">Collections</span><span class="o">.</span><span class="na">unmodifiableList</span><span class="o">(</span><span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">      <span class="o">()</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">FootballPlayer</span><span class="o">(</span><span class="s">&#34;Lionel Messi&#34;</span><span class="o">),</span>
+</span></span><span class="line"><span class="cl">      <span class="o">()</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">FootballPlayer</span><span class="o">(</span><span class="s">&#34;Cristiano Ronaldo&#34;</span><span class="o">))</span>
+</span></span><span class="line"><span class="cl">   <span class="o">),</span>
+</span></span><span class="line"><span class="cl">   <span class="n">Collections</span><span class="o">.</span><span class="na">unmodifiableList</span><span class="o">(</span><span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">      <span class="n">rank</span> <span class="o">-&gt;</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span> <span class="o">||</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">2</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">      <span class="n">rank</span> <span class="o">-&gt;</span> <span class="n">rank</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="o">&amp;&amp;</span> <span class="n">rank</span> <span class="o">&lt;=</span> <span class="mi">10</span><span class="o">))</span>
+</span></span><span class="line"><span class="cl">   <span class="o">),</span>
+</span></span><span class="line"><span class="cl">   <span class="n">SNOOKER</span><span class="o">(</span><span class="n">Collections</span><span class="o">.</span><span class="na">unmodifiableList</span><span class="o">(</span><span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">      <span class="o">()</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">SnookerPlayer</span><span class="o">(</span><span class="s">&#34;Ronnie O&#39;Sullivan&#34;</span><span class="o">),</span>
+</span></span><span class="line"><span class="cl">      <span class="o">()</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">SnookerPlayer</span><span class="o">(</span><span class="s">&#34;Mark Selby&#34;</span><span class="o">),</span>
+</span></span><span class="line"><span class="cl">      <span class="o">()</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">SnookerPlayer</span><span class="o">(</span><span class="s">&#34;John Higgins&#34;</span><span class="o">),</span>
+</span></span><span class="line"><span class="cl">      <span class="o">()</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">SnookerPlayer</span><span class="o">(</span><span class="s">&#34;Neil Robertson&#34;</span><span class="o">))</span>
+</span></span><span class="line"><span class="cl">   <span class="o">),</span>
+</span></span><span class="line"><span class="cl">   <span class="n">Collections</span><span class="o">.</span><span class="na">unmodifiableList</span><span class="o">(</span><span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">      <span class="n">rank</span> <span class="o">-&gt;</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="o">,</span> <span class="n">rank</span> <span class="o">-&gt;</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">2</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">      <span class="n">rank</span> <span class="o">-&gt;</span> <span class="n">rank</span> <span class="o">&gt;</span> <span class="mi">3</span> <span class="o">&amp;&amp;</span> <span class="n">rank</span> <span class="o">&lt;</span> <span class="mi">7</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">      <span class="n">rank</span> <span class="o">-&gt;</span> <span class="n">rank</span> <span class="o">&gt;=</span> <span class="mi">7</span> <span class="o">&amp;&amp;</span> <span class="n">rank</span> <span class="o">&lt;=</span> <span class="mi">10</span><span class="o">))</span>
+</span></span><span class="line"><span class="cl">   <span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">private</span> <span class="kd">final</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Supplier</span><span class="o">&lt;</span><span class="n">Player</span><span class="o">&gt;&gt;</span> <span class="n">names</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">private</span> <span class="kd">final</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Predicate</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;&gt;</span> <span class="n">conditions</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">private</span> <span class="nf">PlayerTypes</span><span class="o">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Supplier</span><span class="o">&lt;</span><span class="n">Player</span><span class="o">&gt;&gt;</span> <span class="n">names</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">         <span class="n">List</span><span class="o">&lt;</span><span class="n">Predicate</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;&gt;</span> <span class="n">conditions</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">this</span><span class="o">.</span><span class="na">names</span> <span class="o">=</span> <span class="n">names</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">this</span><span class="o">.</span><span class="na">conditions</span> <span class="o">=</span> <span class="n">conditions</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Player</span> <span class="nf">supplyPlayer</span><span class="o">(</span><span class="n">String</span> <span class="n">playerType</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">         <span class="kt">int</span> <span class="n">rank</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="o">(</span><span class="n">rank</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="o">||</span> <span class="n">rank</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">         <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span><span class="s">&#34;Invalid rank: &#34;</span> <span class="o">+</span>
+</span></span><span class="line"><span class="cl">            <span class="n">rank</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="n">List</span><span class="o">&lt;</span><span class="n">Predicate</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;&gt;</span> <span class="n">selectors</span> <span class="o">=</span>
+</span></span><span class="line"><span class="cl">         <span class="n">PlayerTypes</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="n">playerType</span><span class="o">).</span><span class="na">conditions</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">selectors</span><span class="o">.</span><span class="na">size</span><span class="o">();</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">         <span class="k">if</span> <span class="o">(</span><span class="n">selectors</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">i</span><span class="o">).</span><span class="na">test</span><span class="o">(</span><span class="n">rank</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">PlayerTypes</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="n">playerType</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">               <span class="o">.</span><span class="na">names</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">i</span><span class="o">).</span><span class="na">get</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">         <span class="o">}</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalStateException</span><span class="o">(</span><span class="s">&#34;The enum is corrupted&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Obtaining the output, Snooker player: Neil Robertson:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Player</span> <span class="n">snookerPlayer</span> <span class="o">=</span> <span class="n">PlayerTypes</span><span class="o">.</span><span class="na">supplyPlayer</span><span class="o">(</span><span class="s">&#34;SNOOKER&#34;</span><span class="o">,</span> <span class="mi">10</span><span class="o">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="summary">Summary</h2>
+<p>In this article, you saw seven ways to deal with switch structures, as follows:</p>
+<ul>
+<li>Implementing the Strategy Pattern via Java Enum</li>
+<li>Implementing the Command Pattern</li>
+<li>Using the Java 8+ Supplier</li>
+<li>Defining a Custom Functional Interface</li>
+<li>Relying on Abstract Factory</li>
+<li>Implementing State Pattern</li>
+<li>Implementing via Predicate</li>
+</ul>
+<p>Ref:</p>
+<ul>
+<li><a href="https://juejin.cn/post/7149189951895617550">【译】重构Java switch语句的七种方法</a></li>
+<li><a href="https://www.developer.com/design/seven-ways-to-refactor-java-switch-statements/">Seven Ways to Refactor Java switch Statements</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2023-02-04
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/jvm/">
+            <span class="next-text nav-default">Jvm</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Thread - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="本文主要分析Android平台上的Thread类源码，分为Java部分和native部分。 Java部分比较简单，大致过下各个方法吧。 线程创建" /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/2019/05/28/thread/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Thread" />
+<meta property="og:description" content="本文主要分析Android平台上的Thread类源码，分为Java部分和native部分。 Java部分比较简单，大致过下各个方法吧。 线程创建" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/2019/05/28/thread/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2019-05-28T00:00:00+00:00" />
+<meta property="article:modified_time" content="2019-05-28T00:00:00+00:00" />
+<meta itemprop="name" content="Thread">
+<meta itemprop="description" content="本文主要分析Android平台上的Thread类源码，分为Java部分和native部分。 Java部分比较简单，大致过下各个方法吧。 线程创建"><meta itemprop="datePublished" content="2019-05-28T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2019-05-28T00:00:00+00:00" />
+<meta itemprop="wordCount" content="3993">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Thread"/>
+<meta name="twitter:description" content="本文主要分析Android平台上的Thread类源码，分为Java部分和native部分。 Java部分比较简单，大致过下各个方法吧。 线程创建"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Thread</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2019-05-28 </span>
+        <div class="post-category">
+            <a href="/categories/java/"> java </a>
+            <a href="/categories/concurrency/"> concurrency </a>
+            </div>
+          <span class="more-meta"> 约 3993 字 </span>
+          <span class="more-meta"> 预计阅读 8 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#线程创建">线程创建</a></li>
+            <li><a href="#线程启动">线程启动</a></li>
+            <li><a href="#线程状态">线程状态</a></li>
+            <li><a href="#线程中断">线程中断</a></li>
+            <li><a href="#守护线程">守护线程</a></li>
+            <li><a href="#reference">reference</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>本文主要分析Android平台上的Thread类源码，分为Java部分和native部分。</p>
+<!-- more -->
+<p>Java部分比较简单，大致过下各个方法吧。</p>
+<h3 id="线程创建">线程创建</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Initializes a Thread.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param g the Thread group
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param target the object whose run() method gets called
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param name the name of the new Thread
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param stackSize the desired stack size for the new thread, or
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *        zero to indicate that this parameter is to be ignored.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">init</span><span class="o">(</span><span class="n">ThreadGroup</span> <span class="n">g</span><span class="o">,</span> <span class="n">Runnable</span> <span class="n">target</span><span class="o">,</span> <span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="kt">long</span> <span class="n">stackSize</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Thread</span> <span class="n">parent</span> <span class="o">=</span> <span class="n">currentThread</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(</span><span class="n">g</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">g</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="na">getThreadGroup</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">g</span><span class="o">.</span><span class="na">addUnstarted</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">group</span> <span class="o">=</span> <span class="n">g</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">target</span> <span class="o">=</span> <span class="n">target</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">priority</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="na">getPriority</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">daemon</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="na">isDaemon</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">setName</span><span class="o">(</span><span class="n">name</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">init2</span><span class="o">(</span><span class="n">parent</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="cm">/* Stash the specified stack size in case the VM cares */</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">stackSize</span> <span class="o">=</span> <span class="n">stackSize</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">tid</span> <span class="o">=</span> <span class="n">nextThreadID</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">private</span> <span class="kt">void</span> <span class="nf">init2</span><span class="o">(</span><span class="n">Thread</span> <span class="n">parent</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">contextClassLoader</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="na">getContextClassLoader</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">inheritedAccessControlContext</span> <span class="o">=</span> <span class="n">AccessController</span><span class="o">.</span><span class="na">getContext</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(</span><span class="n">parent</span><span class="o">.</span><span class="na">inheritableThreadLocals</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">this</span><span class="o">.</span><span class="na">inheritableThreadLocals</span> <span class="o">=</span> <span class="n">ThreadLocal</span><span class="o">.</span><span class="na">createInheritedMap</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">parent</span><span class="o">.</span><span class="na">inheritableThreadLocals</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>线程<code>NEW</code>出来的时候只是从创建它的线程那里继承一些属性，比如threadgroup，daemon状态，priority，stacksize，inheritableThreadLocals之类的。真正启动线程是在<code>start</code>方法里。</p>
+<h3 id="线程启动">线程启动</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Causes this thread to begin execution; the Java Virtual Machine
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * calls the &lt;code&gt;run&lt;/code&gt; method of this thread.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;p&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * The result is that two threads are running concurrently: the
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * current thread (which returns from the call to the
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;code&gt;start&lt;/code&gt; method) and the other thread (which executes its
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;code&gt;run&lt;/code&gt; method).
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;p&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * It is never legal to start a thread more than once.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * In particular, a thread may not be restarted once it has completed
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * execution.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @exception  IllegalThreadStateException  if the thread was already
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *               started.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @see        #run()
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @see        #stop()
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">synchronized</span> <span class="kt">void</span> <span class="nf">start</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * This method is not invoked for the main method thread or &#34;system&#34;
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * group threads created/set up by the VM. Any new functionality added
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * to this method in the future may have to also be added to the VM.
+</span></span></span><span class="line"><span class="cl"><span class="cm">         *
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * A zero status value corresponds to state &#34;NEW&#34;.
+</span></span></span><span class="line"><span class="cl"><span class="cm">         */</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// Android-changed: throw if &#39;started&#39; is true
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">if</span> <span class="o">(</span><span class="n">threadStatus</span> <span class="o">!=</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">started</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalThreadStateException</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="cm">/* Notify the group that this thread is about to be started
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * so that it can be added to the group&#39;s list of threads
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * and the group&#39;s unstarted count can be decremented. */</span>
+</span></span><span class="line"><span class="cl">        <span class="n">group</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">started</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">nativeCreate</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">stackSize</span><span class="o">,</span> <span class="n">daemon</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">started</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="o">(!</span><span class="n">started</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">group</span><span class="o">.</span><span class="na">threadStartFailed</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Throwable</span> <span class="n">ignore</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="cm">/* do nothing. If start0 threw a Throwable then
+</span></span></span><span class="line"><span class="cl"><span class="cm">                  it will be passed up the call stack */</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kd">native</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">nativeCreate</span><span class="o">(</span><span class="n">Thread</span> <span class="n">t</span><span class="o">,</span> <span class="kt">long</span> <span class="n">stackSize</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">daemon</span><span class="o">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="c1">// http://androidxref.com/9.0.0_r3/xref/art/runtime/thread.cc#623
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">void</span> <span class="n">Thread</span><span class="o">::</span><span class="n">CreateNativeThread</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">java_peer</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">stack_size</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">is_daemon</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">CHECK</span><span class="p">(</span><span class="n">java_peer</span> <span class="o">!=</span> <span class="k">nullptr</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Thread</span><span class="o">*</span> <span class="n">self</span> <span class="o">=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="n">JNIEnvExt</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetSelf</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">VLOG_IS_ON</span><span class="p">(</span><span class="n">threads</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ScopedObjectAccess</span> <span class="nf">soa</span><span class="p">(</span><span class="n">env</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">ArtField</span><span class="o">*</span> <span class="n">f</span> <span class="o">=</span> <span class="n">jni</span><span class="o">::</span><span class="n">DecodeArtField</span><span class="p">(</span><span class="n">WellKnownClasses</span><span class="o">::</span><span class="n">java_lang_Thread_name</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ObjPtr</span><span class="o">&lt;</span><span class="n">mirror</span><span class="o">::</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">java_name</span> <span class="o">=</span>
+</span></span><span class="line"><span class="cl">        <span class="n">f</span><span class="o">-&gt;</span><span class="n">GetObject</span><span class="p">(</span><span class="n">soa</span><span class="p">.</span><span class="n">Decode</span><span class="o">&lt;</span><span class="n">mirror</span><span class="o">::</span><span class="n">Object</span><span class="o">&gt;</span><span class="p">(</span><span class="n">java_peer</span><span class="p">))</span><span class="o">-&gt;</span><span class="n">AsString</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">thread_name</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">java_name</span> <span class="o">!=</span> <span class="k">nullptr</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">thread_name</span> <span class="o">=</span> <span class="n">java_name</span><span class="o">-&gt;</span><span class="n">ToModifiedUtf8</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">thread_name</span> <span class="o">=</span> <span class="s">&#34;(Unnamed)&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">VLOG</span><span class="p">(</span><span class="n">threads</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;Creating native thread for &#34;</span> <span class="o">&lt;&lt;</span> <span class="n">thread_name</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">self</span><span class="o">-&gt;</span><span class="n">Dump</span><span class="p">(</span><span class="n">LOG_STREAM</span><span class="p">(</span><span class="n">INFO</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">Runtime</span><span class="o">*</span> <span class="n">runtime</span> <span class="o">=</span> <span class="n">Runtime</span><span class="o">::</span><span class="n">Current</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// Atomically start the birth of the thread ensuring the runtime isn&#39;t shutting down.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">bool</span> <span class="n">thread_start_during_shutdown</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">MutexLock</span> <span class="nf">mu</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="o">*</span><span class="n">Locks</span><span class="o">::</span><span class="n">runtime_shutdown_lock_</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">runtime</span><span class="o">-&gt;</span><span class="n">IsShuttingDownLocked</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">thread_start_during_shutdown</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">runtime</span><span class="o">-&gt;</span><span class="n">StartThreadBirth</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">thread_start_during_shutdown</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ScopedLocalRef</span><span class="o">&lt;</span><span class="n">jclass</span><span class="o">&gt;</span> <span class="n">error_class</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">env</span><span class="o">-&gt;</span><span class="n">FindClass</span><span class="p">(</span><span class="s">&#34;java/lang/InternalError&#34;</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">    <span class="n">env</span><span class="o">-&gt;</span><span class="n">ThrowNew</span><span class="p">(</span><span class="n">error_class</span><span class="p">.</span><span class="n">get</span><span class="p">(),</span> <span class="s">&#34;Thread starting during runtime shutdown&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">Thread</span><span class="o">*</span> <span class="n">child_thread</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Thread</span><span class="p">(</span><span class="n">is_daemon</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// Use global JNI ref to hold peer live while child thread starts.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">child_thread</span><span class="o">-&gt;</span><span class="n">tlsPtr_</span><span class="p">.</span><span class="n">jpeer</span> <span class="o">=</span> <span class="n">env</span><span class="o">-&gt;</span><span class="n">NewGlobalRef</span><span class="p">(</span><span class="n">java_peer</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="n">stack_size</span> <span class="o">=</span> <span class="n">FixStackSize</span><span class="p">(</span><span class="n">stack_size</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// Thread.start is synchronized, so we know that nativePeer is 0, and know that we&#39;re not racing
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// to assign it.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">env</span><span class="o">-&gt;</span><span class="n">SetLongField</span><span class="p">(</span><span class="n">java_peer</span><span class="p">,</span> <span class="n">WellKnownClasses</span><span class="o">::</span><span class="n">java_lang_Thread_nativePeer</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">jlong</span><span class="o">&gt;</span><span class="p">(</span><span class="n">child_thread</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// Try to allocate a JNIEnvExt for the thread. We do this here as we might be out of memory and
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// do not have a good way to report this on the child&#39;s side.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">error_msg</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">JNIEnvExt</span><span class="o">&gt;</span> <span class="n">child_jni_env_ext</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">      <span class="n">JNIEnvExt</span><span class="o">::</span><span class="n">Create</span><span class="p">(</span><span class="n">child_thread</span><span class="p">,</span> <span class="n">Runtime</span><span class="o">::</span><span class="n">Current</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">GetJavaVM</span><span class="p">(),</span> <span class="o">&amp;</span><span class="n">error_msg</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">pthread_create_result</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">child_jni_env_ext</span><span class="p">.</span><span class="n">get</span><span class="p">()</span> <span class="o">!=</span> <span class="k">nullptr</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">pthread_t</span> <span class="n">new_pthread</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">pthread_attr_t</span> <span class="n">attr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">child_thread</span><span class="o">-&gt;</span><span class="n">tlsPtr_</span><span class="p">.</span><span class="n">tmp_jni_env</span> <span class="o">=</span> <span class="n">child_jni_env_ext</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">CHECK_PTHREAD_CALL</span><span class="p">(</span><span class="n">pthread_attr_init</span><span class="p">,</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">attr</span><span class="p">),</span> <span class="s">&#34;new thread&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">CHECK_PTHREAD_CALL</span><span class="p">(</span><span class="n">pthread_attr_setdetachstate</span><span class="p">,</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">attr</span><span class="p">,</span> <span class="n">PTHREAD_CREATE_DETACHED</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">                       <span class="s">&#34;PTHREAD_CREATE_DETACHED&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">CHECK_PTHREAD_CALL</span><span class="p">(</span><span class="n">pthread_attr_setstacksize</span><span class="p">,</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">attr</span><span class="p">,</span> <span class="n">stack_size</span><span class="p">),</span> <span class="n">stack_size</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">pthread_create_result</span> <span class="o">=</span> <span class="n">pthread_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">new_pthread</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                           <span class="o">&amp;</span><span class="n">attr</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                           <span class="n">Thread</span><span class="o">::</span><span class="n">CreateCallback</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                           <span class="n">child_thread</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">CHECK_PTHREAD_CALL</span><span class="p">(</span><span class="n">pthread_attr_destroy</span><span class="p">,</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">attr</span><span class="p">),</span> <span class="s">&#34;new thread&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">pthread_create_result</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// pthread_create started the new thread. The child is now responsible for managing the
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="c1">// JNIEnvExt we created.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="c1">// Note: we can&#39;t check for tmp_jni_env == nullptr, as that would require synchronization
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="c1">//       between the threads.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="n">child_jni_env_ext</span><span class="p">.</span><span class="n">release</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// Either JNIEnvExt::Create or pthread_create(3) failed, so clean up.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">MutexLock</span> <span class="nf">mu</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="o">*</span><span class="n">Locks</span><span class="o">::</span><span class="n">runtime_shutdown_lock_</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">runtime</span><span class="o">-&gt;</span><span class="n">EndThreadBirth</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// Manually delete the global reference since Thread::Init will not have been run.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">env</span><span class="o">-&gt;</span><span class="n">DeleteGlobalRef</span><span class="p">(</span><span class="n">child_thread</span><span class="o">-&gt;</span><span class="n">tlsPtr_</span><span class="p">.</span><span class="n">jpeer</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="n">child_thread</span><span class="o">-&gt;</span><span class="n">tlsPtr_</span><span class="p">.</span><span class="n">jpeer</span> <span class="o">=</span> <span class="k">nullptr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">delete</span> <span class="n">child_thread</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">child_thread</span> <span class="o">=</span> <span class="k">nullptr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// TODO: remove from thread group?
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">env</span><span class="o">-&gt;</span><span class="n">SetLongField</span><span class="p">(</span><span class="n">java_peer</span><span class="p">,</span> <span class="n">WellKnownClasses</span><span class="o">::</span><span class="n">java_lang_Thread_nativePeer</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">msg</span><span class="p">(</span><span class="n">child_jni_env_ext</span><span class="p">.</span><span class="n">get</span><span class="p">()</span> <span class="o">==</span> <span class="k">nullptr</span> <span class="o">?</span>
+</span></span><span class="line"><span class="cl">        <span class="n">StringPrintf</span><span class="p">(</span><span class="s">&#34;Could not allocate JNI Env: %s&#34;</span><span class="p">,</span> <span class="n">error_msg</span><span class="p">.</span><span class="n">c_str</span><span class="p">())</span> <span class="o">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">StringPrintf</span><span class="p">(</span><span class="s">&#34;pthread_create (%s stack) failed: %s&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                 <span class="n">PrettySize</span><span class="p">(</span><span class="n">stack_size</span><span class="p">).</span><span class="n">c_str</span><span class="p">(),</span> <span class="n">strerror</span><span class="p">(</span><span class="n">pthread_create_result</span><span class="p">)));</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ScopedObjectAccess</span> <span class="nf">soa</span><span class="p">(</span><span class="n">env</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">soa</span><span class="p">.</span><span class="n">Self</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">ThrowOutOfMemoryError</span><span class="p">(</span><span class="n">msg</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>一大堆代码只需要记住进行了<code>pthread_create</code>系统调用即可。</p>
+<h3 id="线程状态">线程状态</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span><span class="lnt">82
+</span><span class="lnt">83
+</span><span class="lnt">84
+</span><span class="lnt">85
+</span><span class="lnt">86
+</span><span class="lnt">87
+</span><span class="lnt">88
+</span><span class="lnt">89
+</span><span class="lnt">90
+</span><span class="lnt">91
+</span><span class="lnt">92
+</span><span class="lnt">93
+</span><span class="lnt">94
+</span><span class="lnt">95
+</span><span class="lnt">96
+</span><span class="lnt">97
+</span><span class="lnt">98
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * A thread state.  A thread can be in one of the following states:
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;ul&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;li&gt;{@link #NEW}&lt;br&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *     A thread that has not yet started is in this state.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *     &lt;/li&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;li&gt;{@link #RUNNABLE}&lt;br&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *     A thread executing in the Java virtual machine is in this state.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *     &lt;/li&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;li&gt;{@link #BLOCKED}&lt;br&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *     A thread that is blocked waiting for a monitor lock
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *     is in this state.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *     &lt;/li&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;li&gt;{@link #WAITING}&lt;br&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *     A thread that is waiting indefinitely for another thread to
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *     perform a particular action is in this state.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *     &lt;/li&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;li&gt;{@link #TIMED_WAITING}&lt;br&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *     A thread that is waiting for another thread to perform an action
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *     for up to a specified waiting time is in this state.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *     &lt;/li&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;li&gt;{@link #TERMINATED}&lt;br&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *     A thread that has exited is in this state.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *     &lt;/li&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;/ul&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;p&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * A thread can be in only one state at a given point in time.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * These states are virtual machine states which do not reflect
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * any operating system thread states.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @since   1.5
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @see #getState
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">enum</span> <span class="n">State</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * Thread state for a thread which has not yet started.
+</span></span></span><span class="line"><span class="cl"><span class="cm">         */</span>
+</span></span><span class="line"><span class="cl">        <span class="n">NEW</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * Thread state for a runnable thread.  A thread in the runnable
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * state is executing in the Java virtual machine but it may
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * be waiting for other resources from the operating system
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * such as processor.
+</span></span></span><span class="line"><span class="cl"><span class="cm">         */</span>
+</span></span><span class="line"><span class="cl">        <span class="n">RUNNABLE</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * Thread state for a thread blocked waiting for a monitor lock.
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * A thread in the blocked state is waiting for a monitor lock
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * to enter a synchronized block/method or
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * reenter a synchronized block/method after calling
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * {@link Object#wait() Object.wait}.
+</span></span></span><span class="line"><span class="cl"><span class="cm">         */</span>
+</span></span><span class="line"><span class="cl">        <span class="n">BLOCKED</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * Thread state for a waiting thread.
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * A thread is in the waiting state due to calling one of the
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * following methods:
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * &lt;ul&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">         *   &lt;li&gt;{@link Object#wait() Object.wait} with no timeout&lt;/li&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">         *   &lt;li&gt;{@link #join() Thread.join} with no timeout&lt;/li&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">         *   &lt;li&gt;{@link LockSupport#park() LockSupport.park}&lt;/li&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * &lt;/ul&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">         *
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * &lt;p&gt;A thread in the waiting state is waiting for another thread to
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * perform a particular action.
+</span></span></span><span class="line"><span class="cl"><span class="cm">         *
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * For example, a thread that has called &lt;tt&gt;Object.wait()&lt;/tt&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * on an object is waiting for another thread to call
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * &lt;tt&gt;Object.notify()&lt;/tt&gt; or &lt;tt&gt;Object.notifyAll()&lt;/tt&gt; on
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * that object. A thread that has called &lt;tt&gt;Thread.join()&lt;/tt&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * is waiting for a specified thread to terminate.
+</span></span></span><span class="line"><span class="cl"><span class="cm">         */</span>
+</span></span><span class="line"><span class="cl">        <span class="n">WAITING</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * Thread state for a waiting thread with a specified waiting time.
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * A thread is in the timed waiting state due to calling one of
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * the following methods with a specified positive waiting time:
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * &lt;ul&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">         *   &lt;li&gt;{@link #sleep Thread.sleep}&lt;/li&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">         *   &lt;li&gt;{@link Object#wait(long) Object.wait} with timeout&lt;/li&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">         *   &lt;li&gt;{@link #join(long) Thread.join} with timeout&lt;/li&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">         *   &lt;li&gt;{@link LockSupport#parkNanos LockSupport.parkNanos}&lt;/li&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">         *   &lt;li&gt;{@link LockSupport#parkUntil LockSupport.parkUntil}&lt;/li&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * &lt;/ul&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">         */</span>
+</span></span><span class="line"><span class="cl">        <span class="n">TIMED_WAITING</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * Thread state for a terminated thread.
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * The thread has completed execution.
+</span></span></span><span class="line"><span class="cl"><span class="cm">         */</span>
+</span></span><span class="line"><span class="cl">        <span class="n">TERMINATED</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>线程有6种状态，<code>NEW</code>表示线程新建，还没调用<code>start()</code>。<code>RUNNABLE</code>表示线程调用了<code>start</code>处于可运行状态，等待CPU调度。<code>BLOCKED</code>表示线程在等待获取monitor lock。当在线程中调用<code>Object.wait()</code>或<code>Thread.join()</code>或<code>LockSupport.park()</code>方法时线程进入<code>WAITING</code>状态，在线程中调用<code>Thread.sleep()</code>或<code>Object.wait(long)</code>或<code>Thread.join(long)</code>或<code>LockSupport.parkNanos(long)</code>或<code>LockSupport.parkUntil(long)</code>线程进入<code>TIMED_WAITING</code>状态。线程执行完操作后会进入<code>TERMINATED</code>状态。</p>
+<h3 id="线程中断">线程中断</h3>
+<p>线程中一共有3个和中断有关的方法，分别是<code>interrupt()</code>，<code>isInterrupted()</code>和静态方法<code>interrupted</code>。我们分别看一下。</p>
+<h4 id="interrupt">interrupt</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Interrupts this thread.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;p&gt; Unless the current thread is interrupting itself, which is
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * always permitted, the {@link #checkAccess() checkAccess} method
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * of this thread is invoked, which may cause a {@link
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * SecurityException} to be thrown.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;p&gt; If this thread is blocked in an invocation of the {@link
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Object#wait() wait()}, {@link Object#wait(long) wait(long)}, or {@link
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Object#wait(long, int) wait(long, int)} methods of the {@link Object}
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * class, or of the {@link #join()}, {@link #join(long)}, {@link
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * #join(long, int)}, {@link #sleep(long)}, or {@link #sleep(long, int)},
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * methods of this class, then its interrupt status will be cleared and it
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * will receive an {@link InterruptedException}.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;p&gt; If this thread is blocked in an I/O operation upon an {@link
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * java.nio.channels.InterruptibleChannel InterruptibleChannel}
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * then the channel will be closed, the thread&#39;s interrupt
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * status will be set, and the thread will receive a {@link
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * java.nio.channels.ClosedByInterruptException}.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;p&gt; If this thread is blocked in a {@link java.nio.channels.Selector}
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * then the thread&#39;s interrupt status will be set and it will return
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * immediately from the selection operation, possibly with a non-zero
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * value, just as if the selector&#39;s {@link
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * java.nio.channels.Selector#wakeup wakeup} method were invoked.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;p&gt; If none of the previous conditions hold then this thread&#39;s interrupt
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * status will be set. &lt;/p&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;p&gt; Interrupting a thread that is not alive need not have any effect.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @throws  SecurityException
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *          if the current thread cannot modify this thread
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @revised 6.0
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @spec JSR-51
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">interrupt</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(</span><span class="k">this</span> <span class="o">!=</span> <span class="n">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">())</span>
+</span></span><span class="line"><span class="cl">            <span class="n">checkAccess</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="kd">synchronized</span> <span class="o">(</span><span class="n">blockerLock</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">Interruptible</span> <span class="n">b</span> <span class="o">=</span> <span class="n">blocker</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">b</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">nativeInterrupt</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                <span class="n">b</span><span class="o">.</span><span class="na">interrupt</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="n">nativeInterrupt</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nd">@FastNative</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kd">native</span> <span class="kt">void</span> <span class="nf">nativeInterrupt</span><span class="o">();</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>从注释我们可以看出调用Thread的<code>interrupt</code>方法，分为几种情况</p>
+<ul>
+<li>如果线程阻塞在<code>Object.wait()</code>、<code>Object.wait(long)</code>、<code>Object.wait(long,int)</code>、<code>Thread.join()</code>、<code>Thread.join(long)</code>、<code>Thread.join(long,int)</code>、<code>Thread.sleep(long)</code>、<code>Thread.sleep(long,int)</code>这些方法上，线程的中断状态将被清除，并抛出<code>InterruptedException</code>。</li>
+<li>如果阻塞在<code>java.nio.channels.InterruptibleChannel</code>IO操作操作上，线程的中断状态将被设置（这里有个疑惑，这里设置是指设置为true还是false，如果设置为false就表示线程状态被清除了，由于对NIO了解不多，这里暂时无法确定，从注释上下文理解应该是设置为true了）并抛出<code>java.nio.channels.ClosedByInterruptException</code></li>
+<li>如果阻塞在<code>java.nio.channels.Selector</code>上，线程的中断状态将被设置，并从<code>Selector</code>操作中返回。</li>
+<li>如果是其他情况，比如正在执行不会响应<code>interrupt</code>方法的方法（如<code>Socket</code>的读写或<code>ServerSocket</code>的<code>accept</code>），那么线程的中断状态将被设置。</li>
+</ul>
+<p>继续看<code>nativeInterrupt</code>方法，从<a href="http://androidxref.com/9.0.0_r3/xref/art/runtime/native/java_lang_Thread.cc">java_lang_thread.cc</a>中<a href="http://androidxref.com/9.0.0_r3/xref/art/runtime/native/java_lang_Thread.cc#126">Thread_nativeInterupt</a>可以看到是调用了<a href="http://androidxref.com/9.0.0_r3/xref/art/runtime/thread.cc#2416">Thread::Interrupt</a>。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="c1">// http://androidxref.com/9.0.0_r3/xref/art/runtime/thread.cc#2416
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">void</span> <span class="n">Thread</span><span class="o">::</span><span class="n">Interrupt</span><span class="p">(</span><span class="n">Thread</span><span class="o">*</span> <span class="n">self</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">MutexLock</span> <span class="nf">mu</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="o">*</span><span class="n">wait_mutex_</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">tls32_</span><span class="p">.</span><span class="n">interrupted</span><span class="p">.</span><span class="n">LoadSequentiallyConsistent</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="n">tls32_</span><span class="p">.</span><span class="n">interrupted</span><span class="p">.</span><span class="n">StoreSequentiallyConsistent</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="n">NotifyLocked</span><span class="p">(</span><span class="n">self</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以看到只是设置了一下中断状态。</p>
+<h4 id="isinterrupted-和-interrupted">isInterrupted 和 interrupted</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Tests whether this thread has been interrupted.  The &lt;i&gt;interrupted
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * status&lt;/i&gt; of the thread is unaffected by this method.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;p&gt;A thread interruption ignored because a thread was not alive
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * at the time of the interrupt will be reflected by this method
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * returning false.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return  &lt;code&gt;true&lt;/code&gt; if this thread has been interrupted;
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *          &lt;code&gt;false&lt;/code&gt; otherwise.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @see     #interrupted()
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @revised 6.0
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@FastNative</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">native</span> <span class="kt">boolean</span> <span class="nf">isInterrupted</span><span class="o">();</span> <span class="c1">// 实例方法，返回中断状态
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Tests whether the current thread has been interrupted.  The
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;i&gt;interrupted status&lt;/i&gt; of the thread is cleared by this method.  In
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * other words, if this method were to be called twice in succession, the
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * second call would return false (unless the current thread were
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * interrupted again, after the first call had cleared its interrupted
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * status and before the second call had examined it).
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;p&gt;A thread interruption ignored because a thread was not alive
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * at the time of the interrupt will be reflected by this method
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * returning false.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return  &lt;code&gt;true&lt;/code&gt; if the current thread has been interrupted;
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *          &lt;code&gt;false&lt;/code&gt; otherwise.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @see #isInterrupted()
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @revised 6.0
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@FastNative</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">native</span> <span class="kt">boolean</span> <span class="nf">interrupted</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">	
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>实例方法<code>isInterrupted</code>会返回线程的中断状态，静态方法<code>interrupted</code>会返回调用这个方法的线程的中断状态，并清除线程的中断状态，这也是清除中断状态的唯一方法，设置中断状态当然调用<code>interrupt</code>方法就好了。</p>
+<p>不妨看下native层实现：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="c1">// http://androidxref.com/9.0.0_r3/xref/art/runtime/thread.cc
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Implements java.lang.Thread.interrupted.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">bool</span> <span class="n">Thread</span><span class="o">::</span><span class="n">Interrupted</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">DCHECK_EQ</span><span class="p">(</span><span class="n">Thread</span><span class="o">::</span><span class="n">Current</span><span class="p">(),</span> <span class="k">this</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// No other thread can concurrently reset the interrupted flag.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">bool</span> <span class="n">interrupted</span> <span class="o">=</span> <span class="n">tls32_</span><span class="p">.</span><span class="n">interrupted</span><span class="p">.</span><span class="n">LoadSequentiallyConsistent</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">interrupted</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tls32_</span><span class="p">.</span><span class="n">interrupted</span><span class="p">.</span><span class="n">StoreSequentiallyConsistent</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="n">interrupted</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Implements java.lang.Thread.isInterrupted.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">bool</span> <span class="n">Thread</span><span class="o">::</span><span class="n">IsInterrupted</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="n">tls32_</span><span class="p">.</span><span class="n">interrupted</span><span class="p">.</span><span class="n">LoadSequentiallyConsistent</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="守护线程">守护线程</h3>
+<p>线程可分为两种，普通线程和守护线程（其实叫服务线程好理解些，这些线程一般是服务其他线程的）。在JVM启动时创建的所有线程中，除了主线程以外，其他的线程都是守护线程（例如垃圾回收器以及执行其他辅助工作的线程，signal dispatcher之类的）。</p>
+<p>当创建一个新线程时，新线程将继承创建它的线程的守护状态。</p>
+<p>普通线程和守护线程之间的差异仅在于当线程退出时发生的操作。当一个线程退出时，JVM会检查其他正在运行的线程，如果这些线程都是守护线程，那么JVM会正常退出操作。当JVM停止时，所有仍然存在的守护线程都将被抛弃——既不会执行finally代码块，也不会执行回卷栈，而JVM只是直接退出。</p>
+<h3 id="reference">reference</h3>
+<ul>
+<li>《Java并发编程实战》</li>
+<li><a href="http://gityuan.com/2016/09/24/android-thread/">Android平台上除了Java线程还有native线程，可以参考这篇</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2019-05-28
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/2019/06/28/futuretask/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Futuretask</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/2019/04/18/how-kotlin-generate-method-default-arguments/">
+            <span class="next-text nav-default">How Kotlin Generate Method Default Arguments</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>java on Solarex&#39;s Blog</title>
+    <link>https://flyfire.github.io/categories/java/</link>
+    <description>Recent content in java on Solarex&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Fri, 09 Oct 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://flyfire.github.io/categories/java/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Understanding Memory Reordering</title>
+      <link>https://flyfire.github.io/post/understanding-memory-reordering/</link>
+      <pubDate>Fri, 09 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/understanding-memory-reordering/</guid>
+      <description>系列的第四篇~ In the previous article of this series, Lock-free multithreading with atomic operations, I introduced lock-free multithreading: a low-level strategy for synchronizing threads in concurrent software. Based upon atomic operations — machine instructions performed directly by the CPU that can&amp;rsquo;t be broken into smaller steps, lock-free multithreading provides a faster and more fine-tuned synchronization mechanism if compared to traditional primitives like mutexes and semaphores.</description>
+    </item>
+    
+    <item>
+      <title>Singleton Pattern</title>
+      <link>https://flyfire.github.io/post/2019/08/12/singleton-pattern/</link>
+      <pubDate>Mon, 12 Aug 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2019/08/12/singleton-pattern/</guid>
+      <description>本文主要讲解单例模式的各种实现，以及对反射和反序列化攻击的防御。 单例模式的实现主要注意以下几点： 私有构造器 线程安全 延迟加载 序列化和反序列化安</description>
+    </item>
+    
+    <item>
+      <title>Java Threadpoolexecutor</title>
+      <link>https://flyfire.github.io/post/2019/08/04/java-threadpoolexecutor/</link>
+      <pubDate>Sun, 04 Aug 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2019/08/04/java-threadpoolexecutor/</guid>
+      <description>本文主要对Executor框架以及Java平台线程池技术进行分析。 Executor框架主要由3大部分组成： 任务。包括被执行任务需要实现的接口</description>
+    </item>
+    
+    <item>
+      <title>Java Blockingqueue</title>
+      <link>https://flyfire.github.io/post/2019/08/01/java-blockingqueue/</link>
+      <pubDate>Thu, 01 Aug 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2019/08/01/java-blockingqueue/</guid>
+      <description>本文主要分析Java平台BlockingQueue的各个实现。 阻塞队列BlockingQueue是一个支持两个附加操作的队列。这两个附加的操</description>
+    </item>
+    
+    <item>
+      <title>Aqs</title>
+      <link>https://flyfire.github.io/post/2019/07/28/aqs/</link>
+      <pubDate>Sun, 28 Jul 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2019/07/28/aqs/</guid>
+      <description>AbstractQueuedSynchronizer是很多并发工具类如ReentrantLock的实现基础，本文对其进行分析。 TL;DR 以下是对aq</description>
+    </item>
+    
+    <item>
+      <title>Futuretask</title>
+      <link>https://flyfire.github.io/post/2019/06/28/futuretask/</link>
+      <pubDate>Fri, 28 Jun 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2019/06/28/futuretask/</guid>
+      <description>本文主要对FutureTask源码进行分析。 Java中一般通过继承Thread类或实现Runnable接口来创建线程，但是这两种方式都有个缺</description>
+    </item>
+    
+    <item>
+      <title>Thread</title>
+      <link>https://flyfire.github.io/post/2019/05/28/thread/</link>
+      <pubDate>Tue, 28 May 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2019/05/28/thread/</guid>
+      <description>本文主要分析Android平台上的Thread类源码，分为Java部分和native部分。 Java部分比较简单，大致过下各个方法吧。 线程创建</description>
+    </item>
+    
+    <item>
+      <title>Java Enum Syntactic Sugar</title>
+      <link>https://flyfire.github.io/post/2018/07/10/java-enum-syntactic-sugar/</link>
+      <pubDate>Tue, 10 Jul 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2018/07/10/java-enum-syntactic-sugar/</guid>
+      <description>Java从1.5引入枚举类型，EffectiveJava第2版item 30也建议我们使用枚举来代替int常量。我们从下面的Enum示例中看下</description>
+    </item>
+    
+    <item>
+      <title>Analysis of Hashmap</title>
+      <link>https://flyfire.github.io/post/2018/07/02/analysis-of-hashmap/</link>
+      <pubDate>Mon, 02 Jul 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2018/07/02/analysis-of-hashmap/</guid>
+      <description>HashMap是存储key-value的集合，底层采用Node&amp;lt;K,V&amp;gt;[] table实现，初始大小为2^4即16。 1 2 3 4 5 6</description>
+    </item>
+    
+    <item>
+      <title>Why Java String Designed as Final</title>
+      <link>https://flyfire.github.io/post/2018/06/18/why-java-string-designed-as-final/</link>
+      <pubDate>Mon, 18 Jun 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2018/06/18/why-java-string-designed-as-final/</guid>
+      <description>Reference Why String is Immutable or Final in Java </description>
+    </item>
+    
+    <item>
+      <title>Develop Jni Program in Mac</title>
+      <link>https://flyfire.github.io/post/2017/10/18/develop-jni-program-in-mac/</link>
+      <pubDate>Wed, 18 Oct 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2017/10/18/develop-jni-program-in-mac/</guid>
+      <description>本文主要讲述如何在Mac开发环境下进行JNI开发。 首先编写好Java文件，示例程序主要示范了Java访问C，C访问Java静态与非静态域。 1</description>
+    </item>
+    
+    <item>
+      <title>Using Annotations Element Value Pairs in Aspectj</title>
+      <link>https://flyfire.github.io/post/2016/09/17/using-annotations-element-value-pairs-in-aspectj/</link>
+      <pubDate>Sat, 17 Sep 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2016/09/17/using-annotations-element-value-pairs-in-aspectj/</guid>
+      <description>Annotations with element-value pairs Annotations by themselves are really powerful. They give direct control over when an aspect should be run to the developer. Adding element-value pairs makes the already powerful annotations even more powerful, since it enables you to pass information into the aspect.
+Description Creating an annotation with an element-value pair is in itself quite simple. It can take different parameters and it’s up to the aspect developer to use these in their aspects.</description>
+    </item>
+    
+    <item>
+      <title>Defining Pointcuts by Annotations</title>
+      <link>https://flyfire.github.io/post/2016/09/16/defining-pointcuts-by-annotations/</link>
+      <pubDate>Fri, 16 Sep 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2016/09/16/defining-pointcuts-by-annotations/</guid>
+      <description>Pointcuts by annotations Using annotations is more convenient than using patterns. While patterns might be anything between a big cannon and a scalpel the annotations are definitely a scalpel, by only getting the pointcuts that the developer has manually specified.
+You can get the code for this blog series at the Git repository here.
+Let’s start coding!
+Requirements: Maven, Java 8, (preferably) an IDE (I’m using IntelliJ)
+The use of annotations is a precise way to define when an aspect should be run.</description>
+    </item>
+    
+    <item>
+      <title>Defining Pointcuts by Pattern</title>
+      <link>https://flyfire.github.io/post/2016/09/15/defining-pointcuts-by-pattern/</link>
+      <pubDate>Thu, 15 Sep 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2016/09/15/defining-pointcuts-by-pattern/</guid>
+      <description>Pointcuts by pattern Going through all the different ways of defining pointcuts and explaining them in an easy manner would be a near impossible feat for this post. Rather than aiming for the impossible let’s narrow down the scope, and talk about the most commonly used pointcut definitions and how we can experiment with them. We will get you started with defining your own pointcuts!
+You can get the code for this blog series at the Git repository here.</description>
+    </item>
+    
+    <item>
+      <title>The Basics of Aop</title>
+      <link>https://flyfire.github.io/post/2016/09/14/the-basics-of-aop/</link>
+      <pubDate>Wed, 14 Sep 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2016/09/14/the-basics-of-aop/</guid>
+      <description>Aspect Oriented Programming AOP is both a complex and quite simple thing. There has been a lot of buzz around AOP but recently the buzz has faded. The question that people still ask is “what do I do with it”. Hopefully you will have an idea of what it is and create your own thoughts on how you could use it.
+In this post I aim to describe what AOP actually is and how it works.</description>
+    </item>
+    
+    <item>
+      <title>Aspectj Dictionary</title>
+      <link>https://flyfire.github.io/post/2016/09/13/aspectj-dictionary/</link>
+      <pubDate>Tue, 13 Sep 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2016/09/13/aspectj-dictionary/</guid>
+      <description>What is AOP Every time someone tries to explain AOP (Aspect Oriented Programming) they often use words like “magic” or “black magic”. And that’s understandable, especially if you come from an OOP world and come across AOP it really feels like “magic”: something is happening and you as a developer usually don’t know why, what or how.
+AspectJ is one of the more well-known implementations for AOP in Java and is developed by the Eclipse Foundation.</description>
+    </item>
+    
+    <item>
+      <title>Java Singleton</title>
+      <link>https://flyfire.github.io/post/2014/10/17/java-singleton/</link>
+      <pubDate>Fri, 17 Oct 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2014/10/17/java-singleton/</guid>
+      <description>前序 单实例Singleton设计模式可能是被讨论和使用的最广泛的一个设计模式了，这可能也是面试中问得最多的一个设计模式了。这个设计模式主要目</description>
+    </item>
+    
+    <item>
+      <title>Java Thread Tutorial</title>
+      <link>https://flyfire.github.io/post/2014/10/14/java-thread-tutorial/</link>
+      <pubDate>Tue, 14 Oct 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2014/10/14/java-thread-tutorial/</guid>
+      <description>Java Thread and Multithreading Tutorial Java Thread Example Java Thread Sleep Java Thread Join Java Thread States Java Thread wait, notify and notifyAll Java Thread Safety and Java Synchronization Java Exception in thread main Thread Safety in Singleton Class Java Daemon Thread Java Thread Local Java Thread Dump How to Analyze Deadlock and avoid it in Java Java Timer Thread Java Producer Consumer Problem Java Thread Pool Java Callable Future</description>
+    </item>
+    
+    <item>
+      <title>Java Class Loaded and Initialized</title>
+      <link>https://flyfire.github.io/post/2014/09/04/java-class-loaded-and-initialized/</link>
+      <pubDate>Thu, 04 Sep 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2014/09/04/java-class-loaded-and-initialized/</guid>
+      <description>class loaded and initialized java -verbose:class -classpath . org.solarex.TestClassLoader get information about each class loaded.The “-verbose:class” option displays information about each class loaded. 1 2 3 4 5 6 package org.solarex.test; public class A{ public void method(){ System.out.println(&amp;#34;inside of A&amp;#34;); } } 1 2 3 4 5 6 7 8 package org.solarex.test; public void TestLoader{</description>
+    </item>
+    
+    <item>
+      <title>What Can We Learn From Hello World</title>
+      <link>https://flyfire.github.io/post/2014/09/01/what-can-we-learn-from-hello-world/</link>
+      <pubDate>Mon, 01 Sep 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2014/09/01/what-can-we-learn-from-hello-world/</guid>
+      <description>C version C版本的hello,world深入详解之前上学的时候在SlideShare上看到过，记得当时大呼过瘾，许多C深入理解的知识基本上都被罗列</description>
+    </item>
+    
+  </channel>
+</rss>

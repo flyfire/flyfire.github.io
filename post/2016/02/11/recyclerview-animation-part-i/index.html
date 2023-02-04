@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Recyclerview Animation Part I - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="ListView is one of the most popular widgets of the Android Framework. It has many features, yet it is fairly complex and hard to modify. As the UX paradigms evolved and phones got faster, its limitations started to overshadow its feature set.
+With Lollipop, the Android team decided to release a new widget that will make writing different collection views much easier with a pluggable architecture. Many different behaviors can be controlled easily by implementing simple contracts to change:" /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/2016/02/11/recyclerview-animation-part-i/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Recyclerview Animation Part I" />
+<meta property="og:description" content="ListView is one of the most popular widgets of the Android Framework. It has many features, yet it is fairly complex and hard to modify. As the UX paradigms evolved and phones got faster, its limitations started to overshadow its feature set.
+With Lollipop, the Android team decided to release a new widget that will make writing different collection views much easier with a pluggable architecture. Many different behaviors can be controlled easily by implementing simple contracts to change:" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/2016/02/11/recyclerview-animation-part-i/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2016-02-11T00:00:00+00:00" />
+<meta property="article:modified_time" content="2016-02-11T00:00:00+00:00" />
+<meta itemprop="name" content="Recyclerview Animation Part I">
+<meta itemprop="description" content="ListView is one of the most popular widgets of the Android Framework. It has many features, yet it is fairly complex and hard to modify. As the UX paradigms evolved and phones got faster, its limitations started to overshadow its feature set.
+With Lollipop, the Android team decided to release a new widget that will make writing different collection views much easier with a pluggable architecture. Many different behaviors can be controlled easily by implementing simple contracts to change:"><meta itemprop="datePublished" content="2016-02-11T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2016-02-11T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1342">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Recyclerview Animation Part I"/>
+<meta name="twitter:description" content="ListView is one of the most popular widgets of the Android Framework. It has many features, yet it is fairly complex and hard to modify. As the UX paradigms evolved and phones got faster, its limitations started to overshadow its feature set.
+With Lollipop, the Android team decided to release a new widget that will make writing different collection views much easier with a pluggable architecture. Many different behaviors can be controlled easily by implementing simple contracts to change:"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Recyclerview Animation Part I</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2016-02-11 </span>
+        <div class="post-category">
+            <a href="/categories/dev/"> dev </a>
+            <a href="/categories/android/"> android </a>
+            </div>
+          <span class="more-meta"> 约 1342 字 </span>
+          <span class="more-meta"> 预计阅读 7 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#disappearing-items">Disappearing Items</a></li>
+        <li><a href="#reference">reference</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>ListView is one of the most popular widgets of the Android Framework. It has many features, yet it is fairly complex and hard to modify. As the UX paradigms evolved and phones got faster, its limitations started to overshadow its feature set.</p>
+<p>With Lollipop, the Android team decided to release a new widget that will make writing different collection views much easier with a pluggable architecture. Many different behaviors can be controlled easily by implementing simple contracts to change:</p>
+<ul>
+<li>how items are laid out</li>
+<li>animations!</li>
+<li>item decorations</li>
+<li>recycling strategy</li>
+</ul>
+<p>This great flexibility comes with the additional complexity of a bigger architecture. Also, there are more things to learn.</p>
+<!-- more -->
+<p>In this post, I want to deep dive into RecyclerView internals, particularly on how animations work.</p>
+<p>On Honeycomb, the Android Framework introduced LayoutTransition, which was a very easy way to animate changes inside a ViewGroup. It works by taking a snapshot of the ViewGroup before and after the layout changes, then creating Animators to move between these two states. This process is fairly similar to what RecyclerView needs to do to animate changes in the adapter.</p>
+<center><img src="/images/trans_man_default.gif" alt="LayoutTransition example"></center>
+<p>Unfortunately, lists have one major difference which makes LayoutTransitions a bad fit for their animations. Specifically, items in lists are not the same as views in a ViewGroup. This is an important distinction that needs to be understood to handle animations on “items” while using mechanisms that animate the “views” that show the item contents.</p>
+<p>In a normal ViewGroup, if a View is newly added to the View hierarchy, it can be treated like a newly added View and thus it can be animated accordingly (e.g. fade in). For collections, it is a bit different. For example, a View for an item may become visible just because an item before it has been removed from the Adapter. In this case, running a fade in animation for the new item would be misleading because it was already in the list though the view is new because the item just entered the viewport. RecyclerView knows if the item is new or not but it does not know where it was if the item is not new. The same case is valid for disappearing Views, RecyclerView does not know where the view went if it is not removed from the Adapter.</p>
+<center><img src="/images/trans_man_bad.gif" alt="LayoutTransition failure for a list"></center>
+<p>To overcome this problem, <code>RecyclerView</code> could ask <code>LayoutManager</code> for the previous location of the new View. Although this would work, it would require some bookkeeping on the <code>LayoutManager</code> end and may not be trivial to calculate for more complex <code>LayoutManagers</code>.</p>
+<p>The way that <code>RecyclerView</code> handles animating appearing and disappearing items (that is, animating the appearance and disappearance of views that refer to items that were and are still in the list) is by relying on the <code>LayoutManager</code> to handle predictive layout logic. One one hand, the <code>RecyclerView</code> wants to know where views would have been had they been laid out prior to this change. On the other hand, the <code>RecyclerView</code> wants to know where views would be laid out after this change if the <code>LayoutManager</code> went to the trouble of laying out items that are not currently visible.</p>
+<p>To make it easy for the <code>LayoutManager</code> to provide this information, <code>RecyclerView</code> uses a two step layout process when there are adapter changes which should be animated. The mechanisms for handling these predictive layout passes are described below.</p>
+<ul>
+<li>In the first layout pass (preLayout), RecyclerView asks LayoutManager to layout the previous state with the knowledge of the additional information. For the example above, it would be like requesting “Layout items again, btw, ‘C’ has been removed”. The LayoutManager runs its usual layout step but knowing that ‘C’ will be removed, it lays out View(s) to fill the space left by ‘C’.The cool part of this contract is that RecyclerView still behaves as if ‘C’ is still in the backing Adapter. For example, when LayoutManager asks for the View for position 2, RecyclerView returns ‘C’ (<code>getViewForPosition(2) == View('C')</code>) and if LayoutManager asks for position 4, RecyclerView returns the View for ‘E’ (although ‘D’ is the 4th item in the Adapter). LayoutParams of the returned View has an <code>isItemRemoved</code> method which LayoutManager can use to check if this is a disappearing item.</li>
+<li>In the second layout pass (postLayout), RecyclerView asks LayoutManager to re-layout its items. This time, ‘C’ is not in the Adapter anymore. <code>getViewForPosition(2)</code> will return ‘D’ and <code>getViewForPosition(4)</code> will return ‘F’.Keep in mind that the backing item for ‘C’ was already removed from the Adapter, but since RecyclerView has the View representation of it, it can behave as if ‘C’ is still there. In other words, RecyclerView does the bookkeeping for the LayoutManager.</li>
+</ul>
+<p>Every time <code>onLayoutChildren</code> is called on the <code>LayoutManager</code>, it temporarily detaches all views and lays them out from scratch again. Unchanged Views are returned from the scrap cache so their measurements stay valid, making this relayout fairly cheap and simple.</p>
+<center><img src="/images/pre-layout.jpeg" alt="LinearLayoutManager pre layout result"></center>
+<center><img src="/images/post-layout.jpeg" alt="LinearLayoutManager post layout result"></center>
+<p>After these two layout passes, RecyclerView knows where the Views came from so it can run the correct animation.</p>
+<center><img src="/images/predictive_animations.gif" alt="predictive animations"></center>
+<p>You might ask: The View ‘C’ was not laid out by the LayoutManager, how come it is still visible?</p>
+<p>To be clear, ‘C’ was laid out by the LayoutManager in the pre-layout pass because it looked like it was in the Adapter. It is true that ‘C’ was not laid out by the LayoutManager in the post-layout pass because it does not exist in the Adapter anymore. It is also true for the LayoutManager that ‘C’ is not its child anymore but not true for the RecyclerView. When a View is removed by the LayoutManager, if ItemAnimator wants to animate it, RecyclerView keeps it as a child (so that animations can run properly). More details on this in Part2.</p>
+<h2 id="disappearing-items">Disappearing Items</h2>
+<p>With these two layout passes, RecyclerView is able to animate new Views properly. But now, there is another problem with Views that are disappearing. Consider the following case where a new item is added to the list, pushing some other items outside the visible area. This is how it would look with LayoutTransitions:</p>
+<center><img src="/images/layout_transition_add.gif" alt="layout transition add"></center>
+<p>When ‘X’ was added after ‘A’, it pushed ‘F’ outside the screen. Since LayoutManager will not layout ‘F’, LayoutTransition thinks it has been removed from the UI and runs a fade out animation for it. In reality, ‘F’ is still in the adapter but has been pushed out of bounds.</p>
+<p>To solve this issue, RecyclerView provides an additional API to LayoutManager to get this information. At the end of a postLayout pass, LayoutManager can call <code>getScrapList</code> to get list of Views which are in this situation (not laid out by the <code>LayoutManager</code> but still present in the <code>Adapter</code>). Then, it lays out these views as well, as if the size of RecyclerView was big enough to show them.</p>
+<center><img src="/images/add_post_layout_with_frame.png"></center>
+<p>One important detail is that, since these Views are not necessary after their animations are complete, <code>LayoutManager</code> calls <code>addDisappearingView</code> instead of <code>addView</code>. This gives the clue to the RecyclerView that this View should be removed after its animations is complete. RecyclerView also adds the View to the list of hidden views so that it will disappear from LayoutManager’s children list as soon as postLayout method returns. This way, LayoutManager can forget about it.</p>
+<center><img src="/images/predictive_add.gif"></center>
+<p>Initially, at least for a LinearLayoutManager, you might think that it can calculate where the Views came from or where they went (if disappeared) and thus won’t need a two pass layout calculation. Unfortunately, there are many edge cases when multiple types of adapter changes happen in the same layout pass. In addition to that, for a more complex LayoutManager, it is not always trivial to calculate where an item would be placed (e.g. StaggeredGridLayout). This approach removes all burden from the LayoutManager and it can support proper animations with little effort.</p>
+<p>So far, I’ve covered the main idea on how predictive animations run in RecyclerView. There is actually a lot more going on to achieve this simplicity (for the LayoutManager). You can read about how all this works in Part 2 – Behind The Scenes.</p>
+<h2 id="reference">reference</h2>
+<ul>
+<li><a href="http://www.birbit.com/recyclerview-animations-part-1-how-animations-work/">RecyclerView Animations Part 1 – How Animations Work</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2016-02-11
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/2016/02/12/recyclerview-animation-part-ii/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Recyclerview Animation Part Ii</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/2016/01/15/building-a-recyclerview-layoutmanager-part-iv/">
+            <span class="next-text nav-default">Building a Recyclerview Layoutmanager Part Iv</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

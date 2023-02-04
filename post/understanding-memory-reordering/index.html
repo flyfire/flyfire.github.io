@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Understanding Memory Reordering - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="系列的第四篇~ In the previous article of this series, Lock-free multithreading with atomic operations, I introduced lock-free multithreading: a low-level strategy for synchronizing threads in concurrent software. Based upon atomic operations — machine instructions performed directly by the CPU that can&amp;rsquo;t be broken into smaller steps, lock-free multithreading provides a faster and more fine-tuned synchronization mechanism if compared to traditional primitives like mutexes and semaphores." /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/understanding-memory-reordering/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Understanding Memory Reordering" />
+<meta property="og:description" content="系列的第四篇~ In the previous article of this series, Lock-free multithreading with atomic operations, I introduced lock-free multithreading: a low-level strategy for synchronizing threads in concurrent software. Based upon atomic operations — machine instructions performed directly by the CPU that can&rsquo;t be broken into smaller steps, lock-free multithreading provides a faster and more fine-tuned synchronization mechanism if compared to traditional primitives like mutexes and semaphores." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/understanding-memory-reordering/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2020-10-09T00:00:00+00:00" />
+<meta property="article:modified_time" content="2020-10-09T00:00:00+00:00" />
+<meta itemprop="name" content="Understanding Memory Reordering">
+<meta itemprop="description" content="系列的第四篇~ In the previous article of this series, Lock-free multithreading with atomic operations, I introduced lock-free multithreading: a low-level strategy for synchronizing threads in concurrent software. Based upon atomic operations — machine instructions performed directly by the CPU that can&rsquo;t be broken into smaller steps, lock-free multithreading provides a faster and more fine-tuned synchronization mechanism if compared to traditional primitives like mutexes and semaphores."><meta itemprop="datePublished" content="2020-10-09T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2020-10-09T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2555">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Understanding Memory Reordering"/>
+<meta name="twitter:description" content="系列的第四篇~ In the previous article of this series, Lock-free multithreading with atomic operations, I introduced lock-free multithreading: a low-level strategy for synchronizing threads in concurrent software. Based upon atomic operations — machine instructions performed directly by the CPU that can&rsquo;t be broken into smaller steps, lock-free multithreading provides a faster and more fine-tuned synchronization mechanism if compared to traditional primitives like mutexes and semaphores."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Understanding Memory Reordering</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2020-10-09 </span>
+        <div class="post-category">
+            <a href="/categories/java/"> java </a>
+            <a href="/categories/concurrecy/"> concurrecy </a>
+            </div>
+          <span class="more-meta"> 约 2555 字 </span>
+          <span class="more-meta"> 预计阅读 6 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#memory-reordering-or-the-unpleasant-surprise">Memory reordering, or the unpleasant surprise</a></li>
+            <li><a href="#memory-reordering-in-a-nutshell">Memory reordering in a nutshell</a></li>
+            <li><a href="#memory-reordering-as-an-optimization-trick">Memory reordering as an optimization trick</a></li>
+            <li><a href="#a-concrete-example-of-hardware-memory-reordering">A concrete example of hardware memory reordering</a></li>
+            <li><a href="#the-impact-of-memory-reordering-on-multithreading">The impact of memory reordering on multithreading</a></li>
+            <li><a href="#how-to-solve-the-memory-reordering-problem">How to solve the memory reordering problem</a></li>
+            <li><a href="#the-memory-model">The memory model</a></li>
+            <li><a href="#fine-tuning-the-memory-model">Fine-tuning the memory model</a></li>
+            <li><a href="#whats-next">What&rsquo;s next?</a></li>
+            <li><a href="#reference">reference</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>系列的第四篇~</p>
+<!-- more -->
+<p>In the previous article of this series, <a href="https://www.internalpointers.com/post/lock-free-multithreading-atomic-operations">Lock-free multithreading with atomic operations</a>, I introduced <strong>lock-free multithreading</strong>: a low-level strategy for synchronizing threads in concurrent software.</p>
+<p>Based upon <strong>atomic operations</strong> — machine instructions performed directly by the CPU that can&rsquo;t be broken into smaller steps, lock-free multithreading provides a faster and more fine-tuned synchronization mechanism if compared to traditional primitives like <a href="https://internalpointers.com/post/introduction-thread-synchronization">mutexes and semaphores</a>.</p>
+<p>As always, with great power comes great responsibility. In lock-free programming you get closer to the metal, so it is always a good idea to understand how the machine works and some of its quirks.</p>
+<p>In this article I want to show you one of the most important side effects that hardware (and software too) might cause on your lock-free code. This is also a great opportunity to marvel at the complexity of the miniaturized world inside your computer.</p>
+<h3 id="memory-reordering-or-the-unpleasant-surprise">Memory reordering, or the unpleasant surprise</h3>
+<p>The first thing any programming course out there will teach you is how instructions written in the source code are executed <em>sequentially</em> by your computer. A program is just a list of operations laid down in a text file that the processor performs from top to bottom.</p>
+<p>Surprisingly, this is often a lie: your machine has the ability to change the order of <em>some</em> low-level operations according to its needs, especially when reading from and writing to memory. This weird modification, called <strong>memory reordering</strong>, occurs both hardware and software wise and it is mostly due to performance reasons.</p>
+<p>Memory reordering is a paradigm developed to make use of instruction cycles that would otherwise be wasted. This trick dramatically improves the speed of your programs; on the other hand it might wreak havoc over lock-free multithreading. We will see why in a minute.</p>
+<p>Let&rsquo;s first take a closer look at the reasons why something this unpredictable would happen.</p>
+<h3 id="memory-reordering-in-a-nutshell">Memory reordering in a nutshell</h3>
+<p>Programs are loaded in the <strong>main memory</strong> in order to be executed. The CPU task is to run instructions stored there, along with reading and writing data when necessary.</p>
+<p>Over time this type of memory has become damn slow if compared to the processor. For example, a modern CPU is capable of executing ten instructions per nanosecond, but will require many tens of nanoseconds to fetch some data from memory! Engineers don&rsquo;t like such waste of time, so they equip the CPU with a small yet extremely fast chunk of special memory called <strong>cache</strong>.</p>
+<p>The cache is where the processor stores its most frequently used data, in order to avoid lethargic interactions with the main memory. When the processor needs to read from or write to main memory, it first checks whether a copy of that data is available in its own cache. If so, the processor reads from or writes to the cache directly instead of waiting for the slower main memory response.</p>
+<p>Modern CPUs are made of multiple <strong>cores</strong> — the component that performs actual computations, and each core has its own chunk of cache that is in turn connected to the main memory, as pictured in the following image:</p>
+<center><p><img src="/images/cpu-cache-main-memory.png"></p></center>
+<p>All in all, cache makes computers run faster. Or better, it helps the processor not to waste precious time waiting for the main memory response by keeping it always busy and productive.</p>
+<h3 id="memory-reordering-as-an-optimization-trick">Memory reordering as an optimization trick</h3>
+<p>Clearly such caching mechanism increases the system complexity in a multi-core scenario. Now you will need detailed rules to determine how data flows across different caches, and to make sure each core has the most up-to-date version of it. Known as <strong>cache coherence protocols</strong>, they could potentially trigger huge performance penalties. So engineers conceived the memory reordering trick (and many others!) to get the best out of each core.</p>
+<p>There are several reasons why a memory reordering might take place. For example, consider two cores instructed to access the same chunk of data in memory. Core A reads from memory, core B writes to it. A cache coherence protocol might force core A to wait while core B writes its local cached data back to the main memory, so that core A can read the most up-to-date information. The waiting core might choose to run other memory instructions in advance, instead of wasting precious cycles doing nothing. Even if such decision would depart from what you have explicitly written in your program.</p>
+<p>Compilers and virtual machines too take the liberty of reordering instructions when certain optimizations are enabled. These changes happen at compile time and can be easily spotted by looking at the assembly code or byte code. Software memory reordering exists to take advantage of any feature the underlying hardware may offer, just to make your code run faster.</p>
+<h3 id="a-concrete-example-of-hardware-memory-reordering">A concrete example of hardware memory reordering</h3>
+<p>Consider the following example, written in hardware pseudo-code. Each step of the program corresponds to an individual processor instruction:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">x</span> <span class="o">=</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl"><span class="n">v</span> <span class="o">=</span> <span class="nb">false</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nf">thread_one</span><span class="p">()</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">while</span> <span class="nf">load</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="nb">false</span><span class="o">:</span> 
+</span></span><span class="line"><span class="cl">        <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">print</span><span class="p">(</span><span class="nf">load</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nf">thread_two</span><span class="p">()</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">store</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">store</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">true</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>In the snippet above two threads are running in parallel <em>on two different cores</em>. The first thread waits until <code>v</code> is set to <code>true</code> by the other one. Let&rsquo;s also assume that <code>store()</code> and <code>load()</code> are atomic CPU instructions that write and read memory.</p>
+<p>What would you expect to see printed on screen by thread one? If it starts before thread two (and <a href="https://internalpointers.com/post/gentle-introduction-multithreading#race-conditions">it is not always the case</a>), there is no right answer. You might see <code>1</code> if no reordering takes place. However, it is possible for <code>v</code> to be updated before <code>x</code>, and the print statement might then print <code>0</code> if the store instructions are reordered in the second thread. Similarly, a memory reordering might take place in the first thread and it is possible for <code>x</code> to be loaded before <code>v</code> is checked.</p>
+<h3 id="the-impact-of-memory-reordering-on-multithreading">The impact of memory reordering on multithreading</h3>
+<p>Hardware memory reordering is not an issue on single-core machines, where threads are a software construct ruled by the operating system. The CPU just receives a continuous stream of memory instructions. They still can be reordered, yet according to a fundamental rule: <em>memory accesses by a given core will appear to that core to have occurred as written in your program</em>. So memory reordering might take place, but only if it doesn&rsquo;t screw up the final outcome.</p>
+<p>This rule still applies to each core in a multi-core scenario, but nothing takes care of the whole picture where different operations are simultaneously performed on separate hardware components (<a href="https://internalpointers.com/post/gentle-introduction-multithreading#what-threads-are-used-for">true parallelism</a>). Make your threads run on two physical cores and you will experience any kind of weird surprise as seen in the example above. Not to mention the reordering performed by compilers and virtual machines!</p>
+<p>The usual <a href="https://internalpointers.com/post/introduction-thread-synchronization">locking synchronization mechanisms</a> such as mutexes and semaphores are designed to take care of the memory reordering problem for you, both hardware and software wise. They are high level tools after all.</p>
+<p>A multithreaded program that follows a lock-free approach is way closer to the metal instead: it exploits <code>store</code>s and <code>load</code>s atomic instructions to synchronize its threads, as seen in <a href="https://internalpointers.com/post/lock-free-multithreading-atomic-operations">the previous episode</a>. Funnily enough these are the operations that might get reordered, destroying all your careful plans.</p>
+<h3 id="how-to-solve-the-memory-reordering-problem">How to solve the memory reordering problem</h3>
+<p>You definitely don&rsquo;t want to build your synchronization mechanism upon something that might change randomly. This problem can be fixed in a practical way by triggering a <strong>memory barrier</strong>, a CPU instruction that forces the processor to execute memory operations in a predictable way. A memory barrier works like a barricade: operations issued prior to the barrier are guaranteed to be performed before operations issued after it.</p>
+<p>A memory barrier is a hardware thing: you have to talk directly to the CPU. This makes it a low-level solution which hurts the portability of your programs. The best way to tackle the problem is to step up the software hierarchy and make use of the tools that operating systems, compilers and virtual machines provide.</p>
+<p>Software gadgets are only the halfway stage, though. Let&rsquo;s first take a high-level look at all the memory scenarios that might take place in a system, whether hardware or software, in order to build a clear mental map of the issue. The so-called <strong>memory model</strong> will help in the process.</p>
+<h3 id="the-memory-model">The memory model</h3>
+<p>A memory model is an abstract way to describe what a system may and may not do when it comes to accessing and reordering memory. Processors and programming languages implement one, especially if they make use of multithreading: a memory model applies both to hardware and software.</p>
+<p>When a system is very cautious about changing the order of memory operations is said to be following a <strong>strong memory model</strong>. Conversely, in a <strong>weak memory model</strong> you can expect all sorts of crazy reorderings. For example, processors in the x86 family belong to the former category, while ARM and PowerPC processors belong to the latter. What about software instead?</p>
+<h4 id="the-benefits-of-a-software-memory-model">The benefits of a software memory model</h4>
+<p>While hardware memory models are set in stone for obvious reasons, the software counterpart lets you choose how memory accesses can be ordered, according to your needs. This is an interesting property that will help a lot while writing lock-free multithreading code.</p>
+<p>For example, a compiler can be instructed to produce machine code that follows a strong memory model, in order to avoid unwelcome reorderings around atomic operations used as synchronization mechanism. The compiler will do its best to provide the memory model you have requested by issuing the correct memory barriers, in case the underlying hardware implements a weak model. It also takes care of any memory reordering operation that might occur on the software side. Working with a software memory model abstracts away the hardware details.</p>
+<p>Basically all programming languages implement a memory model, in the sense that they follow specific rules for handling the memory internally. Some of them just stop there, as they don&rsquo;t deal with multithreading directly. Some others, <a href="https://docs.oracle.com/javase/9/docs/api/java/lang/invoke/VarHandle.html">Java</a>, <a href="https://doc.rust-lang.org/nomicon/atomics.html">Rust</a> and <a href="https://en.cppreference.com/w/cpp/atomic/memory_order">C++</a> to name a few, also provide tools to control the memory reordering behavior as described above.</p>
+<h3 id="fine-tuning-the-memory-model">Fine-tuning the memory model</h3>
+<p>Strong vs. weak memory model is a theoretical classification of how memory operations get reordered. When it comes to actual coding, most programming languages that support atomic operations give you three ways to control memory reordering. Let&rsquo;s take a closer look.</p>
+<h4 id="1-sequential-consistency">1) Sequential consistency</h4>
+<p>The less intrusive way of memory reordering is no reordering at all. This is a form of strong memory model and is called <strong>sequential consistency</strong>: exactly what you need to solve all lock-free multithreading problems mentioned above. Disabling reordering makes your multithreaded program easy to follow: the source code is executed in the same order you have written it.</p>
+<p>Sequential consistency adds another important feature to parallel execution: if forces a <strong>total order</strong> of all atomic memory operations in all threads. To better understand this statement consider the following example, in hardware pseudocode:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">x</span> <span class="o">=</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl"><span class="n">y</span> <span class="o">=</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nl">thread_A</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">store</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nl">thread_B</span><span class="p">:</span> 
+</span></span><span class="line"><span class="cl">    <span class="nf">store</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nl">thread_C</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">assert</span><span class="p">(</span><span class="nf">load</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="o">&amp;&amp;</span> <span class="nf">load</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nl">thread_D</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">assert</span><span class="p">(</span><span class="nf">load</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="nf">load</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Forget memory reordering inside specific threads for a second and just look at the big picture. If threads run, say, in order A - C - B - D, thread C sees <code>x == 1</code> and <code>y == 0</code> because it has been executed right in the middle between A and B, so its assertion won&rsquo;t fail. Here&rsquo;s the catch: the total order imposed by sequential consistency forces thread D to see the same events as thread C, so its assert will fail. It&rsquo;s impossible for thread D to see the two <code>store</code>s ordered in a different way than what thread C has perceived. In other words, with sequential consistency all threads will see the same story line.</p>
+<p>As I said before this is a very intuitive and natural way of thinking about multithreaded execution. However, sequential consistency disables any potential hardware or software optimization a memory reorder could offer: a recipe for serious performance bottlenecks. Sequential consistency is a necessary evil sometimes, for example in multiple producer-multiple consumer situations where all consumers must observe the actions of all producers occurring in the same order.</p>
+<h4 id="2-acquire-release-ordering">2) Acquire-release ordering</h4>
+<p><strong>Acquire-release</strong> is halfway between a strong and a weak memory model. First of all, acquire-release works like sequential consistency except that you don&rsquo;t have a total order of execution. Let&rsquo;s go back to the previous example for a moment: with acquire-release, thread D is allowed to see a different story line than thread C, so that its assert too may pass.</p>
+<p>The absence of a total order is just a side effect here. Acquire-release provides synchronization around <em>a specific</em> shared atomic variable <em>across multiple threads</em>. That is, you can for example synchronize thread A and thread C around the shared variable <code>x</code> so that thread C loads the value only when thread A has finished writing. In this case <code>y</code> is not taken into account, so you can expect any kind of reordering around it.</p>
+<p>Concretely, programming languages that support this ordering allow you to tag memory accesses as <code>acquire</code> or <code>release</code>. An atomic store marked as <code>release</code> on a shared variable in thread A guarantees that thread B will see the full and not reordered sequence of memory events performed by thread A, once thread B triggers an atomic load marked as <code>acquire</code> on the same variable. I know it&rsquo;s brain-melting, but this is the foundation that mutexes stand on: critical sections and their <em>protected area</em> are built with this stuff (<em>acquire-release</em> name comes from the mutex jargon, where you acquire and release locks on it).</p>
+<p>Acquire-release allows for more optimization opportunities as only some memory reorderings are prevented. On the other hand your code becomes more difficult to reason about.</p>
+<h4 id="3-relaxed-ordering">3) Relaxed ordering</h4>
+<p>This is a form of weak memory model. With <strong>relaxed ordering</strong> you are telling your program that you don&rsquo;t care about memory reordering at all. The compiler and the processor are free to do whathever they want in order to optimize the execution. What remains is of course the atomic nature of the memory operation: this is useful for example for incrementing shared counters, where you just want the operation to be atomic so that other threads don&rsquo;t see the operation half complete.</p>
+<p>Relaxed ordering doesn&rsquo;t guarantee a specific memory ordering, so it&rsquo;s not a tool you can safely use for thread synchronization. On the other hand, allowing any kind of memory tricks increases the performance of your multithreaded application.</p>
+<h3 id="whats-next">What&rsquo;s next?</h3>
+<p>In this article I wanted to take a bird&rsquo;s eye view on the memory reordering problem, the reasons behind its existence and its impact on lock-free multithreading. In the next episode I&rsquo;ll get my hands dirty by playing with some C++ code that makes use of atomic operations.</p>
+<p>Why C++? The language has recently introduced <a href="https://en.cppreference.com/w/cpp/language/memormodel">a very detailed memory model</a>, which allows you to fine-tune how memory operations can be ordered around the C++ atomic objects. I believe it&rsquo;s a good way to see how sequential consistency, acquire-release and relaxed ordering play together in some real world scenarios. Wish me good luck :)</p>
+<h3 id="reference">reference</h3>
+<ul>
+<li><a href="https://www.internalpointers.com/post/understanding-memory-ordering">Understanding memory reordering</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2020-10-09
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/recyclerview-learning-roadmap/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Recyclerview Learning Roadmap</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/2019/10/07/que-sera-sera/">
+            <span class="next-text nav-default">Que Sera Sera</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

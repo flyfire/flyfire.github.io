@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Saving Android View State - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="Today we will talk about saving and restoring View states in Android. I intentionally want to keep our focus on Android Views state just because I found this process just a little bit trickier than saving your Activity or Fragment state. Plus I think I&amp;rsquo;ve seen enough of re-invented wheels (sometimes really ugly ones) throughout the internet.
+Why do we need to save View state? Very good question! I have very strong belief that mobile application should help you solve existing problems, not add new ones." /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/2015/11/23/saving-android-view-state/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Saving Android View State" />
+<meta property="og:description" content="Today we will talk about saving and restoring View states in Android. I intentionally want to keep our focus on Android Views state just because I found this process just a little bit trickier than saving your Activity or Fragment state. Plus I think I&rsquo;ve seen enough of re-invented wheels (sometimes really ugly ones) throughout the internet.
+Why do we need to save View state? Very good question! I have very strong belief that mobile application should help you solve existing problems, not add new ones." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/2015/11/23/saving-android-view-state/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2015-11-23T00:00:00+00:00" />
+<meta property="article:modified_time" content="2015-11-23T00:00:00+00:00" />
+<meta itemprop="name" content="Saving Android View State">
+<meta itemprop="description" content="Today we will talk about saving and restoring View states in Android. I intentionally want to keep our focus on Android Views state just because I found this process just a little bit trickier than saving your Activity or Fragment state. Plus I think I&rsquo;ve seen enough of re-invented wheels (sometimes really ugly ones) throughout the internet.
+Why do we need to save View state? Very good question! I have very strong belief that mobile application should help you solve existing problems, not add new ones."><meta itemprop="datePublished" content="2015-11-23T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2015-11-23T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1854">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Saving Android View State"/>
+<meta name="twitter:description" content="Today we will talk about saving and restoring View states in Android. I intentionally want to keep our focus on Android Views state just because I found this process just a little bit trickier than saving your Activity or Fragment state. Plus I think I&rsquo;ve seen enough of re-invented wheels (sometimes really ugly ones) throughout the internet.
+Why do we need to save View state? Very good question! I have very strong belief that mobile application should help you solve existing problems, not add new ones."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Saving Android View State</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2015-11-23 </span>
+        <div class="post-category">
+            <a href="/categories/dev/"> dev </a>
+            <a href="/categories/android/"> android </a>
+            </div>
+          <span class="more-meta"> 约 1854 字 </span>
+          <span class="more-meta"> 预计阅读 9 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#why-do-we-need-to-save-view-state">Why do we need to save View state?</a></li>
+        <li><a href="#how-do-i-save-a-view-state">How do I save a View state?</a></li>
+        <li><a href="#saving-custom-state">Saving custom state</a></li>
+        <li><a href="#view-ids-should-be-unique">View IDs should be unique</a></li>
+        <li><a href="#reference">reference</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p><center><img src="/images/android_training.jpg"/></center></p>
+<!-- more -->
+<p>Today we will talk about saving and restoring <code>View</code> states in Android. I intentionally want to keep our focus on Android Views state just because I found this process just a little bit trickier than saving your <code>Activity</code> or <code>Fragment</code> state. Plus I think I&rsquo;ve seen enough of re-invented wheels (sometimes really ugly ones) throughout the internet.</p>
+<h2 id="why-do-we-need-to-save-view-state">Why do we need to save View state?</h2>
+<p>Very good question! I have very strong belief that mobile application should help you solve existing problems, not add new ones. Imagine a very complicated settings page:</p>
+<center><img src="/images/saving_view_state_settings.jpg" width="780" height="480" /></center>
+<p>This sample is not really a mobile device screenshot, but good for illustration purposes :)
+You have a lot of text fields, checkboxes, switches, etc. And you spent ~15 minutes trying to fill in all these fields. You almost there - almost hit that shiny &ldquo;Done&rdquo; button, but accidentally you rotate the screen and&hellip; wait for it&hellip;. your changes gone. Everything is back to its original state.</p>
+<p>Sure, there is a subset of users who just love your app no matter what (your mom maybe) and will be happy to take another round completing your form. But let&rsquo;s be honest to oureselves - it is the right path to be uninstalled right away (or even worse - mad croud of users with torches and pitchforks start ringing your doorbell).</p>
+<p>So let&rsquo;s do the right thing and help our users! That&rsquo;s right! We need to save user&rsquo;s changes until user exlicitly asks us not to.</p>
+<h2 id="how-do-i-save-a-view-state">How do I save a View state?</h2>
+<p>Let&rsquo;s have a simple layout with image, text and one Switch toggle:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;LinearLayout</span>  
+</span></span><span class="line"><span class="cl">    <span class="na">xmlns:android=</span><span class="s">&#34;http://schemas.android.com/apk/res/android&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="na">android:layout_width=</span><span class="s">&#34;match_parent&#34;</span>  
+</span></span><span class="line"><span class="cl">    <span class="na">android:layout_height=</span><span class="s">&#34;match_parent&#34;</span>  
+</span></span><span class="line"><span class="cl">    <span class="na">android:orientation=</span><span class="s">&#34;horizontal&#34;</span>  
+</span></span><span class="line"><span class="cl">    <span class="na">android:padding=</span><span class="s">&#34;@dimen/activity_horizontal_margin&#34;</span><span class="nt">&gt;</span>  
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;ImageView</span>  
+</span></span><span class="line"><span class="cl">        <span class="na">android:layout_width=</span><span class="s">&#34;wrap_content&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="na">android:layout_height=</span><span class="s">&#34;wrap_content&#34;</span>  
+</span></span><span class="line"><span class="cl">        <span class="na">android:src=</span><span class="s">&#34;@drawable/ic_launcher&#34;</span><span class="nt">/&gt;</span>  
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;TextView</span>  
+</span></span><span class="line"><span class="cl">        <span class="na">android:layout_width=</span><span class="s">&#34;0dip&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="na">android:layout_weight=</span><span class="s">&#34;1&#34;</span>  
+</span></span><span class="line"><span class="cl">        <span class="na">android:layout_height=</span><span class="s">&#34;wrap_content&#34;</span>  
+</span></span><span class="line"><span class="cl">        <span class="na">android:text=</span><span class="s">&#34;My Text&#34;</span><span class="nt">/&gt;</span>  
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;Switch</span>  
+</span></span><span class="line"><span class="cl">        <span class="na">android:layout_width=</span><span class="s">&#34;wrap_content&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="na">android:layout_height=</span><span class="s">&#34;wrap_content&#34;</span>  
+</span></span><span class="line"><span class="cl">        <span class="na">android:layout_margin=</span><span class="s">&#34;8dip&#34;</span><span class="nt">/&gt;</span>  
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/LinearLayout&gt;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Super simple layout as you can see. But now when I switch toggle and then change screen orientation - my toggle is back to its original state :(</p>
+<p>Android usually saves states of such views automatically. But why it didn&rsquo;t work in our case?</p>
+<p>Let&rsquo;s take a step back and try to figure out how does Android manage View states. Here is what the normal save/restore process looks like:</p>
+<center><img src="/images/saving_view_state_save_restore.png" width="689" height="292"></center>
+<ul>
+<li><code>saveHierarchyState(SparseArray&lt;Parcelable&gt; container)</code>called by Android framework whenever state needs to be saved. Normally calls dispatchSaveInstanceState().</li>
+<li><code>dispatchSaveInstanceState(SparseArray&lt;Parcelable&gt; container)</code>called by <code>saveHierarchyState()</code>. Internally it calls <code>onSaveInstanceState()</code> and expects <code>Parcelable</code> to be returned as a representation of current state. This <code>Parcelable</code> is stored in container (see input param) - key-value map. View&rsquo;s ID is taken as a key and Parcelable is taken as a value. Also if this is a <code>ViewGroup</code> - goes through its children and saves their state as well.</li>
+<li><code>Parcelable onSaveInstanceState()</code>called by <code>dispatchSaveInstanceState()</code>. This method should be overridden by View&rsquo;s implementation to return actual View state.</li>
+<li><code>restoreHierarchyState(SparseArray&lt;Parcelable&gt; container)</code>called by Android whenever state needs to be restored. Again, as an input parameter we have a <code>SparseArray</code> which contains all the states saved during the save process.</li>
+<li><code>dispatchRestoreInstanceState(SparseArray&lt;Parcelable&gt; container)</code>called by <code>restoreHierarchyState()</code>. Looks up <code>Parcelable</code> based on the View ID and passes it into <code>onRestoreInstanceState()</code>. If this is a <code>ViewGroup</code> - restores its children state as well.</li>
+<li><code>onRestoreInstanceState(Parcelable state)</code> - called by <code>dispatchRestoreInstanceState()</code>. State for this View ID is passed into this function if it is present in container.</li>
+</ul>
+<p>The really important part of understanding this process is that container is shared for the entire view hierarchy. We will see why it is so important in a bit.</p>
+<p>So now we know that since View&rsquo;s state is saved based on it&rsquo;s ID - if View doesn&rsquo;t have an ID - it&rsquo;s state will not be saved into container. There is no point of saving it - we will not be able to restore state anyways since we don&rsquo;t know which View this state belongs to.</p>
+<p>Looks like that&rsquo;s the reason why our toggle state is not saved! Let&rsquo;s try to add an id to our toggle (and other views):</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;LinearLayout</span>  
+</span></span><span class="line"><span class="cl">    <span class="na">xmlns:android=</span><span class="s">&#34;http://schemas.android.com/apk/res/android&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="na">android:layout_width=</span><span class="s">&#34;match_parent&#34;</span>  
+</span></span><span class="line"><span class="cl">    <span class="na">android:layout_height=</span><span class="s">&#34;match_parent&#34;</span>  
+</span></span><span class="line"><span class="cl">    <span class="na">android:orientation=</span><span class="s">&#34;horizontal&#34;</span>  
+</span></span><span class="line"><span class="cl">    <span class="na">android:padding=</span><span class="s">&#34;@dimen/activity_horizontal_margin&#34;</span><span class="nt">&gt;</span>  
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;ImageView</span>  
+</span></span><span class="line"><span class="cl">        <span class="na">android:id=</span><span class="s">&#34;@+id/image&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="na">android:layout_width=</span><span class="s">&#34;wrap_content&#34;</span>  
+</span></span><span class="line"><span class="cl">        <span class="na">android:layout_height=</span><span class="s">&#34;wrap_content&#34;</span>  
+</span></span><span class="line"><span class="cl">        <span class="na">android:src=</span><span class="s">&#34;@drawable/ic_launcher&#34;</span><span class="nt">/&gt;</span>  
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;TextView</span>  
+</span></span><span class="line"><span class="cl">        <span class="na">android:id=</span><span class="s">&#34;@+id/text&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="na">android:layout_width=</span><span class="s">&#34;0dip&#34;</span>  
+</span></span><span class="line"><span class="cl">        <span class="na">android:layout_weight=</span><span class="s">&#34;1&#34;</span>  
+</span></span><span class="line"><span class="cl">        <span class="na">android:layout_height=</span><span class="s">&#34;wrap_content&#34;</span>  
+</span></span><span class="line"><span class="cl">        <span class="na">android:text=</span><span class="s">&#34;My Text&#34;</span><span class="nt">/&gt;</span>  
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;Switch</span>  
+</span></span><span class="line"><span class="cl">        <span class="na">android:id=</span><span class="s">&#34;@+id/toggle&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="na">android:layout_width=</span><span class="s">&#34;wrap_content&#34;</span>  
+</span></span><span class="line"><span class="cl">        <span class="na">android:layout_height=</span><span class="s">&#34;wrap_content&#34;</span>  
+</span></span><span class="line"><span class="cl">        <span class="na">android:layout_margin=</span><span class="s">&#34;8dip&#34;</span><span class="nt">/&gt;</span>  
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/LinearLayout&gt;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>And here we go! It actually works! My state is preserved between configuration changes. Here is what our <code>SparseArray</code> looks like:</p>
+<center><img src="/images/saving_view_state_sparearray.png" width="684" height="356"></center>
+<p>As you can see, each view which have an ID stores its state into SparseArray container. You ask how did it happen - we didn&rsquo;t actually provide any Parcelable as a state. And the answer is - Android took care of that. Android knows how to save state of it&rsquo;s built-in widgets.</p>
+<p>In addition to ID, you should explicitly tell Android that your view wants to save its state. To do so - simply call <code>setSaveEnabled(true)</code>. You don&rsquo;t usually need to do this for built-in widgets, but if you develop custom view from scratch - you might need to enable it manually.</p>
+<p>To save View state at least 2 criterias should be met:</p>
+<ul>
+<li><code>View</code> should have an id</li>
+<li><code>setSaveEnabled(true)</code> should be called</li>
+</ul>
+<p>So now we know how to save state of built-in widgets. That&rsquo;s awesome, but what if we have some custom state and we want to preserve this state between configuration changes?</p>
+<h2 id="saving-custom-state">Saving custom state</h2>
+<p>Now let&rsquo;s take a bit more complicated example. I want to extend my Switch and add my custom state to it:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CustomSwitch</span> <span class="kd">extends</span> <span class="n">Switch</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kt">int</span> <span class="n">customState</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="o">.......</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setCustomState</span><span class="o">(</span><span class="kt">int</span> <span class="n">customState</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">customState</span> <span class="o">=</span> <span class="n">customState</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>  
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Here is how I will be saving this state:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CustomSwitch</span> <span class="kd">extends</span> <span class="n">Switch</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kt">int</span> <span class="n">customState</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="o">.............</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setCustomState</span><span class="o">(</span><span class="kt">int</span> <span class="n">customState</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">customState</span> <span class="o">=</span> <span class="n">customState</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">Parcelable</span> <span class="nf">onSaveInstanceState</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Parcelable</span> <span class="n">superState</span> <span class="o">=</span> <span class="kd">super</span><span class="o">.</span><span class="na">onSaveInstanceState</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">SavedState</span> <span class="n">ss</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SavedState</span><span class="o">(</span><span class="n">superState</span><span class="o">);</span>  
+</span></span><span class="line"><span class="cl">        <span class="n">ss</span><span class="o">.</span><span class="na">state</span> <span class="o">=</span> <span class="n">customState</span><span class="o">;</span>  
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">ss</span><span class="o">;</span>  
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onRestoreInstanceState</span><span class="o">(</span><span class="n">Parcelable</span> <span class="n">state</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">SavedState</span> <span class="n">ss</span> <span class="o">=</span> <span class="o">(</span><span class="n">SavedState</span><span class="o">)</span> <span class="n">state</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">super</span><span class="o">.</span><span class="na">onRestoreInstanceState</span><span class="o">(</span><span class="n">ss</span><span class="o">.</span><span class="na">getSuperState</span><span class="o">());</span>  
+</span></span><span class="line"><span class="cl">        <span class="n">setCustomState</span><span class="o">(</span><span class="n">ss</span><span class="o">.</span><span class="na">state</span><span class="o">);</span>  
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">static</span> <span class="kd">class</span> <span class="nc">SavedState</span> <span class="kd">extends</span> <span class="n">BaseSavedState</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">int</span> <span class="n">state</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">SavedState</span><span class="o">(</span><span class="n">Parcelable</span> <span class="n">superState</span><span class="o">)</span> <span class="o">{</span>  
+</span></span><span class="line"><span class="cl">            <span class="kd">super</span><span class="o">(</span><span class="n">superState</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="kd">private</span> <span class="nf">SavedState</span><span class="o">(</span><span class="n">Parcel</span> <span class="n">in</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">super</span><span class="o">(</span><span class="n">in</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">state</span> <span class="o">=</span> <span class="n">in</span><span class="o">.</span><span class="na">readInt</span><span class="o">();</span>  
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">writeToParcel</span><span class="o">(</span><span class="n">Parcel</span> <span class="n">out</span><span class="o">,</span> <span class="kt">int</span> <span class="n">flags</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">super</span><span class="o">.</span><span class="na">writeToParcel</span><span class="o">(</span><span class="n">out</span><span class="o">,</span> <span class="n">flags</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">out</span><span class="o">.</span><span class="na">writeInt</span><span class="o">(</span><span class="n">state</span><span class="o">);</span>  
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Parcelable</span><span class="o">.</span><span class="na">Creator</span><span class="o">&lt;</span><span class="n">SavedState</span><span class="o">&gt;</span> <span class="n">CREATOR</span>
+</span></span><span class="line"><span class="cl">                <span class="o">=</span> <span class="k">new</span> <span class="n">Parcelable</span><span class="o">.</span><span class="na">Creator</span><span class="o">&lt;</span><span class="n">SavedState</span><span class="o">&gt;()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">public</span> <span class="n">SavedState</span> <span class="nf">createFromParcel</span><span class="o">(</span><span class="n">Parcel</span> <span class="n">in</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="k">new</span> <span class="n">SavedState</span><span class="o">(</span><span class="n">in</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="kd">public</span> <span class="n">SavedState</span><span class="o">[]</span> <span class="nf">newArray</span><span class="o">(</span><span class="kt">int</span> <span class="n">size</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="k">new</span> <span class="n">SavedState</span><span class="o">[</span><span class="n">size</span><span class="o">];</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>  
+</span></span><span class="line"><span class="cl">        <span class="o">};</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>  
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Let me explain what I just did.</p>
+<p>First of all, since I override <code>onSaveInstanceState</code>, I have to call a <code>supper</code> method to let my super class save everything it wants to. In my case <code>Switch</code> will create a <code>Parcelable</code>, put state of the toggle and return it to me. Unfortunately, I cannot add some more states to this parcelable, so I need to create a wrapper around this super state and put my additional state to it. There is a handy class (<code>View.BaseSavedState</code>) in Android that does just that - saves super state and allows you to save your custom attributes by extending it.</p>
+<p>During <code>onRestoreInstanceState()</code> we need to do the opposite - get super state from our special Parcelable and allow our super class to restore its state by calling <code>super.onRestoreInstanceState(ss.getSuperState())</code>. After that we can restore our own state.Since you override <code>onSaveInstanceState()</code> - always save super state - state of your super class.</p>
+<h2 id="view-ids-should-be-unique">View IDs should be unique</h2>
+<p>Now I decided to reuse my awesome layout by separating it into custom view and including it within another layout couple of times:</p>
+<center><img src="/images/saving_view_state_view_id.png" width="676" height="249"></center>
+<p>But when I change configuration - my states are all messed up! Let&rsquo;s see what we have in our <code>SparseArray</code>:</p>
+<center><img src="/images/saving_view_stata_id_mess.png" width="719" height="496"></center>
+<p>Aha! Since states are stored based on view ID and <code>SparseArray</code> container is shared between entire view hierarchy - view IDs should be unique! Otherwise your state will be overwritten by another view with the same ID. In my case I have 2 views with id <code>@id/toggle</code>, so my states container holds only 1 instance of it - whichever came last during state store process. Now when it is time to restore state - both views will get the same state from the container.</p>
+<p>How do we solve it you ask?</p>
+<p>The quick answer to that - have seperate <code>SparseArray</code> containers for each set of children, so states do not overlap:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyCustomLayout</span> <span class="kd">extends</span> <span class="n">LinearLayout</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">.........</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">Parcelable</span> <span class="nf">onSaveInstanceState</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Parcelable</span> <span class="n">superState</span> <span class="o">=</span> <span class="kd">super</span><span class="o">.</span><span class="na">onSaveInstanceState</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">SavedState</span> <span class="n">ss</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SavedState</span><span class="o">(</span><span class="n">superState</span><span class="o">);</span>  
+</span></span><span class="line"><span class="cl">        <span class="n">ss</span><span class="o">.</span><span class="na">childrenStates</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SparseArray</span><span class="o">();</span>  
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">getChildCount</span><span class="o">();</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>  
+</span></span><span class="line"><span class="cl">            <span class="n">getChildAt</span><span class="o">(</span><span class="n">i</span><span class="o">).</span><span class="na">saveHierarchyState</span><span class="o">(</span><span class="n">ss</span><span class="o">.</span><span class="na">childrenStates</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>  
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">ss</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onRestoreInstanceState</span><span class="o">(</span><span class="n">Parcelable</span> <span class="n">state</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">SavedState</span> <span class="n">ss</span> <span class="o">=</span> <span class="o">(</span><span class="n">SavedState</span><span class="o">)</span> <span class="n">state</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">super</span><span class="o">.</span><span class="na">onRestoreInstanceState</span><span class="o">(</span><span class="n">ss</span><span class="o">.</span><span class="na">getSuperState</span><span class="o">());</span>  
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">getChildCount</span><span class="o">();</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>  
+</span></span><span class="line"><span class="cl">            <span class="n">getChildAt</span><span class="o">(</span><span class="n">i</span><span class="o">).</span><span class="na">restoreHierarchyState</span><span class="o">(</span><span class="n">ss</span><span class="o">.</span><span class="na">childrenStates</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>  
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">dispatchSaveInstanceState</span><span class="o">(</span><span class="n">SparseArray</span><span class="o">&lt;</span><span class="n">Parcelable</span><span class="o">&gt;</span> <span class="n">container</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">dispatchFreezeSelfOnly</span><span class="o">(</span><span class="n">container</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">dispatchRestoreInstanceState</span><span class="o">(</span><span class="n">SparseArray</span><span class="o">&lt;</span><span class="n">Parcelable</span><span class="o">&gt;</span> <span class="n">container</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">dispatchThawSelfOnly</span><span class="o">(</span><span class="n">container</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">static</span> <span class="kd">class</span> <span class="nc">SavedState</span> <span class="kd">extends</span> <span class="n">BaseSavedState</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">SparseArray</span> <span class="n">childrenStates</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">SavedState</span><span class="o">(</span><span class="n">Parcelable</span> <span class="n">superState</span><span class="o">)</span> <span class="o">{</span>  
+</span></span><span class="line"><span class="cl">            <span class="kd">super</span><span class="o">(</span><span class="n">superState</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="kd">private</span> <span class="nf">SavedState</span><span class="o">(</span><span class="n">Parcel</span> <span class="n">in</span><span class="o">,</span> <span class="n">ClassLoader</span> <span class="n">classLoader</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">super</span><span class="o">(</span><span class="n">in</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">childrenStates</span> <span class="o">=</span> <span class="n">in</span><span class="o">.</span><span class="na">readSparseArray</span><span class="o">(</span><span class="n">classLoader</span><span class="o">);</span>  
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">writeToParcel</span><span class="o">(</span><span class="n">Parcel</span> <span class="n">out</span><span class="o">,</span> <span class="kt">int</span> <span class="n">flags</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">super</span><span class="o">.</span><span class="na">writeToParcel</span><span class="o">(</span><span class="n">out</span><span class="o">,</span> <span class="n">flags</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">out</span><span class="o">.</span><span class="na">writeSparseArray</span><span class="o">(</span><span class="n">childrenStates</span><span class="o">);</span>  
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">ClassLoaderCreator</span><span class="o">&lt;</span><span class="n">SavedState</span><span class="o">&gt;</span> <span class="n">CREATOR</span>
+</span></span><span class="line"><span class="cl">                <span class="o">=</span> <span class="k">new</span> <span class="n">ClassLoaderCreator</span><span class="o">&lt;</span><span class="n">SavedState</span><span class="o">&gt;()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">public</span> <span class="n">SavedState</span> <span class="nf">createFromParcel</span><span class="o">(</span><span class="n">Parcel</span> <span class="n">source</span><span class="o">,</span> <span class="n">ClassLoader</span> <span class="n">loader</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="k">new</span> <span class="n">SavedState</span><span class="o">(</span><span class="n">source</span><span class="o">,</span> <span class="n">loader</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">public</span> <span class="n">SavedState</span> <span class="nf">createFromParcel</span><span class="o">(</span><span class="n">Parcel</span> <span class="n">source</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="n">createFromParcel</span><span class="o">(</span><span class="kc">null</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="kd">public</span> <span class="n">SavedState</span><span class="o">[]</span> <span class="nf">newArray</span><span class="o">(</span><span class="kt">int</span> <span class="n">size</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="k">new</span> <span class="n">SavedState</span><span class="o">[</span><span class="n">size</span><span class="o">];</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>  
+</span></span><span class="line"><span class="cl">        <span class="o">};</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>  
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Let&rsquo;s go throught this mess:</p>
+<ul>
+<li>In my custom layout I created a special <code>SaveState</code> class which holds super state and separate <code>SparseArray</code> for holding children states.</li>
+<li>in <code>onSaveInstanceState()</code> I store super state and store my children states manually into separate <code>SparseArray</code></li>
+<li>in <code>onRestoreInstanceState()</code> I restore super state and restore my children states manually from <code>SparseArray</code> created during save process</li>
+<li>remember that if this is a ViewGroup - <code>dispatchSaveInstanceState()</code> goes through children and saves their states? Since we are doing this manually now - we need to disable this behavior. Luckily there is a convinient method <code>dispatchFreezeSelfOnly()</code> (should be called from <code>dispatchSaveInstanceState()</code>) which tells Android to save only ViewGroup&rsquo;s state and don&rsquo;t touch it&rsquo;s children.</li>
+<li>the same thing should be done inside <code>dispatchRestoreInstanceState()</code> - we call <code>dispatchThawSelfOnly()</code>. Now we told Android to restore only our own state - and let us deal with our children manually.</li>
+</ul>
+<p>And here is what our SparseArray looks like:</p>
+<center><img src="/images/saving_view_state_seperate_sparsearray.png" width="726" height="493"></center>
+<p>As we can see, each view group is now in a separate <code>SparseArray</code>, so they don&rsquo;t overlap and don&rsquo;t override each other.</p>
+<p>State is saved! Profit!</p>
+<p>As usual, source code for this article can be found on <a href="https://github.com/paveldudka/ViewStateSaveDemo">GitHub</a>.</p>
+<h2 id="reference">reference</h2>
+<ul>
+<li><a href="http://trickyandroid.com/saving-android-view-state-correctly/">Saving View State Correctly</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2015-11-23
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/2015/11/23/android-starting-window/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Android Starting Window</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/2015/09/22/android-message-handling-mechanism/">
+            <span class="next-text nav-default">Android Message Handling Mechanism</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

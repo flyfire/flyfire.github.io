@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Java Thread Basics - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="进程：资源分配的最小单位 线程：CPU调度的最小单位 时间片轮转，线程上下文切换，并发 并发：任务交替执行，时间片轮转 并行：任务同时执行 Thread java" /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/java-thread-basics/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Java Thread Basics" />
+<meta property="og:description" content="进程：资源分配的最小单位 线程：CPU调度的最小单位 时间片轮转，线程上下文切换，并发 并发：任务交替执行，时间片轮转 并行：任务同时执行 Thread java" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/java-thread-basics/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2022-02-13T12:22:29+08:00" />
+<meta property="article:modified_time" content="2022-02-13T12:22:29+08:00" />
+<meta itemprop="name" content="Java Thread Basics">
+<meta itemprop="description" content="进程：资源分配的最小单位 线程：CPU调度的最小单位 时间片轮转，线程上下文切换，并发 并发：任务交替执行，时间片轮转 并行：任务同时执行 Thread java"><meta itemprop="datePublished" content="2022-02-13T12:22:29+08:00" />
+<meta itemprop="dateModified" content="2022-02-13T12:22:29+08:00" />
+<meta itemprop="wordCount" content="5085">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Java Thread Basics"/>
+<meta name="twitter:description" content="进程：资源分配的最小单位 线程：CPU调度的最小单位 时间片轮转，线程上下文切换，并发 并发：任务交替执行，时间片轮转 并行：任务同时执行 Thread java"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Java Thread Basics</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2022-02-13 </span>
+        
+          <span class="more-meta"> 约 5085 字 </span>
+          <span class="more-meta"> 预计阅读 11 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>进程：资源分配的最小单位
+线程：CPU调度的最小单位</p>
+<p>时间片轮转，线程上下文切换，并发</p>
+<p>并发：任务交替执行，时间片轮转
+并行：任务同时执行</p>
+<p>Thread java对线程的抽象
+Runnable 对任务的抽象。Callable 对任务/业务逻辑的抽象，有返回值。</p>
+<p>stop可能导致线程占用的资源不能得到释放。</p>
+<p>interrupt()方法设置线程的中断标志位。</p>
+<p>isInterrupted()方法返回中断标志位，不清除中断标志位。保留为true</p>
+<p>Thread.interrupted()方法返回中断标志位，清除中断标志位。由true改为false</p>
+<p>不要使用自定义cancel来设置值来进行线程的中断，因为线程的sleep和wait这些方法不会去检测自定义的cancel字段，但是会去响应中断，会抛出InterruptedException。
+sleep方法检测到中断调用interrupt()调用时，会抛出InterruptedException同时把中断标志位由true改为false，如果这时仍然需要中断线程，可以再次调用interrupt()方法。</p>
+<p>死锁状态的线程是不会理会中断的。</p>
+<p>Thread的start方法开始时会检查线程状态，不能多次调用。在start方法里面会真正启动一个系统线程。</p>
+<p>线程状态：新建，就绪，运行，阻塞，死亡</p>
+<p><center><img src="/images/thread-state.jpg"/></center></p>
+<p><code>Lock</code>底层实现是<code>LockSupport</code>，所以使用显式锁Lock，线程会进入等待或者等待超时状态。只有在<code>synchronized</code>方法或者方法块中线程才会进入阻塞状态。</p>
+<p><code>sleep</code>线程会进入等待/等待超时状态。</p>
+<p>阻塞是被动进入，等待时主动进入。</p>
+<p>死锁是指两个或两个以上的线程在执行过程中，由于竞争资源或者由于彼此通信而造成的一种阻塞的现象，若无外力作用，它们都将无法推进下去。此时称系统处于死锁状态或系统产生了死锁。</p>
+<p>死锁的发生条件</p>
+<ul>
+<li>多个操作者(M个M &gt;= 2)争夺N个资源(N&gt;=2),N &lt;= M</li>
+<li>争夺资源的顺序不对</li>
+<li>拿到资源不放手</li>
+</ul>
+<p>打破<code>争夺资源的顺序不对</code>，规定必须先拿A锁再拿B锁。
+打破<code>拿到资源不放手</code>,<code>Lock.tryLock</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="k">while</span><span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span><span class="o">(</span><span class="n">lockA</span><span class="o">.</span><span class="na">tryLock</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span><span class="o">(</span><span class="n">lockB</span><span class="o">.</span><span class="na">tryLock</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="c1">// do sth
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">lockB</span><span class="o">.</span><span class="na">unlock</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">lockA</span><span class="o">.</span><span class="na">unlock</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="n">random</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>互斥条件</li>
+<li>请求保持</li>
+<li>不剥夺</li>
+<li>环路等待</li>
+</ul>
+<p>活锁</p>
+<p>yield方法将线程从运行转到可运行状态，让出CPU执行权，不会释放锁。
+threadA中调用threadB.join()等待threadB执行完之后继续执行操作。</p>
+<p>join让线程执行变成串行。</p>
+<p>setDeamon让线程变为守护线程。</p>
+<p>线程优先级只有参考意义，不能决定谁先得到执行。</p>
+<p>用户线程结束之后，所有的守护线程跟着结束。
+守护线程run方法中的finally语句不一定会得到执行。
+synchronized拿到对象锁才能继续执行。
+synchronized在static方法上锁住的是class对象。
+对象头中标志位
+对Integer i加锁，i++之后i的地址发生了变化
+Integer i = Integer.valueOf(this.intvalue + 1)</p>
+<p>volatile保证变量的可见性，值被修改后能立即被其他线程可见，不保证原子性，适合一写多读的情况。</p>
+<p>ThreadLocal 每个线程有自己的变量副本。</p>
+<p>执行方法的时候在栈上执行
+new对象的时候在堆上new
+Object o = Object()
+栈上的o指向堆上的对象，这称之为强引用，只要栈上面有一个引用指向这个对象，这个对象就不会被回收。
+SoftReference 要发生OOM，内存不足的时候会被回收
+WeakReference 发生内存回收的时候，GC的时候会被回收
+虚引用 发生内存回收的时候，通知一下</p>
+<p>ThreadLocalMap Entry是WeakReference<ThreadLocal>
+ThreadLocalMap 有 Entry 数组
+发生GC的时候ThreadLocal会被回收,ThreadLocal指向的value无法访问
+ThreadLocal内存泄漏：发生GC的时候ThreadLocal会被回收，ThreadLocal指向的value无法访问，导致内存泄漏，用完ThreadLocal之后要调用threadLocal.remove()将value置为null进行内存回收。
+get()/set()的时候会清理key为null的Entry。</p>
+<p>共享引用，可能导致ThreadLocal的value指向同一个引用。</p>
+<p>线程共享synchronized,volatile
+线程协作wait/notify/notifyAll，在某个对象上等待通知</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">synchronized(对象) {
+</span></span><span class="line"><span class="cl">    while(条件不满足){
+</span></span><span class="line"><span class="cl">        对象.wait()
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">    //业务逻辑
+</span></span><span class="line"><span class="cl">}
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">synchronized(对象) {
+</span></span><span class="line"><span class="cl">    // 业务逻辑，改变条件
+</span></span><span class="line"><span class="cl">    对象.notify()/对象.notifyAll();
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>线程调用wait方法，会进入休眠，进入休眠之前会释放锁。notify/notifyAll不会释放锁，只有synchronized方法块中的方法执行完之后才会释放锁。
+被唤醒，while条件不满足，继续等待。
+有两个条件满足都会notify，就会出现伪唤醒的情况。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// 等待超时模式
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="kd">class</span> <span class="nf">DBPool</span><span class="o">(</span><span class="kd">private</span> <span class="n">val</span> <span class="n">initCap</span><span class="o">:</span> <span class="n">Int</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">companion</span> <span class="n">object</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nd">@Volatile</span> <span class="kd">private</span> <span class="n">var</span> <span class="n">dbPoolInstance</span><span class="o">:</span><span class="n">DBPool</span><span class="o">?</span> <span class="o">=</span> <span class="kc">null</span>
+</span></span><span class="line"><span class="cl">        <span class="n">fun</span> <span class="nf">instance</span><span class="o">(</span><span class="n">initCap</span><span class="o">:</span> <span class="n">Int</span><span class="o">):</span> <span class="n">DBPool</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span><span class="o">(</span><span class="n">dbPoolInstance</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="kd">synchronized</span><span class="o">(</span><span class="n">DBPool</span><span class="o">::</span><span class="n">class</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">if</span><span class="o">(</span><span class="n">dbPoolInstance</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                        <span class="n">dbPoolInstance</span> <span class="o">=</span> <span class="n">DBPool</span><span class="o">(</span><span class="n">initCap</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">dbPoolInstance</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">val</span> <span class="n">list</span> <span class="o">=</span> <span class="n">mutableListOf</span><span class="o">&lt;</span><span class="n">Connection</span><span class="o">&gt;()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">init</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span><span class="o">(</span><span class="n">i</span> <span class="n">in</span> <span class="mf">0.</span><span class="o">.</span><span class="na">initCap</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">list</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">Connection</span><span class="o">())</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">fun</span> <span class="nf">release</span><span class="o">(</span><span class="n">connection</span><span class="o">:</span> <span class="n">Connection</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">synchronized</span><span class="o">(</span><span class="n">list</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">list</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">connection</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">list</span><span class="o">.</span><span class="na">notifyAll</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">fun</span> <span class="nf">acquire</span><span class="o">(</span><span class="n">timeout</span><span class="o">:</span> <span class="n">Long</span><span class="o">):</span> <span class="n">Connection</span><span class="o">?</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">synchronized</span><span class="o">(</span><span class="n">list</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span><span class="o">(</span><span class="n">timeout</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="n">L</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">while</span><span class="o">(</span><span class="n">list</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">list</span><span class="o">.</span><span class="na">wait</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="n">list</span><span class="o">.</span><span class="na">removeFirst</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">val</span> <span class="n">future</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">()</span> <span class="o">+</span> <span class="n">timeout</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">                <span class="n">var</span> <span class="n">remain</span> <span class="o">=</span> <span class="n">timeout</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">                <span class="k">while</span><span class="o">(</span><span class="n">list</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">()</span> <span class="o">&amp;&amp;</span> <span class="n">remain</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="n">L</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">list</span><span class="o">.</span><span class="na">wait</span><span class="o">(</span><span class="n">remain</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">remain</span> <span class="o">=</span> <span class="n">future</span> <span class="o">-</span> <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMills</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span>
+</span></span><span class="line"><span class="cl">                <span class="n">var</span> <span class="n">connection</span><span class="o">:</span> <span class="n">Connection</span><span class="o">?</span> <span class="o">=</span> <span class="kc">null</span>
+</span></span><span class="line"><span class="cl">                <span class="nf">if</span><span class="o">(!</span><span class="n">list</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">connection</span> <span class="o">=</span> <span class="n">list</span><span class="o">.</span><span class="na">removeFirst</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="n">connection</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><a href="https://github.com/flyfire/JavaWithKotlin/blob/master/src/main/kotlin/com/solarexsoft/coroutinelearning/Hi.kt">等待超时机制</a></p>
+<p><code>yield()</code>方法让出CPU使用权，不让出内存资源，不释放锁</p>
+<p><code>sleep()</code>方法不会释放锁</p>
+<p><code>wiat()</code>方法会释放锁，被唤醒了之后去竞争锁</p>
+<p><code>notify()</code>/<code>notifyAll()</code>不会释放锁，只有等同步代码块执行完了之后才会释放锁。</p>
+<p>分而治之：大问题拆分成小问题，小问题之间无关联。
+动态规划：大问题拆分成小问题，小问题之间有关联。</p>
+<p>快速排序，归并排序，二分查找：分而治之。</p>
+<p>ForkJoin</p>
+<p>CountDownLatch 发令枪，闭锁</p>
+<p>CAS Compare and Swap</p>
+<p>synchronized悲观锁，认为总有人要改我的值，先锁住再说
+CAS乐观锁，认为没人会改我的值。</p>
+<p>synchronized竞争锁会导致上下文切换。</p>
+<p>CAS自旋，死循环</p>
+<p>CAS的问题</p>
+<ul>
+<li>ABA问题，加一个版本戳解决，AtomicMarkableReference/AtomicStampedReference</li>
+<li>开销问题，自旋导致CPU很忙</li>
+<li>只能保证一个共享变量的原子操作。AtomicReference</li>
+</ul>
+<p>AtomicMarkableReference 只关心有没有人改过
+AtomicStampedReference 关心改了多少次</p>
+<p>ThreadLocal 一个变量需要在线程内跨方法访问。</p>
+<p>BlockingQueue</p>
+<ul>
+<li><code>add</code>,<code>remove</code>方法不阻塞，但会抛出异常。</li>
+<li><code>offer</code>往里添加元素，如果添加不进去，会返回false，<code>poll</code>从里面取元素，如果没有会返回null</li>
+<li><code>put</code>,<code>take</code>阻塞操作</li>
+</ul>
+<p>生产者、消费者性能不一致</p>
+<ul>
+<li><code>ArrayBlockingQueue</code>,一个由数组结构组成的有界阻塞队列</li>
+<li><code>LinkedBlockingQueue</code>，一个由链表结构组成的有界阻塞队列</li>
+<li><code>PriorityBlockingQueue</code>,一个支持优先级排序的无界阻塞队列</li>
+<li><code>DelayQueue</code>，一个使用优先级队列实现的无界阻塞队列</li>
+<li><code>SynchronousQueue</code>，一个不存储元素的阻塞队列</li>
+<li><code>LinkedTransferQueue</code>，一个由链表结构组成的无界阻塞队列</li>
+<li><code>LinkedBlockingDeque</code>，一个由链表结构组成的双向阻塞队列</li>
+</ul>
+<p>有界，规定了最大容量</p>
+<p>无界，没有最大容量</p>
+<p>无界，插入不会阻塞，拿会阻塞。</p>
+<p>单机的缓存系统，<code>DelayQueue</code></p>
+<p><code>SynchronousQueue</code>数据的直接传递，生产者往里添加元素，必须有消费者把元素拿走</p>
+<p><code>LinkedTransferQueue</code>，try尝试传输。生产者在往队列放元素的时候，如果正好有消费者在等待拿元素，直接把元素给消费者，不往里面放。</p>
+<p><code>ThreadPoolExecutor</code></p>
+<p>先启动corePoolSize的线程处理任务，corePoolSize的线程全都启动了，再来了任务就放入BlockingQueue里，BlockingQueue里放满了，继续来任务的话启动非核心线程，达到maxPoolSize之后，拒绝策略起作用。</p>
+<p><code>RejectedExecutionHandler</code></p>
+<ul>
+<li>
+<p><code>AbortPolicy</code> 抛出异常</p>
+</li>
+<li>
+<p><code>CallerRunsPolicy</code> 调用线程运行任务</p>
+</li>
+<li>
+<p><code>DiscardPolicy</code>,<code>DiscardOldestPolicy</code> 丢弃提交的任务</p>
+</li>
+<li>
+<p><code>shutdown</code>中断未执行的任务</p>
+</li>
+<li>
+<p><code>shutdownNow</code>不管是正在运行的还是未运行的，都发出中断信号</p>
+</li>
+</ul>
+<p>CPU密集型 最大线程数 CPU核心数+1  虚拟内存调度到内存，页缺失 避免线程上下文切换</p>
+<p>IO密集型  最大线程数 CPU核心数*2</p>
+<p>混合型</p>
+<p>IO操作 DMA CPU向磁盘控制器提交任务，磁盘控制器完成任务后发起CPU中断。</p>
+<p>零拷贝 应用程序向内核空间申请空间，mmap，免去应用空间和内核空间来回拷贝 mmap direct memory</p>
+<p>AQS 模板方法</p>
+<ul>
+<li>
+<p><code>tryAcquire</code> 独占</p>
+</li>
+<li>
+<p><code>tryAcquireShared</code> 共享</p>
+</li>
+</ul>
+<p>Java Memory Model</p>
+<p>CPU L1Cache L2Cache L3CPU共享Cache</p>
+<p>Java线程 工作内存线程独享 主内存</p>
+<p>变量 可见性，原子性</p>
+<p>volatile只能保证可见性，不能保证原子性。适合一个线程写，其他线程读的情况。</p>
+<p>synchronized既能保证可见性又能保证原子性。</p>
+<p>指令流水线和重排序，CPU可以同时执行多条指令。</p>
+<p>重排序缓存</p>
+<p>volatile 变量抑制指令重排序。</p>
+<p>volatile+CAS操作替换synchronized</p>
+<p>有volatile修饰的共享变量进行写操作的时候会使用CPU提供的Lock前缀指令</p>
+<ul>
+<li>
+<p>将当前处理器缓存行的数据写回到系统内存</p>
+</li>
+<li>
+<p>这个写回内存的操作会使在其他CPU缓存里面缓存了该内存地址的数据无效//CPU缓存行失效</p>
+</li>
+</ul>
+<p><code>synchronized</code>关键字</p>
+<ul>
+<li>
+<p><code>monitorenter</code>,<code>monitorexit</code>指令</p>
+</li>
+<li>
+<p>flags: <code>ACC_SYNCHRONIZED</code></p>
+</li>
+<li>
+<p>锁的存放位置：对象头</p>
+</li>
+</ul>
+<p>对象头：GC年龄。。。MarkWord</p>
+<p>对象类型指针 KlassPointer</p>
+<p>数组长度</p>
+<p><code>synchronized</code>优化</p>
+<ul>
+<li>
+<p>轻量级锁，<code>synchronized</code>块很快执行完，为了避免上下文切换的开销，线程不进行阻塞，通过CAS操作来加锁和解锁，自旋锁。适应性自旋锁，太多线程自旋消耗CPU资源，自旋次数由虚拟机判定，动态调整。一般不超过一个上下文切换的时间。通过CAS操作替换MarkWord中的字段。</p>
+</li>
+<li>
+<p>一个锁大部分总是有一个线程获得，锁重入，不做CAS操作，测试拥有这把锁的是不是自己，偏向锁。</p>
+</li>
+</ul>
+<p>锁一共有4中状态，级别从低到高依次是：无锁状态、偏向锁状态、轻量级锁状态和重量级锁状态。</p>
+<p>偏向锁：大多数情况下，锁不仅不存在多线程竞争，而且总是由同一线程多次获得，为了让线程获得锁的代价更低而引入了偏向锁，无竞争时不需要进行CAS操作来加锁和解锁。</p>
+<p>偏向锁的撤销里面存在StopTheWorld现象。</p>
+<p>线程1持有偏向锁，线程2准备去撤销偏向锁的时候会去修改线程1的堆栈上的内容的。线程2需要将线程1堆栈上的对象头信息替换成轻量级锁，释放的时候需要切换为轻量级锁的释放。</p>
+<p>大量线程竞争的时候，偏向锁会升级为轻量级锁，会stop the world，开销较大，一般禁用偏向锁。</p>
+<table>
+<thead>
+<tr>
+<th>锁</th>
+<th>优点</th>
+<th>缺点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>偏向锁</td>
+<td>加锁和释放锁不需要额外的消耗，和执行非同步方法比仅存在纳秒级的差距</td>
+<td>如果线程间存在竞争，会带来额外的锁撤销的消耗</td>
+<td>适用于只有一个线程访问同步块场景</td>
+</tr>
+<tr>
+<td>轻量级锁</td>
+<td>竞争的线程不会阻塞，提高了程序的响应速度</td>
+<td>如果始终得不到锁，竞争的线程使用自旋会消耗CPU</td>
+<td>追求响应时间，同步块执行速度非常快</td>
+</tr>
+<tr>
+<td>重量级锁</td>
+<td>线程竞争不使用自旋，不会消耗CPU</td>
+<td>线程阻塞，响应时间缓慢</td>
+<td>追求吞吐量，同步块执行速度较长</td>
+</tr>
+</tbody>
+</table>
+<p>Java主流锁</p>
+<ul>
+<li>
+<p>以线程要不要锁住同步资源分为：锁住-&gt; 悲观锁，不锁住-&gt;乐观锁</p>
+</li>
+<li>
+<p>锁住同步资源失败，线程要不要阻塞：阻塞-&gt;;不阻塞-&gt;自旋锁，适应性自旋锁</p>
+</li>
+<li>
+<p>多个线程竞争同步资源的流程细节有没有区别：不锁住资源，多个线程中只有一个能修改资源成功，其他线程会重试-&gt;无锁；同一个线程执行同步资源时自动获取资源-&gt;偏向锁；多个线程竞争同步资源时，没有获取资源的线程自旋等待锁释放-&gt;轻量级锁；多个线程竞争同步资源时，没有获取资源的线程阻塞等待唤醒 -&gt;重量级锁</p>
+</li>
+<li>
+<p>多个线程竞争锁时要不要排队：排队-&gt;公平锁；先尝试插队，插队失败再排队-&gt;非公平锁</p>
+</li>
+<li>
+<p>一个线程中的多个流程能不能获取同一把锁：能-&gt;可重入锁；不能-&gt;非可重入锁</p>
+</li>
+<li>
+<p>多个线程能不能共享一把锁：能-&gt;共享锁；不能-&gt;排他锁</p>
+</li>
+</ul>
+<p>读写锁里面的读锁是共享锁，写锁是排他锁，排斥其他的写和读。</p>
+<p><code>ReentranctLock</code>提供了可中断拿锁，尝试获取锁的方法，提供了公平锁和非公平锁。<code>synchronized</code>是非公平锁。</p>
+<p><code>synchronized</code>优化</p>
+<ul>
+<li>
+<p>锁消除</p>
+</li>
+<li>
+<p>锁粗化，连个代码块合并为一，减少上下文切换</p>
+</li>
+<li>
+<p>逃逸分析</p>
+</li>
+</ul>
+<p>DCL volatile</p>
+<p>new一个对象</p>
+<ul>
+<li>
+<p>分配内存</p>
+</li>
+<li>
+<p>初始化</p>
+</li>
+<li>
+<p>把地址空间和引用挂钩</p>
+</li>
+</ul>
+<p>指令重排序可能导致第3步可能在第2步之前，可能还没有初始化，访问时会报NPE。volatile抑制指令重排序。</p>
+<p>类加载加锁，虚拟机实现的时候实现了线程安全。</p>
+<p>线程池</p>
+<ul>
+<li>
+<p>降低资源消耗</p>
+</li>
+<li>
+<p>提高响应速度</p>
+</li>
+<li>
+<p>提高线程的可管理性</p>
+</li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2022-02-13
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/java-xuliehua/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Java 序列化</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/java-dynamic-proxy/">
+            <span class="next-text nav-default">Java Dynamic Proxy</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

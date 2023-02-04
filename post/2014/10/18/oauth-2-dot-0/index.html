@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Oauth 2.0 - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="OAuth是一个关于授权（authorization）的开放网络标准，在全世界得到广泛应用，目前的版本是2.0版。本文对OAuth 2.0的设" /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/2014/10/18/oauth-2-dot-0/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Oauth 2.0" />
+<meta property="og:description" content="OAuth是一个关于授权（authorization）的开放网络标准，在全世界得到广泛应用，目前的版本是2.0版。本文对OAuth 2.0的设" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/2014/10/18/oauth-2-dot-0/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2014-10-18T00:00:00+00:00" />
+<meta property="article:modified_time" content="2014-10-18T00:00:00+00:00" />
+<meta itemprop="name" content="Oauth 2.0">
+<meta itemprop="description" content="OAuth是一个关于授权（authorization）的开放网络标准，在全世界得到广泛应用，目前的版本是2.0版。本文对OAuth 2.0的设"><meta itemprop="datePublished" content="2014-10-18T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2014-10-18T00:00:00+00:00" />
+<meta itemprop="wordCount" content="5311">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Oauth 2.0"/>
+<meta name="twitter:description" content="OAuth是一个关于授权（authorization）的开放网络标准，在全世界得到广泛应用，目前的版本是2.0版。本文对OAuth 2.0的设"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Oauth 2.0</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2014-10-18 </span>
+        <div class="post-category">
+            <a href="/categories/dev/"> dev </a>
+            </div>
+          <span class="more-meta"> 约 5311 字 </span>
+          <span class="more-meta"> 预计阅读 11 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#应用场景">应用场景</a></li>
+        <li><a href="#名词定义">名词定义</a></li>
+        <li><a href="#oauth的思路">OAuth的思路</a></li>
+        <li><a href="#运行流程">运行流程</a></li>
+        <li><a href="#客户端的授权模式">客户端的授权模式</a>
+          <ul>
+            <li><a href="#授权码模式">授权码模式</a></li>
+            <li><a href="#简化模式">简化模式</a></li>
+            <li><a href="#密码模式">密码模式</a></li>
+            <li><a href="#客户端模式">客户端模式</a></li>
+            <li><a href="#更新令牌">更新令牌</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p><center><img src="/images/oauth.png"/></center></p>
+<p><a href="http://en.wikipedia.org/wiki/OAuth">OAuth</a>是一个关于授权（authorization）的开放网络标准，在全世界得到广泛应用，目前的版本是2.0版。本文对OAuth 2.0的设计思路和运行流程，做一个简明通俗的解释，主要参考材料为<a href="http://www.rfcreader.com/#rfc6749">RFC 6749</a>。</p>
+<h2 id="应用场景">应用场景</h2>
+<p>为了理解OAuth的适用场合，让我举一个假设的例子。有一个&quot;云冲印&quot;的网站，可以将用户储存在Google的照片，冲印出来。用户为了使用该服务，必须让&quot;云冲印&quot;读取自己储存在Google上的照片。</p>
+<p><center><img src="/images/google-print.png"/></center></p>
+<p>问题是只有得到用户的授权，Google才会同意&quot;云冲印&quot;读取这些照片。那么，&ldquo;云冲印&quot;怎样获得用户的授权呢？传统方法是，用户将自己的Google用户名和密码，告诉&quot;云冲印&rdquo;，后者就可以读取用户的照片了。这样的做法有以下几个严重的缺点。</p>
+<pre><code>（1）&quot;云冲印&quot;为了后续的服务，会保存用户的密码，这样很不安全。
+（2）Google不得不部署密码登录，而我们知道，单纯的密码登录并不安全。
+（3）&quot;云冲印&quot;拥有了获取用户储存在Google所有资料的权力，用户没法限制&quot;云冲印&quot;获得授权的范围和有效期。
+（4）用户只有修改密码，才能收回赋予&quot;云冲印&quot;的权力。但是这样做，会使得其他所有获得用户授权的第三方应用程序全部失效。
+（5）只要有一个第三方应用程序被破解，就会导致用户密码泄漏，以及所有被密码保护的数据泄漏。
+</code></pre>
+<p>OAuth就是为了解决上面这些问题而诞生的。</p>
+<!-- more -->
+<h2 id="名词定义">名词定义</h2>
+<p>在详细讲解OAuth 2.0之前，需要了解几个专用名词。它们对读懂后面的讲解，尤其是几张图，至关重要。</p>
+<pre><code>（1） Third-party application：第三方应用程序，本文中又称&quot;客户端&quot;（client），即上一节例子中的&quot;云冲印&quot;。
+（2）HTTP service：HTTP服务提供商，本文中简称&quot;服务提供商&quot;，即上一节例子中的Google。
+（3）Resource Owner：资源所有者，本文中又称&quot;用户&quot;（user）。
+（4）User Agent：用户代理，本文中就是指浏览器。
+（5）Authorization server：认证服务器，即服务提供商专门用来处理认证的服务器。
+（6）Resource server：资源服务器，即服务提供商存放用户生成的资源的服务器。它与认证服务器，可以是同一台服务器，也可以是不同的服务器。
+</code></pre>
+<p>知道了上面这些名词，就不难理解，OAuth的作用就是让&quot;客户端&quot;安全可控地获取&quot;用户&quot;的授权，与&quot;服务商提供商&quot;进行互动。</p>
+<h2 id="oauth的思路">OAuth的思路</h2>
+<p>OAuth在&quot;客户端&quot;与&quot;服务提供商&quot;之间，设置了一个授权层（authorization layer）。&ldquo;客户端&quot;不能直接登录&quot;服务提供商&rdquo;，只能登录授权层，以此将用户与客户端区分开来。&ldquo;客户端&quot;登录授权层所用的令牌（token），与用户的密码不同。用户可以在登录的时候，指定授权层令牌的权限范围和有效期。&ldquo;客户端&quot;登录授权层以后，&ldquo;服务提供商&quot;根据令牌的权限范围和有效期，向&quot;客户端&quot;开放用户储存的资料。</p>
+<h2 id="运行流程">运行流程</h2>
+<p>OAuth 2.0的运行流程如下图，摘自RFC 6749。</p>
+<p><center><img src="/images/oauth-flow.png"/></center></p>
+<pre><code>（A）用户打开客户端以后，客户端要求用户给予授权。
+（B）用户同意给予客户端授权。
+（C）客户端使用上一步获得的授权，向认证服务器申请令牌。
+（D）认证服务器对客户端进行认证以后，确认无误，同意发放令牌。
+（E）客户端使用令牌，向资源服务器申请获取资源。
+（F）资源服务器确认令牌无误，同意向客户端开放资源。
+</code></pre>
+<p>不难看出来，上面六个步骤之中，B是关键，即用户怎样才能给于客户端授权。有了这个授权以后，客户端就可以获取令牌，进而凭令牌获取资源。下面一一讲解客户端获取授权的四种模式。</p>
+<h2 id="客户端的授权模式">客户端的授权模式</h2>
+<p>客户端必须得到用户的授权（authorization grant），才能获得令牌（access token）。OAuth 2.0定义了四种授权方式。</p>
+<ul>
+<li>授权码模式（authorization code）</li>
+<li>简化模式（implicit）</li>
+<li>密码模式（resource owner password credentials）</li>
+<li>客户端模式（client credentials）</li>
+</ul>
+<h3 id="授权码模式">授权码模式</h3>
+<p>授权码模式（authorization code）是功能最完整、流程最严密的授权模式。它的特点就是通过客户端的后台服务器，与&quot;服务提供商&quot;的认证服务器进行互动。</p>
+<p><center><img src="/images/auth-code.png"/></center></p>
+<p>它的步骤如下：</p>
+<pre><code>（A）用户访问客户端，后者将前者导向认证服务器。
+（B）用户选择是否给予客户端授权。
+（C）假设用户给予授权，认证服务器将用户导向客户端事先指定的&quot;重定向URI&quot;（redirection URI），同时附上一个授权码。
+（D）客户端收到授权码，附上早先的&quot;重定向URI&quot;，向认证服务器申请令牌。这一步是在客户端的后台的服务器上完成的，对用户不可见。
+（E）认证服务器核对了授权码和重定向URI，确认无误后，向客户端发送访问令牌（access token）和更新令牌（refresh token）。
+</code></pre>
+<p>下面是上面这些步骤所需要的参数。A步骤中，客户端申请认证的URI，包含以下参数：</p>
+<ul>
+<li>response_type：表示授权类型，必选项，此处的值固定为&quot;code&rdquo;</li>
+<li>client_id：表示客户端的ID，必选项</li>
+<li>redirect_uri：表示重定向URI，可选项</li>
+<li>scope：表示申请的权限范围，可选项</li>
+<li>state：表示客户端的当前状态，可以指定任意值，认证服务器会原封不动地返回这个值。</li>
+</ul>
+<p>下面是一个例子。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">GET /authorize?response_type=code&amp;client_id=s6BhdRkqt3&amp;state=xyz
+</span></span><span class="line"><span class="cl">        &amp;redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb HTTP/1.1
+</span></span><span class="line"><span class="cl">Host: server.example.com
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>C步骤中，服务器回应客户端的URI，包含以下参数：</p>
+<ul>
+<li>code：表示授权码，必选项。该码的有效期应该很短，通常设为10分钟，客户端只能使用该码一次，否则会被授权服务器拒绝。该码与客户端ID和重定向URI，是一一对应关系。</li>
+<li>state：如果客户端的请求中包含这个参数，认证服务器的回应也必须一模一样包含这个参数。</li>
+</ul>
+<p>下面是一个例子。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">HTTP/1.1 302 Found
+</span></span><span class="line"><span class="cl">Location: https://client.example.com/cb?code=SplxlOBeZQQYbYS6WxSbIA
+</span></span><span class="line"><span class="cl">          &amp;state=xyz
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>D步骤中，客户端向认证服务器申请令牌的HTTP请求，包含以下参数：</p>
+<ul>
+<li>grant_type：表示使用的授权模式，必选项，此处的值固定为&quot;authorization_code&rdquo;。</li>
+<li>code：表示上一步获得的授权码，必选项。</li>
+<li>redirect_uri：表示重定向URI，必选项，且必须与A步骤中的该参数值保持一致。</li>
+<li>client_id：表示客户端ID，必选项。</li>
+</ul>
+<p>下面是一个例子。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">POST /token HTTP/1.1
+</span></span><span class="line"><span class="cl">Host: server.example.com
+</span></span><span class="line"><span class="cl">Authorization: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW
+</span></span><span class="line"><span class="cl">Content-Type: application/x-www-form-urlencoded
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">grant_type=authorization_code&amp;code=SplxlOBeZQQYbYS6WxSbIA
+</span></span><span class="line"><span class="cl">&amp;redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>E步骤中，认证服务器发送的HTTP回复，包含以下参数：</p>
+<ul>
+<li>access_token：表示访问令牌，必选项。</li>
+<li>token_type：表示令牌类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型。</li>
+<li>expires_in：表示过期时间，单位为秒。如果省略该参数，必须其他方式设置过期时间。</li>
+<li>refresh_token：表示更新令牌，用来获取下一次的访问令牌，可选项。</li>
+<li>scope：表示权限范围，如果与客户端申请的范围一致，此项可省略。</li>
+</ul>
+<p>下面是一个例子。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">HTTP/1.1 200 OK
+</span></span><span class="line"><span class="cl">Content-Type: application/json;charset=UTF-8
+</span></span><span class="line"><span class="cl">Cache-Control: no-store
+</span></span><span class="line"><span class="cl">Pragma: no-cache
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">{
+</span></span><span class="line"><span class="cl">    &#34;access_token&#34;:&#34;2YotnFZFEjr1zCsicMWpAA&#34;,
+</span></span><span class="line"><span class="cl">    &#34;token_type&#34;:&#34;example&#34;,
+</span></span><span class="line"><span class="cl">    &#34;expires_in&#34;:3600,
+</span></span><span class="line"><span class="cl">    &#34;refresh_token&#34;:&#34;tGzv3JOkF0XG5Qx2TlKWIA&#34;,
+</span></span><span class="line"><span class="cl">    &#34;example_parameter&#34;:&#34;example_value&#34;
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>从上面代码可以看到，相关参数使用JSON格式发送（Content-Type: application/json）。此外，HTTP头信息中明确指定不得缓存。</p>
+<h3 id="简化模式">简化模式</h3>
+<p>简化模式（implicit grant type）不通过第三方应用程序的服务器，直接在浏览器中向认证服务器申请令牌，跳过了&quot;授权码&quot;这个步骤，因此得名。所有步骤在浏览器中完成，令牌对访问者是可见的，且客户端不需要认证。</p>
+<p><center><img src="/images/implicit-grant-code.png"/></center></p>
+<p>它的步骤如下：</p>
+<pre><code>（A）客户端将用户导向认证服务器。
+（B）用户决定是否给于客户端授权。
+（C）假设用户给予授权，认证服务器将用户导向客户端指定的&quot;重定向URI&quot;，并在URI的Hash部分包含了访问令牌。
+（D）浏览器向资源服务器发出请求，其中不包括上一步收到的Hash值。
+（E）资源服务器返回一个网页，其中包含的代码可以获取Hash值中的令牌。
+（F）浏览器执行上一步获得的脚本，提取出令牌。
+（G）浏览器将令牌发给客户端。
+</code></pre>
+<p>下面是上面这些步骤所需要的参数。</p>
+<p>A步骤中，客户端发出的HTTP请求，包含以下参数：</p>
+<ul>
+<li>response_type：表示授权类型，此处的值固定为&quot;token&rdquo;，必选项。</li>
+<li>client_id：表示客户端的ID，必选项。</li>
+<li>redirect_uri：表示重定向的URI，可选项。</li>
+<li>scope：表示权限范围，可选项。</li>
+<li>state：表示客户端的当前状态，可以指定任意值，认证服务器会原封不动地返回这个值。
+下面是一个例子。</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">GET /authorize?response_type=token&amp;client_id=s6BhdRkqt3&amp;state=xyz
+</span></span><span class="line"><span class="cl">        &amp;redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb HTTP/1.1
+</span></span><span class="line"><span class="cl">Host: server.example.com
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>C步骤中，认证服务器回应客户端的URI，包含以下参数：</p>
+<ul>
+<li>access_token：表示访问令牌，必选项。</li>
+<li>token_type：表示令牌类型，该值大小写不敏感，必选项。</li>
+<li>expires_in：表示过期时间，单位为秒。如果省略该参数，必须其他方式设置过期时间。</li>
+<li>scope：表示权限范围，如果与客户端申请的范围一致，此项可省略。</li>
+<li>state：如果客户端的请求中包含这个参数，认证服务器的回应也必须一模一样包含这个参数。</li>
+</ul>
+<p>下面是一个例子。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">HTTP/1.1 302 Found
+</span></span><span class="line"><span class="cl">Location: http://example.com/cb#access_token=2YotnFZFEjr1zCsicMWpAA
+</span></span><span class="line"><span class="cl">      	  &amp;state=xyz&amp;token_type=example&amp;expires_in=3600
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>在上面的例子中，认证服务器用HTTP头信息的Location栏，指定浏览器重定向的网址。注意，在这个网址的Hash部分包含了令牌。根据上面的D步骤，下一步浏览器会访问Location指定的网址，但是Hash部分不会发送。接下来的E步骤，服务提供商的资源服务器发送过来的代码，会提取出Hash中的令牌。</p>
+<h3 id="密码模式">密码模式</h3>
+<p>密码模式（Resource Owner Password Credentials Grant）中，用户向客户端提供自己的用户名和密码。客户端使用这些信息，向&quot;服务商提供商&quot;索要授权。在这种模式中，用户必须把自己的密码给客户端，但是客户端不得储存密码。这通常用在用户对客户端高度信任的情况下，比如客户端是操作系统的一部分，或者由一个著名公司出品。而认证服务器只有在其他授权模式无法执行的情况下，才能考虑使用这种模式。</p>
+<p><center><img src="/images/resource-code.png"/></center></p>
+<p>它的步骤如下：</p>
+<pre><code>（A）用户向客户端提供用户名和密码。
+（B）客户端将用户名和密码发给认证服务器，向后者请求令牌。
+（C）认证服务器确认无误后，向客户端提供访问令牌。
+</code></pre>
+<p>B步骤中，客户端发出的HTTP请求，包含以下参数：</p>
+<ul>
+<li>grant_type：表示授权类型，此处的值固定为&quot;password&quot;，必选项。</li>
+<li>username：表示用户名，必选项。</li>
+<li>password：表示用户的密码，必选项。</li>
+<li>scope：表示权限范围，可选项。</li>
+</ul>
+<p>下面是一个例子。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">POST /token HTTP/1.1
+</span></span><span class="line"><span class="cl">Host: server.example.com
+</span></span><span class="line"><span class="cl">Authorization: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW
+</span></span><span class="line"><span class="cl">Content-Type: application/x-www-form-urlencoded
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">grant_type=password&amp;username=johndoe&amp;password=A3ddj3w
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>C步骤中，认证服务器向客户端发送访问令牌，下面是一个例子。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">HTTP/1.1 200 OK
+</span></span><span class="line"><span class="cl">Content-Type: application/json;charset=UTF-8
+</span></span><span class="line"><span class="cl">Cache-Control: no-store
+</span></span><span class="line"><span class="cl">Pragma: no-cache
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">{
+</span></span><span class="line"><span class="cl">    &#34;access_token&#34;:&#34;2YotnFZFEjr1zCsicMWpAA&#34;,
+</span></span><span class="line"><span class="cl">    &#34;token_type&#34;:&#34;example&#34;,
+</span></span><span class="line"><span class="cl">    &#34;expires_in&#34;:3600,
+</span></span><span class="line"><span class="cl">    &#34;refresh_token&#34;:&#34;tGzv3JOkF0XG5Qx2TlKWIA&#34;,
+</span></span><span class="line"><span class="cl">    &#34;example_parameter&#34;:&#34;example_value&#34;
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>上面代码中，各个参数的含义参见《授权码模式》一节。整个过程中，客户端不得保存用户的密码。</p>
+<h3 id="客户端模式">客户端模式</h3>
+<p>客户端模式（Client Credentials Grant）指客户端以自己的名义，而不是以用户的名义，向&quot;服务提供商&quot;进行认证。严格地说，客户端模式并不属于OAuth框架所要解决的问题。在这种模式中，用户直接向客户端注册，客户端以自己的名义要求&quot;服务提供商&quot;提供服务，其实不存在授权问题。</p>
+<p><center><img src="/images/client-grant.png"/></center></p>
+<p>它的步骤如下：</p>
+<pre><code>（A）客户端向认证服务器进行身份认证，并要求一个访问令牌。
+（B）认证服务器确认无误后，向客户端提供访问令牌。
+</code></pre>
+<p>A步骤中，客户端发出的HTTP请求，包含以下参数：</p>
+<ul>
+<li>granttype：表示授权类型，此处的值固定为&quot;clientcredentials&quot;，必选项。</li>
+<li>scope：表示权限范围，可选项。</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">POST /token HTTP/1.1
+</span></span><span class="line"><span class="cl">Host: server.example.com
+</span></span><span class="line"><span class="cl">Authorization: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW
+</span></span><span class="line"><span class="cl">Content-Type: application/x-www-form-urlencoded
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">grant_type=client_credentials
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>认证服务器必须以某种方式，验证客户端身份。
+B步骤中，认证服务器向客户端发送访问令牌，下面是一个例子。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">HTTP/1.1 200 OK
+</span></span><span class="line"><span class="cl">Content-Type: application/json;charset=UTF-8
+</span></span><span class="line"><span class="cl">Cache-Control: no-store
+</span></span><span class="line"><span class="cl">Pragma: no-cache
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">{
+</span></span><span class="line"><span class="cl">    &#34;access_token&#34;:&#34;2YotnFZFEjr1zCsicMWpAA&#34;,
+</span></span><span class="line"><span class="cl">    &#34;token_type&#34;:&#34;example&#34;,
+</span></span><span class="line"><span class="cl">    &#34;expires_in&#34;:3600,
+</span></span><span class="line"><span class="cl">    &#34;example_parameter&#34;:&#34;example_value&#34;
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>上面代码中，各个参数的含义参见《授权码模式》一节。</p>
+<h3 id="更新令牌">更新令牌</h3>
+<p>如果用户访问的时候，客户端的&quot;访问令牌&quot;已经过期，则需要使用&quot;更新令牌&quot;申请一个新的访问令牌。
+客户端发出更新令牌的HTTP请求，包含以下参数：</p>
+<ul>
+<li>granttype：表示使用的授权模式，此处的值固定为&quot;refreshtoken&quot;，必选项。</li>
+<li>refresh_token：表示早前收到的更新令牌，必选项。</li>
+<li>scope：表示申请的授权范围，不可以超出上一次申请的范围，如果省略该参数，则表示与上一次一致。
+下面是一个例子。</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">POST /token HTTP/1.1
+</span></span><span class="line"><span class="cl">Host: server.example.com
+</span></span><span class="line"><span class="cl">Authorization: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW
+</span></span><span class="line"><span class="cl">Content-Type: application/x-www-form-urlencoded
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">grant_type=refresh_token&amp;refresh_token=tGzv3JOkF0XG5Qx2TlKWIA
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>REF:<a href="http://www.ruanyifeng.com/blog/2014/05/oauth_2_0.html">理解OAuth 2.0</a></p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2014-10-18
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/2014/10/19/android-tips/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Android Tips</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/2014/10/17/java-singleton/">
+            <span class="next-text nav-default">Java Singleton</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Android Asynctask Pitfalls - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="I originally wrote this article when I was (foolishly) still using AsyncTasks. Nowadays I simply consider it a mistake in all cases. As you&amp;rsquo;ll see from the original article, there are a lot of problems with it - and there are much better solutions.
+My preferred alternative these days are combining RxJava with schedulers. You get the same effect as an AsyncTask with none of the problems, plus you get an awesome framework in addition." /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/2014/10/19/android-asynctask-pitfalls/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Android Asynctask Pitfalls" />
+<meta property="og:description" content="I originally wrote this article when I was (foolishly) still using AsyncTasks. Nowadays I simply consider it a mistake in all cases. As you&rsquo;ll see from the original article, there are a lot of problems with it - and there are much better solutions.
+My preferred alternative these days are combining RxJava with schedulers. You get the same effect as an AsyncTask with none of the problems, plus you get an awesome framework in addition." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/2014/10/19/android-asynctask-pitfalls/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2014-10-19T00:00:00+00:00" />
+<meta property="article:modified_time" content="2014-10-19T00:00:00+00:00" />
+<meta itemprop="name" content="Android Asynctask Pitfalls">
+<meta itemprop="description" content="I originally wrote this article when I was (foolishly) still using AsyncTasks. Nowadays I simply consider it a mistake in all cases. As you&rsquo;ll see from the original article, there are a lot of problems with it - and there are much better solutions.
+My preferred alternative these days are combining RxJava with schedulers. You get the same effect as an AsyncTask with none of the problems, plus you get an awesome framework in addition."><meta itemprop="datePublished" content="2014-10-19T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2014-10-19T00:00:00+00:00" />
+<meta itemprop="wordCount" content="941">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Android Asynctask Pitfalls"/>
+<meta name="twitter:description" content="I originally wrote this article when I was (foolishly) still using AsyncTasks. Nowadays I simply consider it a mistake in all cases. As you&rsquo;ll see from the original article, there are a lot of problems with it - and there are much better solutions.
+My preferred alternative these days are combining RxJava with schedulers. You get the same effect as an AsyncTask with none of the problems, plus you get an awesome framework in addition."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Android Asynctask Pitfalls</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2014-10-19 </span>
+        <div class="post-category">
+            <a href="/categories/dev/"> dev </a>
+            <a href="/categories/android/"> android </a>
+            </div>
+          <span class="more-meta"> 约 941 字 </span>
+          <span class="more-meta"> 预计阅读 5 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#asynctask-and-rotation">AsyncTask and Rotation</a></li>
+        <li><a href="#asynctasks-and-the-lifecycle">AsyncTasks and the Lifecycle</a></li>
+        <li><a href="#cancelling-asynctasks">Cancelling AsyncTasks</a></li>
+        <li><a href="#limitations-on-concurrent-asynctasks">Limitations on Concurrent AsyncTasks</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p><center><img src="/images/android_logo.jpg"/></center></p>
+<p>I originally wrote this article when I was (foolishly) still using AsyncTasks. Nowadays I simply consider it a mistake in all cases. As you&rsquo;ll see from the original article, there are a lot of problems with it - and there are much better solutions.</p>
+<p>My preferred alternative these days are combining <a href="https://github.com/Netflix/RxJava">RxJava</a> with schedulers. You get the same effect as an <code>AsyncTask</code> with none of the problems, plus you get an awesome framework in addition. I know, recommending a library to solve a problem is irritating, but RxJava is worth looking at for many reasons.</p>
+<p>When <code>AsyncTask</code> was introduced to Android, it was labeled as “<a href="http://android-developers.blogspot.com/2009/05/painless-threading.html">Painless Threading</a>.” Its goal was to make background Threads which could interact with the UI thread easier. It was successful on that count, but it’s not exactly painless – there are a number of cases where <code>AsyncTask</code> is not a silver bullet. It is easy to blindly use <code>AsyncTask</code> without realizing what can go wrong if not handled with care. Below are some of the problems that can arise when using <code>AsyncTask</code> without fully understanding it.</p>
+<!-- more -->
+<h2 id="asynctask-and-rotation">AsyncTask and Rotation</h2>
+<p>AsyncTask’s primary goal is to make it easy to run a Thread in the background that can later interact with the UI thread. Therefore the most common use case is to have an <code>AsyncTask</code> run a time-consuming operation that updates a portion of the UI when it’s completed (in <code>AsyncTask.onPostExecute()</code>).</p>
+<p>This works great… until you rotate the screen. <strong>When an app is rotated, the entire <code>Activity</code> is destroyed and recreated. When the Activity is restarted, your AsyncTask’s reference to the <code>Activity</code> is invalid, so <code>onPostExecute()</code> will have no effect on the new Activity.</strong> This can be confusing if you are implicitly referencing the current Activity by having AsyncTask as an inner class of the Activity.</p>
+<p>The usual solution to this problem is to hold onto a reference to AsyncTask that lasts between configuration changes, which updates the target Activity as it restarts. There are a variety of ways to do this, though they either boil down to using a global holder (such as in the <code>Application</code> object) or passing it through <code>Activity.onRetainNonConfigurationInstance()</code>. For a Fragment-based system, you could use a retained Fragment (via <code>Fragment.setRetainedInstance(true)</code>) to store running AsyncTasks.</p>
+<h2 id="asynctasks-and-the-lifecycle">AsyncTasks and the Lifecycle</h2>
+<p>Along the same lines as above, it is a misconception to think that just because the Activity that originally spawned the <code>AsyncTask</code> is dead, the <code>AsyncTask</code> is as well. It will continue running on its merry way even if you exit the entire application. <strong>The only way that an <code>AsyncTask</code> finishes early is if it is canceled via <code>AsyncTask.cancel()</code>.</strong></p>
+<p>This means that you have to manage the cancellation of AsyncTasks yourself; otherwise you run the risk of bogging down your app with unnecessary background tasks, or of leaking memory. When you know you will no longer need an <code>AsyncTask</code>, be sure to cancel it so that it doesn’t cause any headaches later in the execution of your app.</p>
+<h2 id="cancelling-asynctasks">Cancelling AsyncTasks</h2>
+<p>Suppose you’ve got a search query that runs in an <code>AsyncTask</code>. The user may be able to change the search parameters while the <code>AsyncTask</code> is running, so you call <code>AsyncTask.cancel()</code> and then fire up a new <code>AsyncTask</code> for the next query. <strong>This seems to work… until you check the logs and realize that your <code>AsyncTask</code>s all ran till completion, regardless of whether you called <code>cancel()</code> or not!</strong> This even happens if you pass mayInterruptIfRunning as true – what’s going on?</p>
+<p>The problem is that there’s a misconception about what <code>AsyncTask.cancel()</code> actually does. It does not kill the Thread with no regard for the consequences! All it does is set the <code>AsyncTask</code> to a “cancelled” state. <strong>It’s up to you to check whether the AsyncTask has been canceled so that you can halt your operation</strong>. As for mayInterruptIfRunning – all it does is send an <code>interrupt()</code> to the running Thread. In the case that your Thread is uninterruptible, then it won’t stop the Thread at all.There are two simple solutions that cover most situations: Either check <code>AsyncTask.isCancelled()</code> on a regular basis during your long-running operation, or keep your Thread interruptible. Either way, when you call <code>AsyncTask.cancel()</code> these methods should prevent your operation from running longer than necessary.</p>
+<p>This advice doesn’t always work, though – what if you’re calling a long-running method that is uninterruptible (such as <code>BitmapFactory.decodeStream()</code>)? The only success I’ve had in this situation is to create a situation which causes an Exception to be thrown (in this case, prematurely closing the stream that BitmapFactory was using). This meant that <code>cancel()</code> alone wouldn’t solve the problem – outside intervention was required.</p>
+<h2 id="limitations-on-concurrent-asynctasks">Limitations on Concurrent AsyncTasks</h2>
+<p>I’m not encouraging people to start hundreds of threads in the background; however, it is worth noting that there are some limitations on the number of <code>AsyncTask</code>s that you can start. The modern <code>AsyncTask</code> is limited to 128 concurrent tasks, with an additional queue of 10 tasks (if supporting Android 1.5, it’s a limit of ten tasks at a time, with a maximum queue of 10 tasks). That means that if you queue up more than 138 tasks before they can complete, your app will crash. Most often I see this problem when people use <code>AsyncTask</code>s to load Bitmaps from the net.</p>
+<p>If you are finding yourself running up against these limits, you should start by rethinking your design that calls for so many background threads. Alternatively, you could setup a more intelligent queue for your tasks so that you’re not starting them all at once. If you’re desperate, you can grab a copy of <code>AsyncTask</code> and adjust the pool sizes in the code itself.</p>
+<ul>
+<li><a href="http://blog.danlew.net/2014/06/21/the-hidden-pitfalls-of-asynctask/">The Hidden Pitfalls of AsyncTask</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2014-10-19
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/2014/10/24/android-loader/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Android Loader</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/2014/10/19/android-tips/">
+            <span class="next-text nav-default">Android Tips</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

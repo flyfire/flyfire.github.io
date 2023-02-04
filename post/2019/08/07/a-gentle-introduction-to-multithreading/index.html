@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>A Gentle Introduction to Multithreading - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="清空Reeder发现internal/pointers一系列关于多线程的文章，感觉很不错，转载在此。 这是系列第一篇。 Approaching the world of concurrency, one step at a time. Modern computers" /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/2019/08/07/a-gentle-introduction-to-multithreading/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="A Gentle Introduction to Multithreading" />
+<meta property="og:description" content="清空Reeder发现internal/pointers一系列关于多线程的文章，感觉很不错，转载在此。 这是系列第一篇。 Approaching the world of concurrency, one step at a time. Modern computers" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/2019/08/07/a-gentle-introduction-to-multithreading/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2019-08-07T00:00:00+00:00" />
+<meta property="article:modified_time" content="2019-08-07T00:00:00+00:00" />
+<meta itemprop="name" content="A Gentle Introduction to Multithreading">
+<meta itemprop="description" content="清空Reeder发现internal/pointers一系列关于多线程的文章，感觉很不错，转载在此。 这是系列第一篇。 Approaching the world of concurrency, one step at a time. Modern computers"><meta itemprop="datePublished" content="2019-08-07T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2019-08-07T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2488">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="A Gentle Introduction to Multithreading"/>
+<meta name="twitter:description" content="清空Reeder发现internal/pointers一系列关于多线程的文章，感觉很不错，转载在此。 这是系列第一篇。 Approaching the world of concurrency, one step at a time. Modern computers"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">A Gentle Introduction to Multithreading</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2019-08-07 </span>
+        <div class="post-category">
+            <a href="/categories/concurrency/"> concurrency </a>
+            <a href="/categories/dev/"> dev </a>
+            </div>
+          <span class="more-meta"> 约 2488 字 </span>
+          <span class="more-meta"> 预计阅读 5 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#processes-and-threads-naming-things-the-right-way">Processes and threads: naming things the right way</a></li>
+            <li><a href="#the-differences-between-processes-and-threads">The differences between processes and threads</a></li>
+            <li><a href="#green-threads-of-fibers">Green threads, of fibers</a></li>
+            <li><a href="#what-threads-are-used-for">What threads are used for</a></li>
+            <li><a href="#what-makes-concurrency-and-parallelism-possible">What makes concurrency and parallelism possible</a></li>
+            <li><a href="#multi-threading-application-on-a-single-core-does-it-make-sense">Multi-threading application on a single core: does it make sense?</a></li>
+            <li><a href="#more-threads-more-problems">More threads, more problems</a></li>
+            <li><a href="#the-concept-of-thread-safety">The concept of thread safety</a></li>
+            <li><a href="#the-root-cause-of-data-races">The root cause of data races</a></li>
+            <li><a href="#the-root-cause-of-race-conditions">The root cause of race conditions</a></li>
+            <li><a href="#teach-threads-to-get-along-concurrency-control">Teach threads to get along: concurrency control</a></li>
+            <li><a href="#refreence">refreence</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>清空Reeder发现internal/pointers一系列关于多线程的文章，感觉很不错，转载在此。</p>
+<p>这是系列第一篇。</p>
+<p>Approaching the world of concurrency, one step at a time.</p>
+<!-- more -->
+<p>Modern computers have the ability to perform multiple operations at the same time. Supported by hardware advancements and smarter operating systems, this feature makes your programs run faster, both in terms of speed of execution and responsiveness.</p>
+<p>Writing software that takes advantage of such power is fascinating, yet tricky: it requires you to understand what happens under your computer&rsquo;s hood. In this first episode I&rsquo;ll try to scratch the surface of <strong>threads</strong>, one of the tools provided by operating systems to perform this kind of magic. Let&rsquo;s go!</p>
+<h3 id="processes-and-threads-naming-things-the-right-way">Processes and threads: naming things the right way</h3>
+<p>Modern operating systems can run multiple programs at the same time. That&rsquo;s why you can read this article in your browser (a program) while listening to music on your media player (another program). Each program is known as a <strong>process</strong> that is being executed. The operating system knows many software tricks to make a process run along with others, as well as taking advantage from the underlying hardware. Either way, the final outcome is that you <em>sense</em> all your programs to be running simultaneously.</p>
+<p>Running processes in an operating system is not the only way to perform several operations at the same time. Each process is able to run simultaneous sub-tasks within itself, called <strong>threads</strong>. You can think of a thread as a slice of the process itself. Every process triggers at least one thread on startup, which is called the <strong>main thread</strong>. Then, according to the program/programmer&rsquo;s needs, additional threads may be started or terminated. <strong>Multithreading</strong> is about running multiple threads within a single process.</p>
+<p>For example, it is likely that your media player runs multiple threads: one for rendering the interface — this is usually the main thread, another one for playing the music and so on.</p>
+<p>You can think of the operating system as a container that holds multiple processes, where each process is a container that holds multiple threads. In this article I will focus on threads only, but the whole topic is fascinating and deserves more in-depth analysis in the future.</p>
+<center><p><img src="/images/processes-threads.png"></p></center>
+<h3 id="the-differences-between-processes-and-threads">The differences between processes and threads</h3>
+<p>Each process has its own chunk of memory assigned by the operating system. By default that memory cannot be shared with other processes: your browser has no access to the memory assigned to your media player and vice versa. The same thing happens if you run two <strong>instances</strong> of the same process, that is if you launch your browser twice. The operating system treats each instance as a new process with its own separate portion of memory assigned. So, by default, two or more processes have no way to share data, unless they perform advanced tricks — the so-called <strong>inter-process communication (IPC)</strong>.</p>
+<p>Unlike processes, threads share the same chunk of memory assigned to their parent process by the operating system: data in the media player main interface can be easily accessed by the audio engine and vice versa. Therefore is easier for two threads to talk to eachother. On top of that, threads are usually lighter than a process: they take less resources and are faster to create, that&rsquo;s why they are also called <strong>lightweight processes</strong>.</p>
+<p>Threads are a handy way to make your program perform multiple operations at the same time. Without threads you would have to write one program per task, run them as processes and synchronize them through the operating system. This would be more difficult (IPC is tricky) and slower (processes are heavier than threads).</p>
+<h3 id="green-threads-of-fibers">Green threads, of fibers</h3>
+<p>Threads mentioned so far are an operating system thing: a process that wants to fire a new thread has to talk to the operating system. Not every platform natively support threads, though. <strong>Green threads</strong>, also known as <strong>fibers</strong> are a kind of emulation that makes multithreaded programs work in environments that don&rsquo;t provide that capability. For example a virtual machine might implement green threads in case the underlying operating system doesn&rsquo;t have native thread support.</p>
+<p>Green threads are faster to create and to manage because they completely bypass the operating system, but also have disadvantages. I will write about such topic in one of the next episodes.</p>
+<p>The name &ldquo;green threads&rdquo; refers to the Green Team at Sun Microsystem that designed the original Java thread library in the 90s. Today Java no longer makes use of green threads: they switched to native ones back in 2000. Some other programming languages — Go, Haskell or Rust to name a few — implement equivalents of green threads instead of native ones.</p>
+<h3 id="what-threads-are-used-for">What threads are used for</h3>
+<p>Why should a process employ multiple threads? As I mentioned before, doing things in parallel greatly speeds up things. Say you are about to render a movie in your movie editor. The editor could be smart enough to spread the rendering operation across multiple threads, where each thread processes a chunk of the final movie. So if with one thread the task would take, say, one hour, with two threads it would take 30 minutes; with four threads 15 minutes, and so on.</p>
+<p>Is it really that simple? There are three important points to consider:</p>
+<ul>
+<li>not every program needs to be multithreaded. If your app performs sequential operations or often waits on the user to do something, multithreading might not be that beneficial;</li>
+<li>you just don&rsquo;t throw more threads to an application to make it run faster: each sub-task has to be thought and designed carefully to perform parallel operations;</li>
+<li>it is not 100% guaranteed that threads will perform their operations truly in parallel, that is <em>at the same time</em>: it really depends on the underlying hardware.</li>
+</ul>
+<p>The last one is crucial: if your computer doesn&rsquo;t support multiple operations at the same time, the operating system has to fake them. We will see how in a minute. For now let&rsquo;s think of <strong>concurrency</strong> as the <em>perception</em> of having tasks that run at the same time, while <strong>true parallelism</strong> as tasks that literally run at the same time.</p>
+<center><p><img src="/images/concurrency-parallelism.png"></p></center>
+<h3 id="what-makes-concurrency-and-parallelism-possible">What makes concurrency and parallelism possible</h3>
+<p>The <strong>central processing unit (CPU)</strong> in your computer does the hard work of running programs. It is made of several parts, the main one being the so-called <strong>core</strong>: that&rsquo;s where computations are actually performed. A core is capable of running only one operation at a time.</p>
+<p>This is of course a major drawback. For this reason operating systems have developed advanced techniques to give the user the ability to running multiple processes (or threads) at once, especially on graphical environments, even on a single core machine. The most important one is called <strong>preemptive multitasking</strong>, where <strong>preemption</strong> is the ability of interrupting a task, switching to another one and then resuming the first task at a later time.</p>
+<p>So if your CPU has only one core, part of a operating system&rsquo;s job is to spread that single core computing power across multiple processes or threads, which are executed one after the other in a loop. This operation gives you the illusion of having more than one program running in parallel, or a single program doing multiple things at the same time (if multithreaded). Concurrency is met, but true parallelism — the ability to run processes <em>simultaneously</em> — is still missing.</p>
+<p>Today modern CPUs have more than one core under the hood, where each one performs an independent operation at a time. This means that with two or more cores true parallelism is possible. For example, my Intel Core i7 has four cores: it can run four different processes or threads at the same time, simultaneously.</p>
+<p>Operating systems are able to detect the number of CPU cores and assign processes or threads to each one of them. A thread may be allocated to whatever core the operating system likes, and this kind of scheduling is completely transparent for the program being run. Additionally, preemptive multitasking might kick in in case all cores are busy. This gives you the ability to run more processes and threads than the actual number or cores available in your machine.</p>
+<h3 id="multi-threading-application-on-a-single-core-does-it-make-sense">Multi-threading application on a single core: does it make sense?</h3>
+<p>True parallelism on a single-core machine is impossible to achieve. Nevertheless it still makes sense to write a multithreaded program, if your application can benefit from it. When a process employs multiple threads, preemptive multitasking can keep the app running even if one of those threads performs a slow or blocking task.</p>
+<p>Say for example you are working on a desktop app that reads some data from a very slow disk. If you write the program with just one thread, the whole app would freeze until the disk operation is finished: the CPU power assigned to the only thread is wasted while waiting for the disk to wake up. Of course the operating system is running many other processes besides this one, but your specific application will not be making any progress.</p>
+<p>Let&rsquo;s rethink your app in a multithreaded way. Thread A is responsible for the disk access, while thread B takes care of the main interface. If thread A gets stuck waiting because the device is slow, thread B can still run the main interface, keeping your program responsive. This is possible because, having two threads, the operating system can switch the CPU resources between them without getting stuck on the slower one.</p>
+<h3 id="more-threads-more-problems">More threads, more problems</h3>
+<p>As we know, threads share the same chunk of memory of their parent process. This makes extremely easy for two or more of them to exchange data within the same application. For example: a movie editor might hold a big portion of shared memory containing the video timeline. Such shared memory is being read by several worker threads designated for rendering the movie to a file. They all just need a handle (e.g. a pointer) to that memory area in order to read from it and output rendered frames to disk.</p>
+<p>Things run smoothly as long as two or more threads <em>read</em> from the same memory location. The troubles kick in when at least one of them <em>writes</em> to the shared memory, while others are reading from it. Two problems can occur at this point:</p>
+<ul>
+<li><strong>data race</strong> — while a writer thread modifies the memory, a reader thread might be reading from it. If the writer has not finished its work yet, the reader will get corrupted data;</li>
+<li><strong>race condition</strong> — a reader thread is supposed to read only after a writer has written. What if the opposite happens? More subtle than a data race, a race condition is about two or more threads doing their job in an unpredictable order, when in fact the operations should be performed in the proper sequence to be done correctly. Your program can trigger a race condition even if it has been protected against data races.</li>
+</ul>
+<h3 id="the-concept-of-thread-safety">The concept of thread safety</h3>
+<p>A piece of code is said to be <strong>thread-safe</strong> if it works correctly, that is without data races or race conditions, even if many threads are executing it simultaneously. You might have noticed that some programming libraries declare themselves as being thread-safe: if you are writing a multithreaded program you want to make sure that any other third-party function can be used across different threads without triggering concurrency problems.</p>
+<h3 id="the-root-cause-of-data-races">The root cause of data races</h3>
+<p>We know that a CPU core can perform only one machine instruction at a time. Such instruction is said to be <strong>atomic</strong> because it&rsquo;s indivisible: it can&rsquo;t be broken into smaller operations. The Greek word &ldquo;atom&rdquo; (ἄτομος; atomos) means <em>uncuttable</em>.</p>
+<p>The property of being indivisible makes atomic operations thread-safe by nature. When a thread performs an atomic write on shared data, no other thread can read the modification half-complete. Conversely, when a thread performs an atomic read on shared data, it reads the entire value as it appeared at a single moment in time. There is no way for a thread to <em>slip through</em> an atomic operation, thus no data race can happen.</p>
+<p>The bad news is that the vast majority of operations out there are non-atomic. Even a trivial assignment like <code>x = 1</code> on some hardware might be composed of multiple atomic machine instructions, making the assignment itself non-atomic as a whole. So a data race is triggered if a thread reads <code>x</code> while another one performs the assignment.</p>
+<h3 id="the-root-cause-of-race-conditions">The root cause of race conditions</h3>
+<p>Preemptive multitasking gives the operating system full control over thread management: it can start, stop and pause threads according to advanced scheduling algorithms. You as a programmer cannot control the time or order of execution. In fact, there is no guarantee that a simple code like this:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">writer_thread</span><span class="o">.</span><span class="na">start</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">reader_thread</span><span class="o">.</span><span class="na">start</span><span class="o">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>would start the two threads in that specific order. Run this program several times and you will notice how it behaves differently on each run: sometimes the writer thread starts first, sometimes the reader does instead. You will surely hit a race condition if your program needs the writer to always run before the reader.</p>
+<p>This behavior is called <strong>non-deterministic</strong>: the outcome changes each time and you can&rsquo;t predict it. Debugging programs affected by a race condition is very annoying because you can&rsquo;t always reproduce the problem in a controlled way.</p>
+<h3 id="teach-threads-to-get-along-concurrency-control">Teach threads to get along: concurrency control</h3>
+<p>Both data races and race conditions are real-world problems: some people even <a href="https://en.wikipedia.org/wiki/Therac-25">died because of them</a>. The art of accommodating two or more concurrent threads is called <strong>concurrency control</strong>: operating systems and programming languages offer several solutions to take care of it. The most important ones:</p>
+<ul>
+<li><strong>synchronization</strong> — a way to ensure that resources will be used by only one thread at a time. Synchronization is about marking specific parts of your code as &ldquo;protected&rdquo; so that two or more concurrent threads do not simultaneously execute it, screwing up your shared data;</li>
+<li><strong>atomic operations</strong> — a bunch of non-atomic operations (like the assignment mentioned before) can be turned into atomic ones thanks to special instructions provided by the operating system. This way the shared data is always kept in a valid state, no matter how other threads access it;</li>
+<li><strong>immutable data</strong> — shared data is marked as immutable, nothing can change it: threads are only allowed to read from it, eliminating the root cause. As we know threads can safely read from the same memory location as long as they don&rsquo;t modify it. This is the main philosophy behind <a href="https://en.wikipedia.org/wiki/Functional_programming">functional programming</a>.</li>
+</ul>
+<p>I will cover all this fascinating topics in the next episodes of this mini-series about concurrency. Stay tuned!</p>
+<h3 id="refreence">refreence</h3>
+<ul>
+<li><a href="https://www.internalpointers.com/post/gentle-introduction-multithreading">A gentle introduction to multithreading</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2019-08-07
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/2019/08/09/introduction-to-thread-synchronization/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Introduction to Thread Synchronization</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/2019/08/04/java-threadpoolexecutor/">
+            <span class="next-text nav-default">Java Threadpoolexecutor</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

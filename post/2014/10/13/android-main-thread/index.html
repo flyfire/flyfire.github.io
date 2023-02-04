@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Android Main Thread - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="When facing bugs that were related to how we interact with the main thread, I decided to get a closer look at what the main thread really is.
+1 2 3 4 5 public class BigBang { public static void main(String... args) { // The Java universe starts here. } } All Java programs start with a call to a public static void main() method. This is true for Java Desktop programs, JEE servlet containers, and Android applications." /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/2014/10/13/android-main-thread/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Android Main Thread" />
+<meta property="og:description" content="When facing bugs that were related to how we interact with the main thread, I decided to get a closer look at what the main thread really is.
+1 2 3 4 5 public class BigBang { public static void main(String... args) { // The Java universe starts here. } } All Java programs start with a call to a public static void main() method. This is true for Java Desktop programs, JEE servlet containers, and Android applications." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/2014/10/13/android-main-thread/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2014-10-13T00:00:00+00:00" />
+<meta property="article:modified_time" content="2014-10-13T00:00:00+00:00" />
+<meta itemprop="name" content="Android Main Thread">
+<meta itemprop="description" content="When facing bugs that were related to how we interact with the main thread, I decided to get a closer look at what the main thread really is.
+1 2 3 4 5 public class BigBang { public static void main(String... args) { // The Java universe starts here. } } All Java programs start with a call to a public static void main() method. This is true for Java Desktop programs, JEE servlet containers, and Android applications."><meta itemprop="datePublished" content="2014-10-13T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2014-10-13T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2450">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Android Main Thread"/>
+<meta name="twitter:description" content="When facing bugs that were related to how we interact with the main thread, I decided to get a closer look at what the main thread really is.
+1 2 3 4 5 public class BigBang { public static void main(String... args) { // The Java universe starts here. } } All Java programs start with a call to a public static void main() method. This is true for Java Desktop programs, JEE servlet containers, and Android applications."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Android Main Thread</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2014-10-13 </span>
+        <div class="post-category">
+            <a href="/categories/dev/"> dev </a>
+            <a href="/categories/android/"> android  </a>
+            </div>
+          <span class="more-meta"> 约 2450 字 </span>
+          <span class="more-meta"> 预计阅读 12 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#loopers">Loopers</a></li>
+        <li><a href="#handlers">Handlers</a></li>
+        <li><a href="#activities-love-orientation-changes">Activities love orientation changes</a>
+          <ul>
+            <li><a href="#why-it-matters">Why it matters</a></li>
+            <li><a href="#a-refresher-on-orientation-changes">A refresher on orientation changes</a></li>
+            <li><a href="#orientation-changes-and-the-main-thread">Orientation changes and the main thread</a></li>
+            <li><a href="#tying-it-all-together">Tying it all together</a></li>
+            <li><a href="#what-could-you-do">What could you do?</a></li>
+          </ul>
+        </li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#intentservice">IntentService</a></li>
+        <li><a href="#conclusion">Conclusion</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>When facing bugs that were related to how we interact with the main thread, I decided to get a closer look at what the main thread really is.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">BigBang</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">...</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// The Java universe starts here.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>All Java programs start with a call to a <code>public static void main()</code> method. This is true for Java Desktop programs, JEE servlet containers, and Android applications.</p>
+<p>When the Android system boots, it starts a Linux process called <code>ZygoteInit</code>. This process is a Dalvik VM that loads the <a href="https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/preloaded-classes">most common classes</a> of the Android SDK on a thread, and then waits.</p>
+<!-- more -->
+<p>When starting a new Android application, the Android system forks the <code>ZygoteInit</code> process. The thread in the child fork stops waiting, and calls <code>ActivityThread.main()</code>.</p>
+<h2 id="loopers">Loopers</h2>
+<p>Before going any further, we need to look at the <code>Looper</code> class.</p>
+<p>Using a looper is a good way to dedicate one thread to process messages serially.</p>
+<p>Each looper has a queue of <code>Message</code> objects (a <code>MessageQueue</code>).</p>
+<p>A looper has a <code>loop()</code> method that will process each message in the queue, and block when the queue is empty.</p>
+<p>The <code>Looper.loop()</code> method code is similar to this:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">loop</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="k">while</span><span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Message</span> <span class="n">message</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="na">next</span><span class="o">();</span> <span class="c1">// blocks if empty.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">dispatchMessage</span><span class="o">(</span><span class="n">message</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">message</span><span class="o">.</span><span class="na">recycle</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Each looper is associated with one thread. To create a new looper and associate it to the current thread, you must call <code>Looper.prepare()</code>. The loopers are stored in a static <code>ThreadLocal</code> in the <code>Looper</code> class. You can retrieve the <code>Looper</code> associated to the current thread by calling <code>Looper.myLooper()</code>.</p>
+<p>The <code>HandlerThread</code> class does everything for you:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">HandlerThread</span> <span class="n">thread</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HandlerThread</span><span class="o">(</span><span class="s">&#34;SquareHandlerThread&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">thread</span><span class="o">.</span><span class="na">start</span><span class="o">();</span> <span class="c1">// starts the thread.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">Looper</span> <span class="n">looper</span> <span class="o">=</span> <span class="n">thread</span><span class="o">.</span><span class="na">getLooper</span><span class="o">();</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Its code is similar to this:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">class</span> <span class="nc">HandlerThread</span> <span class="kd">extends</span> <span class="n">Thread</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Looper</span> <span class="n">looper</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Looper</span><span class="o">.</span><span class="na">prepare</span><span class="o">();</span> <span class="c1">// Create a Looper and store it in a ThreadLocal.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">looper</span> <span class="o">=</span> <span class="n">Looper</span><span class="o">.</span><span class="na">myLooper</span><span class="o">();</span> <span class="c1">// Retrieve the looper instance from the ThreadLocal, for later use.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">Looper</span><span class="o">.</span><span class="na">loop</span><span class="o">();</span> <span class="c1">// Loop forever.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="handlers">Handlers</h2>
+<p>A handler is the natural companion to a looper.</p>
+<p>A handler has two purposes:</p>
+<ul>
+<li>Send messages to a looper message queue from any thread.</li>
+<li>Hndle messages dequeued by a looper on the thread associated to that looper.</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// Each handler is associated to one looper.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">Handler</span> <span class="n">handler</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Handler</span><span class="o">(</span><span class="n">looper</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">handleMessage</span><span class="o">(</span><span class="n">Message</span> <span class="n">message</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Handle the message on the thread associated to the given looper.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="o">(</span><span class="n">message</span><span class="o">.</span><span class="na">what</span> <span class="o">==</span> <span class="n">DO_SOMETHING</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// do something
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Create a new message associated to that handler.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">Message</span> <span class="n">message</span> <span class="o">=</span> <span class="n">handler</span><span class="o">.</span><span class="na">obtainMessage</span><span class="o">(</span><span class="n">DO_SOMETHING</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Add the message to the looper queue.
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Can be called from any thread.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">handler</span><span class="o">.</span><span class="na">sendMessage</span><span class="o">(</span><span class="n">message</span><span class="o">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>You can associate multiple handlers to one looper. The looper delivers the message to <code>message.target</code>.</p>
+<p>A popular and simpler way to use a handler is to post a <code>Runnable</code>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// Create a message containing a reference to the runnable and add it to the looper queue
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">handler</span><span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="k">new</span> <span class="n">Runnable</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Runs on the thread associated to the looper associated to that handler.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">});</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>A handler can also be created without providing any looper:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// DON&#39;T DO THIS
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">Handler</span> <span class="n">handler</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Handler</span><span class="o">();</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The handler no argument constructor calls <code>Looper.myLooper()</code> and retrieves the looper associated with the current thread. This may or may not be the thread you actually want the handler to be associated with.</p>
+<p>Most of the time, you just want to create a handler to post on the main thread:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Handler</span> <span class="n">handler</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Handler</span><span class="o">(</span><span class="n">Looper</span><span class="o">.</span><span class="na">getMainLooper</span><span class="o">());</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Back to PSVM
+Let&rsquo;s look at <code>ActivityThread.main()</code> again. Here is what it is essentially doing:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ActivityThread</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">...</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Looper</span><span class="o">.</span><span class="na">prepare</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// You can now retrieve the main looper at any time by calling Looper.getMainLooper().
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">Looper</span><span class="o">.</span><span class="na">setMainLooper</span><span class="o">(</span><span class="n">Looper</span><span class="o">.</span><span class="na">myLooper</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// Post the first messages to the looper.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// { ... }
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">    <span class="n">Looper</span><span class="o">.</span><span class="na">loop</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Now you know why this thread is called the main thread :) .</p>
+<p>Note: As you would expect, one of the first things that the main thread will do is create the <code>Application</code> and call <code>Application.onCreate()</code>.</p>
+<h2 id="activities-love-orientation-changes">Activities love orientation changes</h2>
+<p>Let&rsquo;s start with the activity lifecycle and the magic behind the handling of configuration changes.</p>
+<h3 id="why-it-matters">Why it matters</h3>
+<p>This article was inspired by a real crash that occurred in Square Register.
+A simplified version of the code is:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyActivity</span> <span class="kd">extends</span> <span class="n">Activity</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">(</span><span class="n">savedInstanceState</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Handler</span> <span class="n">handler</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Handler</span><span class="o">(</span><span class="n">Looper</span><span class="o">.</span><span class="na">getMainLooper</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">    <span class="n">handler</span><span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="k">new</span> <span class="n">Runnable</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">doSomething</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">});</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kt">void</span> <span class="nf">doSomething</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Uses the activity instance
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>As we will see, <code>doSomething()</code> can be called after the activity <code>onDestroy()</code> method has been called due to a configuration change. At that point, you should not use the activity instance anymore.</p>
+<h3 id="a-refresher-on-orientation-changes">A refresher on orientation changes</h3>
+<p>The device orientation can change at any time. We will simulate an orientation change while the activity is being created using <code>Activity#setRequestedOrientation(int)</code>.</p>
+<p>Can you predict the log output when starting this activity in portrait?</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyActivity</span> <span class="kd">extends</span> <span class="n">Activity</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">(</span><span class="n">savedInstanceState</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="s">&#34;Square&#34;</span><span class="o">,</span> <span class="s">&#34;onCreate()&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(</span><span class="n">savedInstanceState</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="s">&#34;Square&#34;</span><span class="o">,</span> <span class="s">&#34;Requesting orientation change&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">setRequestedOrientation</span><span class="o">(</span><span class="n">ActivityInfo</span><span class="o">.</span><span class="na">SCREEN_ORIENTATION_LANDSCAPE</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onResume</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">super</span><span class="o">.</span><span class="na">onResume</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="s">&#34;Square&#34;</span><span class="o">,</span> <span class="s">&#34;onResume()&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onPause</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">super</span><span class="o">.</span><span class="na">onPause</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="s">&#34;Square&#34;</span><span class="o">,</span> <span class="s">&#34;onPause()&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onDestroy</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">super</span><span class="o">.</span><span class="na">onDestroy</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="s">&#34;Square&#34;</span><span class="o">,</span> <span class="s">&#34;onDestroy()&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>If you know the Android lifecycle, you probably predicted this:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">onCreate</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">Requesting</span> <span class="n">orientation</span> <span class="n">change</span>
+</span></span><span class="line"><span class="cl"><span class="nf">onResume</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">onPause</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">onDestroy</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">onCreate</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">onResume</span><span class="o">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The Android Lifecycle goes on normally, the activity is created, resumed, and then the orientation change is taken into account and the activity is paused, destroyed, and a new activity is created and resumed.</p>
+<h3 id="orientation-changes-and-the-main-thread">Orientation changes and the main thread</h3>
+<p>Here is an important detail to remember: an orientation change leads to recreating the activity via a simple post of a message to the main thread looper queue.</p>
+<p>Let&rsquo;s look at that by writing a spy that will read the content of the looper queue via reflection:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MainLooperSpy</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">private</span> <span class="kd">final</span> <span class="n">Field</span> <span class="n">messagesField</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">private</span> <span class="kd">final</span> <span class="n">Field</span> <span class="n">nextField</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">private</span> <span class="kd">final</span> <span class="n">MessageQueue</span> <span class="n">mainMessageQueue</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="nf">MainLooperSpy</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">Field</span> <span class="n">queueField</span> <span class="o">=</span> <span class="n">Looper</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getDeclaredField</span><span class="o">(</span><span class="s">&#34;mQueue&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">queueField</span><span class="o">.</span><span class="na">setAccessible</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">messagesField</span> <span class="o">=</span> <span class="n">MessageQueue</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getDeclaredField</span><span class="o">(</span><span class="s">&#34;mMessages&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">messagesField</span><span class="o">.</span><span class="na">setAccessible</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">nextField</span> <span class="o">=</span> <span class="n">Message</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getDeclaredField</span><span class="o">(</span><span class="s">&#34;next&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">nextField</span><span class="o">.</span><span class="na">setAccessible</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">Looper</span> <span class="n">mainLooper</span> <span class="o">=</span> <span class="n">Looper</span><span class="o">.</span><span class="na">getMainLooper</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="n">mainMessageQueue</span> <span class="o">=</span> <span class="o">(</span><span class="n">MessageQueue</span><span class="o">)</span> <span class="n">queueField</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">mainLooper</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">throw</span> <span class="k">new</span> <span class="n">RuntimeException</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">dumpQueue</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">Message</span> <span class="n">nextMessage</span> <span class="o">=</span> <span class="o">(</span><span class="n">Message</span><span class="o">)</span> <span class="n">messagesField</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">mainMessageQueue</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="s">&#34;MainLooperSpy&#34;</span><span class="o">,</span> <span class="s">&#34;Begin dumping queue&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">dumpMessages</span><span class="o">(</span><span class="n">nextMessage</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="s">&#34;MainLooperSpy&#34;</span><span class="o">,</span> <span class="s">&#34;End dumping queue&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IllegalAccessException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">throw</span> <span class="k">new</span> <span class="n">RuntimeException</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">dumpMessages</span><span class="o">(</span><span class="n">Message</span> <span class="n">message</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IllegalAccessException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(</span><span class="n">message</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="s">&#34;MainLooperSpy&#34;</span><span class="o">,</span> <span class="n">message</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">      <span class="n">Message</span> <span class="n">next</span> <span class="o">=</span> <span class="o">(</span><span class="n">Message</span><span class="o">)</span> <span class="n">nextField</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">message</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">dumpMessages</span><span class="o">(</span><span class="n">next</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>As you can see, the message queue is merely a linked list where each message has a reference to the next message.</p>
+<p>We log the content of the queue right after the orientation change:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyActivity</span> <span class="kd">extends</span> <span class="n">Activity</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">private</span> <span class="kd">final</span> <span class="n">MainLooperSpy</span> <span class="n">mainLooperSpy</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MainLooperSpy</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">(</span><span class="n">savedInstanceState</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="s">&#34;Square&#34;</span><span class="o">,</span> <span class="s">&#34;onCreate()&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(</span><span class="n">savedInstanceState</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="s">&#34;Square&#34;</span><span class="o">,</span> <span class="s">&#34;Requesting orientation change&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">setRequestedOrientation</span><span class="o">(</span><span class="n">ActivityInfo</span><span class="o">.</span><span class="na">SCREEN_ORIENTATION_LANDSCAPE</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">mainLooperSpy</span><span class="o">.</span><span class="na">dumpQueue</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Here is the output:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">onCreate</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">Requesting</span> <span class="n">orientation</span> <span class="n">change</span>
+</span></span><span class="line"><span class="cl"><span class="n">Begin</span> <span class="n">dumping</span> <span class="n">queue</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span> <span class="n">what</span><span class="o">=</span><span class="mi">118</span> <span class="n">when</span><span class="o">=-</span><span class="mi">94</span><span class="n">ms</span> <span class="n">obj</span><span class="o">={</span><span class="mf">1.0</span> <span class="mi">208</span><span class="n">mcc15mnc</span> <span class="n">en_US</span> <span class="n">ldltr</span> <span class="n">sw360dp</span> <span class="n">w598dp</span> <span class="n">h335dp</span> <span class="mi">320</span><span class="n">dpi</span> <span class="n">nrml</span> <span class="n">land</span> <span class="n">finger</span> <span class="o">-</span><span class="n">keyb</span><span class="o">/</span><span class="n">v</span><span class="o">/</span><span class="n">h</span> <span class="o">-</span><span class="n">nav</span><span class="o">/</span><span class="n">h</span> <span class="n">s</span><span class="mf">.44</span><span class="o">?</span><span class="n">spn</span><span class="o">}</span> <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span> <span class="n">what</span><span class="o">=</span><span class="mi">126</span> <span class="n">when</span><span class="o">=-</span><span class="mi">32</span><span class="n">ms</span> <span class="n">obj</span><span class="o">=</span><span class="n">ActivityRecord</span><span class="o">{</span><span class="mi">41</span><span class="n">fd2b48</span> <span class="n">token</span><span class="o">=</span><span class="n">android</span><span class="o">.</span><span class="na">os</span><span class="o">.</span><span class="na">BinderProxy</span><span class="err">@</span><span class="mi">41</span><span class="n">fcce50</span> <span class="n">no</span> <span class="n">component</span> <span class="n">name</span><span class="o">}</span> <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="n">End</span> <span class="n">dumping</span> <span class="n">queue</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>A quick look at the <code>ActivityThread</code> class tells us what those 118 and 126 messages are:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">ActivityThread</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">private</span> <span class="kd">class</span> <span class="nc">H</span> <span class="kd">extends</span> <span class="n">Handler</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">CONFIGURATION_CHANGED</span>   <span class="o">=</span> <span class="mi">118</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">RELAUNCH_ACTIVITY</span>       <span class="o">=</span> <span class="mi">126</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Requesting an orientation change added <code>CONFIGURATION_CHANGED</code> and a <code>RELAUNCH_ACTIVITY</code> message to the main thread looper queue.</p>
+<p>Let&rsquo;s take a step back and think about what&rsquo;s going on:</p>
+<p>When the activity starts for the first time, the queue is empty. The message currently being executed is <code>LAUNCH_ACTIVITY</code>, which creates the activity instance, calls <code>onCreate()</code> and then <code>onResume()</code> in a row. Then only the main looper processes the next message in the queue.</p>
+<p>When a device orientation change is detected, a <code>RELAUNCH_ACTIVITY</code> is posted to the queue.</p>
+<p>When that message is processed, it:</p>
+<ul>
+<li>calls <code>onSaveInstanceState()</code>, <code>onPause()</code>, <code>onDestroy()</code> on the old activity instance,</li>
+<li>creates a new activity instance,</li>
+<li>calls <code>onCreate()</code> and <code>onResume()</code> on that new activity instance.</li>
+</ul>
+<p>All that in one message handling. Any message you post in the meantime will be handled after <code>onResume()</code> has been called.</p>
+<h3 id="tying-it-all-together">Tying it all together</h3>
+<p>What could happen if you post to a handler in <code>onCreate()</code> during an orientation change? Let&rsquo;s look at the two cases, right before and right after the orientation change:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyActivity</span> <span class="kd">extends</span> <span class="n">Activity</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">private</span> <span class="kd">final</span> <span class="n">MainLooperSpy</span> <span class="n">mainLooperSpy</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MainLooperSpy</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">(</span><span class="n">savedInstanceState</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="s">&#34;Square&#34;</span><span class="o">,</span> <span class="s">&#34;onCreate()&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(</span><span class="n">savedInstanceState</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">Handler</span> <span class="n">handler</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Handler</span><span class="o">(</span><span class="n">Looper</span><span class="o">.</span><span class="na">getMainLooper</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">      <span class="n">handler</span><span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="k">new</span> <span class="n">Runnable</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">          <span class="n">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="s">&#34;Square&#34;</span><span class="o">,</span> <span class="s">&#34;Posted before requesting orientation change&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">      <span class="o">});</span>
+</span></span><span class="line"><span class="cl">      <span class="n">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="s">&#34;Square&#34;</span><span class="o">,</span> <span class="s">&#34;Requesting orientation change&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">setRequestedOrientation</span><span class="o">(</span><span class="n">ActivityInfo</span><span class="o">.</span><span class="na">SCREEN_ORIENTATION_LANDSCAPE</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">handler</span><span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="k">new</span> <span class="n">Runnable</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">          <span class="n">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="s">&#34;Square&#34;</span><span class="o">,</span> <span class="s">&#34;Posted after requesting orientation change&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">      <span class="o">});</span>
+</span></span><span class="line"><span class="cl">      <span class="n">mainLooperSpy</span><span class="o">.</span><span class="na">dumpQueue</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onResume</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">super</span><span class="o">.</span><span class="na">onResume</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="s">&#34;Square&#34;</span><span class="o">,</span> <span class="s">&#34;onResume()&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onPause</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">super</span><span class="o">.</span><span class="na">onPause</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="s">&#34;Square&#34;</span><span class="o">,</span> <span class="s">&#34;onPause()&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onDestroy</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">super</span><span class="o">.</span><span class="na">onDestroy</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="s">&#34;Square&#34;</span><span class="o">,</span> <span class="s">&#34;onDestroy()&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Here is the output:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">onCreate</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">Requesting</span> <span class="n">orientation</span> <span class="n">change</span>
+</span></span><span class="line"><span class="cl"><span class="n">Begin</span> <span class="n">dumping</span> <span class="n">queue</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span> <span class="n">what</span><span class="o">=</span><span class="mi">0</span> <span class="n">when</span><span class="o">=-</span><span class="mi">129</span><span class="n">ms</span> <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span> <span class="n">what</span><span class="o">=</span><span class="mi">118</span> <span class="n">when</span><span class="o">=-</span><span class="mi">96</span><span class="n">ms</span> <span class="n">obj</span><span class="o">={</span><span class="mf">1.0</span> <span class="mi">208</span><span class="n">mcc15mnc</span> <span class="n">en_US</span> <span class="n">ldltr</span> <span class="n">sw360dp</span> <span class="n">w598dp</span> <span class="n">h335dp</span> <span class="mi">320</span><span class="n">dpi</span> <span class="n">nrml</span> <span class="n">land</span> <span class="n">finger</span> <span class="o">-</span><span class="n">keyb</span><span class="o">/</span><span class="n">v</span><span class="o">/</span><span class="n">h</span> <span class="o">-</span><span class="n">nav</span><span class="o">/</span><span class="n">h</span> <span class="n">s</span><span class="mf">.46</span><span class="o">?</span><span class="n">spn</span><span class="o">}</span> <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span> <span class="n">what</span><span class="o">=</span><span class="mi">126</span> <span class="n">when</span><span class="o">=-</span><span class="mi">69</span><span class="n">ms</span> <span class="n">obj</span><span class="o">=</span><span class="n">ActivityRecord</span><span class="o">{</span><span class="mi">41</span><span class="n">fd6b68</span> <span class="n">token</span><span class="o">=</span><span class="n">android</span><span class="o">.</span><span class="na">os</span><span class="o">.</span><span class="na">BinderProxy</span><span class="err">@</span><span class="mi">41</span><span class="n">fd0ae0</span> <span class="n">no</span> <span class="n">component</span> <span class="n">name</span><span class="o">}</span> <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span> <span class="n">what</span><span class="o">=</span><span class="mi">0</span> <span class="n">when</span><span class="o">=-</span><span class="mi">6</span><span class="n">ms</span> <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="n">End</span> <span class="n">dumping</span> <span class="n">queue</span>
+</span></span><span class="line"><span class="cl"><span class="nf">onResume</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">Posted</span> <span class="n">before</span> <span class="n">requesting</span> <span class="n">orientation</span> <span class="n">change</span>
+</span></span><span class="line"><span class="cl"><span class="nf">onPause</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">onDestroy</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">onCreate</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">onResume</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">Posted</span> <span class="n">after</span> <span class="n">requesting</span> <span class="n">orientation</span> <span class="n">change</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>To sum things up: at the end on <code>onCreate()</code>, the queue contained four messages. The first was the post before the orientation change, then the two messages related to the orientation change, and then only the post after the orientation change. The logs show that these were executed in order.</p>
+<p>Therefore, any message posted before the orientation change will be handled before <code>onPause()</code> of the leaving activity, and any message posted after the orientation change will be handled after <code>onResume()</code> of the incoming activity.</p>
+<p>The practical implication is that when you post a message, you have no guarantee that the activity instance that existed at the time it was sent will still be running when the message is handled (even if you post from <code>onCreate()</code> or <code>onResume()</code>). If your message holds a reference to a view or an activity, the activity won&rsquo;t be garbage collected until the message is handled.</p>
+<h3 id="what-could-you-do">What could you do?</h3>
+<h4 id="the-real-fix">The real fix</h4>
+<p>Stop calling <code>handler.post()</code> when you are already on the main thread. In most cases, <code>handler.post()</code> is used as a quick fix to ordering problems. Fix your architecture instead of messing it up with random <code>handler.post()</code> calls.</p>
+<h4 id="if-you-have-a-good-reason-to-post">If you have a good reason to post</h4>
+<p>Make sure your message does not hold a reference to an activity, as you would do for a background operation.</p>
+<h4 id="if-you-really-need-that-activity-reference">If you really need that activity reference</h4>
+<p>Remove the message from the queue with <code>handler.removeCallbacks()</code> in the activity <code>onPause()</code>.</p>
+<h4 id="if-you-want-to-get-fired">If you want to get fired</h4>
+<p>Use <code>handler.postAtFrontOfQueue()</code> to make sure a message posted before <code>onPause()</code> is always handled before <code>onPause()</code>. Your code will become really hard to read and understand. Seriously, don&rsquo;t.</p>
+<h4 id="a-word-on-runonuithread">A word on <code>runOnUiThread()</code></h4>
+<p>Did you notice that we created a handler and used <code>handler.post()</code> instead of directly calling <code>Activity.runOnUiThread()</code>?</p>
+<p>Here is why:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Activity</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="kd">final</span> <span class="kt">void</span> <span class="nf">runOnUiThread</span><span class="o">(</span><span class="n">Runnable</span> <span class="n">action</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(</span><span class="n">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">()</span> <span class="o">!=</span> <span class="n">mUiThread</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">mHandler</span><span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="n">action</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">action</span><span class="o">.</span><span class="na">run</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Unlike <code>handler.post()</code>, <code>runOnUiThread()</code> does not post the runnable if the current thread is already the main thread. Instead, it calls <code>run()</code> synchronously.</p>
+<h2 id="services">Services</h2>
+<p>There is a common misconception that needs to die: a service does not run on a background thread.</p>
+<p>All service lifecycle methods (<code>onCreate()</code>, <code>onStartCommand()</code>, etc) run on the main thread (the very same thread that&rsquo;s used to play funky animations in your activities).</p>
+<p>Whether you are in a service or an activity, long tasks must be executed in a dedicated background thread. This background thread can live as long as the process of your app lives, even when your activities are long gone.</p>
+<p>However, at any time the Android system can decide to kill the app process. A service is a way to ask the system to let us live if possible and be polite by letting the service know before killing the process.</p>
+<p>Side note: When an <code>IBinder</code> returned from <code>onBind()</code> receives a call from another process, the method will be executed in a background thread.</p>
+<p>Take the time to read the Service documentation &ndash; it&rsquo;s pretty good.</p>
+<h2 id="intentservice">IntentService</h2>
+<p>IntentService provides a simple way to serially process a queue of intents on a background thread.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyService</span> <span class="kd">extends</span> <span class="n">IntentService</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="nf">MyService</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">super</span><span class="o">(</span><span class="s">&#34;MyService&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onHandleIntent</span><span class="o">(</span><span class="n">Intent</span> <span class="n">intent</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// This is called on a background thread.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Internally, it uses a <code>Looper</code> to handle the intents on a dedicated <code>HandlerThread</code>. When the service is destroyed, the looper lets you finish handling the current intent, and then the background thread terminates.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Most Android lifecycle methods are called on the main thread. Think of these callbacks as simple messages sent to a looper queue.</p>
+<p>This article wouldn&rsquo;t be complete without the reminder that goes into almost every Android dev article: Do not block the main thread.</p>
+<p>REF:<a href="http://corner.squareup.com/2013/10/android-main-thread-1.html">A journey on the Android Main Thread</a>,<a href="http://corner.squareup.com/2013/12/android-main-thread-2.html">A journey on the Android Main Thread - Lifecycle bits</a></p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2014-10-13
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/2014/10/13/android-looper-handler/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Android Looper Handler</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/2014/10/12/android-decompile/">
+            <span class="next-text nav-default">Android Decompile</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

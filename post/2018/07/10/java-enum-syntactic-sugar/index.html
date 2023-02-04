@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Java Enum Syntactic Sugar - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="Java从1.5引入枚举类型，EffectiveJava第2版item 30也建议我们使用枚举来代替int常量。我们从下面的Enum示例中看下" /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/2018/07/10/java-enum-syntactic-sugar/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Java Enum Syntactic Sugar" />
+<meta property="og:description" content="Java从1.5引入枚举类型，EffectiveJava第2版item 30也建议我们使用枚举来代替int常量。我们从下面的Enum示例中看下" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/2018/07/10/java-enum-syntactic-sugar/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2018-07-10T00:00:00+00:00" />
+<meta property="article:modified_time" content="2018-07-10T00:00:00+00:00" />
+<meta itemprop="name" content="Java Enum Syntactic Sugar">
+<meta itemprop="description" content="Java从1.5引入枚举类型，EffectiveJava第2版item 30也建议我们使用枚举来代替int常量。我们从下面的Enum示例中看下"><meta itemprop="datePublished" content="2018-07-10T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2018-07-10T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1344">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Java Enum Syntactic Sugar"/>
+<meta name="twitter:description" content="Java从1.5引入枚举类型，EffectiveJava第2版item 30也建议我们使用枚举来代替int常量。我们从下面的Enum示例中看下"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Java Enum Syntactic Sugar</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2018-07-10 </span>
+        <div class="post-category">
+            <a href="/categories/java/"> java </a>
+            <a href="/categories/dev/"> dev </a>
+            </div>
+          <span class="more-meta"> 约 1344 字 </span>
+          <span class="more-meta"> 预计阅读 3 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#reference">reference</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>Java从1.5引入枚举类型，EffectiveJava第2版item 30也建议我们使用枚举来代替int常量。我们从下面的<code>Enum</code>示例中看下枚举类型到底是什么。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Main</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">enum</span> <span class="n">ExceptionHandleStrategy</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">IGNORE</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">LOG</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">handle</span><span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="na">getLocalizedMessage</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">},</span>
+</span></span><span class="line"><span class="cl">        <span class="n">THROW</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">handle</span><span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">throw</span> <span class="k">new</span> <span class="n">RuntimeException</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="na">getMessage</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">handle</span><span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">ExceptionHandleStrategy</span><span class="o">.</span><span class="na">IGNORE</span><span class="o">.</span><span class="na">getClass</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">ExceptionHandleStrategy</span><span class="o">.</span><span class="na">LOG</span><span class="o">.</span><span class="na">getClass</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">ExceptionHandleStrategy</span><span class="o">.</span><span class="na">THROW</span><span class="o">.</span><span class="na">getClass</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">EnumWithoutMethod</span><span class="o">.</span><span class="na">A</span><span class="o">.</span><span class="na">getClass</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">EnumWithoutMethod</span><span class="o">.</span><span class="na">B</span><span class="o">.</span><span class="na">getClass</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">EnumWithoutMethod</span><span class="o">.</span><span class="na">C</span><span class="o">.</span><span class="na">getClass</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">EnumWithVariable</span><span class="o">.</span><span class="na">A</span><span class="o">.</span><span class="na">getClass</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">EnumWithVariable</span><span class="o">.</span><span class="na">B</span><span class="o">.</span><span class="na">getClass</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">EnumWithVariable</span><span class="o">.</span><span class="na">C</span><span class="o">.</span><span class="na">getClass</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">EnumWithVariable</span><span class="o">.</span><span class="na">A</span><span class="o">.</span><span class="na">name</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">EnumWithVariable</span><span class="o">.</span><span class="na">A</span><span class="o">.</span><span class="na">getxxx</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ExceptionHandleStrategy</span><span class="o">.</span><span class="na">LOG</span><span class="o">.</span><span class="na">handle</span><span class="o">(</span><span class="k">new</span> <span class="n">RuntimeException</span><span class="o">(</span><span class="s">&#34;system just broken&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">enum</span> <span class="n">EnumWithoutMethod</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">A</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">B</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">C</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">enum</span> <span class="n">EnumWithVariable</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">A</span><span class="o">(</span><span class="s">&#34;wristband&#34;</span><span class="o">),</span>
+</span></span><span class="line"><span class="cl">        <span class="n">B</span><span class="o">(</span><span class="s">&#34;glucometer&#34;</span><span class="o">),</span>
+</span></span><span class="line"><span class="cl">        <span class="n">C</span><span class="o">(</span><span class="s">&#34;fit&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="n">String</span> <span class="nf">getxxx</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">name</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">EnumWithVariable</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">){</span>
+</span></span><span class="line"><span class="cl">            <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><!-- more -->
+<p>执行<code>java -jar ~/Software/confs/cfr-0.140.jar --sugarenums false Main.class</code>后我们得到如下结果：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.io.PrintStream</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Main</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">arrstring</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(((</span><span class="n">Object</span><span class="o">)((</span><span class="n">Object</span><span class="o">)</span><span class="n">ExceptionHandleStrategy</span><span class="o">.</span><span class="na">IGNORE</span><span class="o">)).</span><span class="na">getClass</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(((</span><span class="n">Object</span><span class="o">)((</span><span class="n">Object</span><span class="o">)</span><span class="n">ExceptionHandleStrategy</span><span class="o">.</span><span class="na">LOG</span><span class="o">)).</span><span class="na">getClass</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(((</span><span class="n">Object</span><span class="o">)((</span><span class="n">Object</span><span class="o">)</span><span class="n">ExceptionHandleStrategy</span><span class="o">.</span><span class="na">THROW</span><span class="o">)).</span><span class="na">getClass</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(((</span><span class="n">Object</span><span class="o">)((</span><span class="n">Object</span><span class="o">)</span><span class="n">EnumWithoutMethod</span><span class="o">.</span><span class="na">A</span><span class="o">)).</span><span class="na">getClass</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(((</span><span class="n">Object</span><span class="o">)((</span><span class="n">Object</span><span class="o">)</span><span class="n">EnumWithoutMethod</span><span class="o">.</span><span class="na">B</span><span class="o">)).</span><span class="na">getClass</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(((</span><span class="n">Object</span><span class="o">)((</span><span class="n">Object</span><span class="o">)</span><span class="n">EnumWithoutMethod</span><span class="o">.</span><span class="na">C</span><span class="o">)).</span><span class="na">getClass</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(((</span><span class="n">Object</span><span class="o">)((</span><span class="n">Object</span><span class="o">)</span><span class="n">EnumWithVariable</span><span class="o">.</span><span class="na">A</span><span class="o">)).</span><span class="na">getClass</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(((</span><span class="n">Object</span><span class="o">)((</span><span class="n">Object</span><span class="o">)</span><span class="n">EnumWithVariable</span><span class="o">.</span><span class="na">B</span><span class="o">)).</span><span class="na">getClass</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(((</span><span class="n">Object</span><span class="o">)((</span><span class="n">Object</span><span class="o">)</span><span class="n">EnumWithVariable</span><span class="o">.</span><span class="na">C</span><span class="o">)).</span><span class="na">getClass</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">EnumWithVariable</span><span class="o">.</span><span class="na">A</span><span class="o">.</span><span class="na">name</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">EnumWithVariable</span><span class="o">.</span><span class="na">A</span><span class="o">.</span><span class="na">getxxx</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ExceptionHandleStrategy</span><span class="o">.</span><span class="na">LOG</span><span class="o">.</span><span class="na">handle</span><span class="o">(</span><span class="k">new</span> <span class="n">RuntimeException</span><span class="o">(</span><span class="s">&#34;system just broken&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">static</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">EnumWithVariable</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">extends</span> <span class="n">Enum</span><span class="o">&lt;</span><span class="n">EnumWithVariable</span><span class="o">&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="cm">/* enum */</span> <span class="n">EnumWithVariable</span> <span class="n">A</span> <span class="o">=</span> <span class="k">new</span> <span class="n">EnumWithVariable</span><span class="o">(</span><span class="s">&#34;A&#34;</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="s">&#34;wristband&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="cm">/* enum */</span> <span class="n">EnumWithVariable</span> <span class="n">B</span> <span class="o">=</span> <span class="k">new</span> <span class="n">EnumWithVariable</span><span class="o">(</span><span class="s">&#34;B&#34;</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="s">&#34;glucometer&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="cm">/* enum */</span> <span class="n">EnumWithVariable</span> <span class="n">C</span> <span class="o">=</span> <span class="k">new</span> <span class="n">EnumWithVariable</span><span class="o">(</span><span class="s">&#34;C&#34;</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="s">&#34;fit&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="cm">/* synthetic */</span> <span class="n">EnumWithVariable</span><span class="o">[]</span> <span class="n">$VALUES</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="kd">static</span> <span class="n">EnumWithVariable</span><span class="o">[]</span> <span class="nf">values</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="o">(</span><span class="n">EnumWithVariable</span><span class="o">[])</span><span class="n">$VALUES</span><span class="o">.</span><span class="na">clone</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="kd">static</span> <span class="n">EnumWithVariable</span> <span class="nf">valueOf</span><span class="o">(</span><span class="n">String</span> <span class="n">string</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">Enum</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="n">EnumWithVariable</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">string</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="n">String</span> <span class="nf">getxxx</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">name</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="kd">private</span> <span class="nf">EnumWithVariable</span><span class="o">(</span><span class="n">String</span> <span class="n">string</span><span class="o">,</span> <span class="kt">int</span> <span class="n">n</span><span class="o">,</span> <span class="n">String</span> <span class="n">string2</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">super</span><span class="o">(</span><span class="n">string</span><span class="o">,</span> <span class="n">n</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">string2</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="kd">static</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">$VALUES</span> <span class="o">=</span> <span class="k">new</span> <span class="n">EnumWithVariable</span><span class="o">[]{</span><span class="n">A</span><span class="o">,</span> <span class="n">B</span><span class="o">,</span> <span class="n">C</span><span class="o">};</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">static</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">EnumWithoutMethod</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">extends</span> <span class="n">Enum</span><span class="o">&lt;</span><span class="n">EnumWithoutMethod</span><span class="o">&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="cm">/* enum */</span> <span class="n">EnumWithoutMethod</span> <span class="n">A</span> <span class="o">=</span> <span class="k">new</span> <span class="n">EnumWithoutMethod</span><span class="o">(</span><span class="s">&#34;A&#34;</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="cm">/* enum */</span> <span class="n">EnumWithoutMethod</span> <span class="n">B</span> <span class="o">=</span> <span class="k">new</span> <span class="n">EnumWithoutMethod</span><span class="o">(</span><span class="s">&#34;B&#34;</span><span class="o">,</span> <span class="mi">1</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="cm">/* enum */</span> <span class="n">EnumWithoutMethod</span> <span class="n">C</span> <span class="o">=</span> <span class="k">new</span> <span class="n">EnumWithoutMethod</span><span class="o">(</span><span class="s">&#34;C&#34;</span><span class="o">,</span> <span class="mi">2</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="cm">/* synthetic */</span> <span class="n">EnumWithoutMethod</span><span class="o">[]</span> <span class="n">$VALUES</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="kd">static</span> <span class="n">EnumWithoutMethod</span><span class="o">[]</span> <span class="nf">values</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="o">(</span><span class="n">EnumWithoutMethod</span><span class="o">[])</span><span class="n">$VALUES</span><span class="o">.</span><span class="na">clone</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="kd">static</span> <span class="n">EnumWithoutMethod</span> <span class="nf">valueOf</span><span class="o">(</span><span class="n">String</span> <span class="n">string</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">Enum</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="n">EnumWithoutMethod</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">string</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="kd">private</span> <span class="nf">EnumWithoutMethod</span><span class="o">(</span><span class="n">String</span> <span class="n">string</span><span class="o">,</span> <span class="kt">int</span> <span class="n">n</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">super</span><span class="o">(</span><span class="n">string</span><span class="o">,</span> <span class="n">n</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="kd">static</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">$VALUES</span> <span class="o">=</span> <span class="k">new</span> <span class="n">EnumWithoutMethod</span><span class="o">[]{</span><span class="n">A</span><span class="o">,</span> <span class="n">B</span><span class="o">,</span> <span class="n">C</span><span class="o">};</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">static</span> <span class="kd">class</span> <span class="nc">ExceptionHandleStrategy</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">extends</span> <span class="n">Enum</span><span class="o">&lt;</span><span class="n">ExceptionHandleStrategy</span><span class="o">&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="cm">/* enum */</span> <span class="n">ExceptionHandleStrategy</span> <span class="n">IGNORE</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ExceptionHandleStrategy</span><span class="o">(</span><span class="s">&#34;IGNORE&#34;</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="cm">/* enum */</span> <span class="n">ExceptionHandleStrategy</span> <span class="n">LOG</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ExceptionHandleStrategy</span><span class="o">(</span><span class="s">&#34;LOG&#34;</span><span class="o">,</span> <span class="mi">1</span><span class="o">){</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">handle</span><span class="o">(</span><span class="n">Exception</span> <span class="n">exception</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">exception</span><span class="o">.</span><span class="na">getLocalizedMessage</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">};</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="cm">/* enum */</span> <span class="n">ExceptionHandleStrategy</span> <span class="n">THROW</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ExceptionHandleStrategy</span><span class="o">(</span><span class="s">&#34;THROW&#34;</span><span class="o">,</span> <span class="mi">2</span><span class="o">){</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">handle</span><span class="o">(</span><span class="n">Exception</span> <span class="n">exception</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">throw</span> <span class="k">new</span> <span class="n">RuntimeException</span><span class="o">(</span><span class="n">exception</span><span class="o">.</span><span class="na">getMessage</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">};</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="cm">/* synthetic */</span> <span class="n">ExceptionHandleStrategy</span><span class="o">[]</span> <span class="n">$VALUES</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="kd">static</span> <span class="n">ExceptionHandleStrategy</span><span class="o">[]</span> <span class="nf">values</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="o">(</span><span class="n">ExceptionHandleStrategy</span><span class="o">[])</span><span class="n">$VALUES</span><span class="o">.</span><span class="na">clone</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="kd">static</span> <span class="n">ExceptionHandleStrategy</span> <span class="nf">valueOf</span><span class="o">(</span><span class="n">String</span> <span class="n">string</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">Enum</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="n">ExceptionHandleStrategy</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">string</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="kd">private</span> <span class="nf">ExceptionHandleStrategy</span><span class="o">(</span><span class="n">String</span> <span class="n">string</span><span class="o">,</span> <span class="kt">int</span> <span class="n">n</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">super</span><span class="o">(</span><span class="n">string</span><span class="o">,</span> <span class="n">n</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">handle</span><span class="o">(</span><span class="n">Exception</span> <span class="n">exception</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="kd">static</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">$VALUES</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ExceptionHandleStrategy</span><span class="o">[]{</span><span class="n">IGNORE</span><span class="o">,</span> <span class="n">LOG</span><span class="o">,</span> <span class="n">THROW</span><span class="o">};</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以看到我们的枚举类型都继承了<code>Enum</code>，编译器为我们生成了<code>$VALUES</code>类型数组，并在<code>static</code>静态块中进行了初始化。每个枚举类型实际上是个继承了<code>Enum</code>的类，并在类初始化的时候实例化了枚举类型的实例，可以看到非常重量级，实际上在Android开发中Google已经建议不要使用<code>Enum</code>，改而使用<code>@IntDef</code>之类的注解进行约束。</p>
+<p>在看EffectiveJava的时候，看到作者认为Enum是实现单例的一种方式，<code>Enum</code>实现的单例帮我们处理了反射和序列化相关的问题，那它是怎么处理的呢？我们不妨看下源码来找下答案。</p>
+<p><strike>首先看下<code>Enum</code>类的<code>readObject</code>方法：</strike></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">  * prevent default deserialization
+</span></span></span><span class="line"><span class="cl"><span class="cm">  */</span>
+</span></span><span class="line"><span class="cl"><span class="kd">private</span> <span class="kt">void</span> <span class="nf">readObject</span><span class="o">(</span><span class="n">ObjectInputStream</span> <span class="n">in</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ClassNotFoundException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">throw</span> <span class="k">new</span> <span class="n">InvalidObjectException</span><span class="o">(</span><span class="s">&#34;can&#39;t deserialize enum&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strike>可以看到这个方法直接抛出了一个异常来阻止反序列化。</strike></p>
+<p><code>ObjectInputStream</code>的<code>readEnum</code>方法使用了<code>Enum.valueOf</code>方法来进行<code>Enum</code>的反序列化，保证了实例的唯一。</p>
+<p>再来看下如果我们想要使用反射来实例化一个枚举实例的时候会遇到什么问题，我们看下<code>Constructor</code>类的<code>newInstance</code>方法：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="n">T</span> <span class="nf">newInstance</span><span class="o">(</span><span class="n">Object</span> <span class="o">...</span> <span class="n">initargs</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">throws</span> <span class="n">InstantiationException</span><span class="o">,</span> <span class="n">IllegalAccessException</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">               <span class="n">IllegalArgumentException</span><span class="o">,</span> <span class="n">InvocationTargetException</span>
+</span></span><span class="line"><span class="cl">    <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(!</span><span class="n">override</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(!</span><span class="n">Reflection</span><span class="o">.</span><span class="na">quickCheckMemberAccess</span><span class="o">(</span><span class="n">clazz</span><span class="o">,</span> <span class="n">modifiers</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">Class</span><span class="o">&lt;?&gt;</span> <span class="n">caller</span> <span class="o">=</span> <span class="n">Reflection</span><span class="o">.</span><span class="na">getCallerClass</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                <span class="n">checkAccess</span><span class="o">(</span><span class="n">caller</span><span class="o">,</span> <span class="n">clazz</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="n">modifiers</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 阻止了通过反射来实例化Enum实例
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">if</span> <span class="o">((</span><span class="n">clazz</span><span class="o">.</span><span class="na">getModifiers</span><span class="o">()</span> <span class="o">&amp;</span> <span class="n">Modifier</span><span class="o">.</span><span class="na">ENUM</span><span class="o">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span><span class="s">&#34;Cannot reflectively create enum objects&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ConstructorAccessor</span> <span class="n">ca</span> <span class="o">=</span> <span class="n">constructorAccessor</span><span class="o">;</span>   <span class="c1">// read volatile
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">if</span> <span class="o">(</span><span class="n">ca</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">ca</span> <span class="o">=</span> <span class="n">acquireConstructorAccessor</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">&#34;unchecked&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">T</span> <span class="n">inst</span> <span class="o">=</span> <span class="o">(</span><span class="n">T</span><span class="o">)</span> <span class="n">ca</span><span class="o">.</span><span class="na">newInstance</span><span class="o">(</span><span class="n">initargs</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">inst</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以看到在方法内如果发现要反射类的Modifier中有<code>Enum</code>标志，会直接抛出异常表示无法通过反射的方式来创建<code>Enum</code>实例。</p>
+<h3 id="reference">reference</h3>
+<ul>
+<li><a href="https://www.benf.org/other/cfr/how-are-enums-implemented.html">How are Enums implemented?</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2018-07-10
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/2018/09/12/a-few-lately-thoughts/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">A Few Lately Thoughts</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/2018/07/02/analysis-of-hashmap/">
+            <span class="next-text nav-default">Analysis of Hashmap</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

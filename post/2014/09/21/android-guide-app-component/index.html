@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Android Guide App Component - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="TL,DR; Once installed on a device, each Android application lives in its own security sandbox: The Android operating system is a multi-user Linux system in which each application is a different user. By default, the system assigns each application a unique Linux user ID (the ID is used only by the system and is unknown to the application). The system sets permissions for all the files in an application so" /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/2014/09/21/android-guide-app-component/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Android Guide App Component" />
+<meta property="og:description" content="TL,DR; Once installed on a device, each Android application lives in its own security sandbox: The Android operating system is a multi-user Linux system in which each application is a different user. By default, the system assigns each application a unique Linux user ID (the ID is used only by the system and is unknown to the application). The system sets permissions for all the files in an application so" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/2014/09/21/android-guide-app-component/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2014-09-21T00:00:00+00:00" />
+<meta property="article:modified_time" content="2014-09-21T00:00:00+00:00" />
+<meta itemprop="name" content="Android Guide App Component">
+<meta itemprop="description" content="TL,DR; Once installed on a device, each Android application lives in its own security sandbox: The Android operating system is a multi-user Linux system in which each application is a different user. By default, the system assigns each application a unique Linux user ID (the ID is used only by the system and is unknown to the application). The system sets permissions for all the files in an application so"><meta itemprop="datePublished" content="2014-09-21T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2014-09-21T00:00:00+00:00" />
+<meta itemprop="wordCount" content="27934">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Android Guide App Component"/>
+<meta name="twitter:description" content="TL,DR; Once installed on a device, each Android application lives in its own security sandbox: The Android operating system is a multi-user Linux system in which each application is a different user. By default, the system assigns each application a unique Linux user ID (the ID is used only by the system and is unknown to the application). The system sets permissions for all the files in an application so"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Android Guide App Component</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2014-09-21 </span>
+        <div class="post-category">
+            <a href="/categories/dev/"> dev </a>
+            <a href="/categories/android/"> android </a>
+            <a href="/categories/guides/"> guides </a>
+            </div>
+          <span class="more-meta"> 约 27934 字 </span>
+          <span class="more-meta"> 预计阅读 56 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#activities">Activities</a>
+          <ul>
+            <li><a href="#fragment">Fragment</a></li>
+            <li><a href="#loaders">Loaders</a></li>
+            <li><a href="#tasks-and-back-stack">Tasks and Back stack</a></li>
+          </ul>
+        </li>
+        <li><a href="#service">Service</a>
+          <ul>
+            <li><a href="#bound-services">Bound Services</a></li>
+            <li><a href="#aidl">AIDL</a></li>
+          </ul>
+        </li>
+        <li><a href="#contentproviders">ContentProviders</a>
+          <ul>
+            <li><a href="#contentprovider-basics">ContentProvider Basics</a></li>
+            <li><a href="#creating-a-content-provider">Creating a Content Provider</a></li>
+            <li><a href="#calendar-provider">Calendar Provider</a></li>
+            <li><a href="#contacts-provider">Contacts Provider</a></li>
+            <li><a href="#storage-access-framework">Storage Access Framework</a></li>
+          </ul>
+        </li>
+        <li><a href="#intent-and-intent-filters">Intent and Intent Filters</a></li>
+        <li><a href="#process-and-threads">Process and Threads</a></li>
+        <li><a href="#permissions">Permissions</a></li>
+        <li><a href="#app-widgets">App Widgets</a></li>
+        <li><a href="#android-manifest">Android Manifest</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <center><p><img src="/images/android_robot.png" width="255" height="300"></p></center>
+<p>TL,DR;</p>
+<!-- more -->
+<p>Once installed on a device, each Android application lives in its own security sandbox:</p>
+<ul>
+<li>The Android operating system is a multi-user Linux system in which each application is a different user.</li>
+<li>By default, the system assigns each application a unique Linux user ID (the ID is used only by the system and is unknown to the application). The system sets permissions for all the files in an application so that only the user ID assigned to that application can access them.</li>
+<li>Each process has its own virtual machine (VM), so an application&rsquo;s code runs in isolation from other applications.每个进程都有自己的虚拟机，应用运行彼此隔离。</li>
+<li>By default, every application runs in its own Linux process. Android starts the process when any of the application&rsquo;s components need to be executed, then shuts down the process when it&rsquo;s no longer needed or when the system must recover memory for other applications.每个应用默认运行在自己的Linux进程中，当应用中的组建被激活时进程启动，当需要为其他应用恢复内存时杀死进程。</li>
+</ul>
+<p>There are ways for an application to share data with other applications and for an application to access system services:</p>
+<ul>
+<li>It&rsquo;s possible to arrange for two applications to share the same Linux user ID, in which case they are able to access each other&rsquo;s files. To conserve system resources, applications with the same user ID can also arrange to run in the same Linux process and share the same VM (the applications must also be signed with the same certificate).通过sharedUid方式来共享数据。</li>
+<li>An application can request permission to access device data such as the user&rsquo;s contacts, SMS messages, the mountable storage (SD card), camera, Bluetooth, and more. All application permissions must be granted by the user at install time.应用可以通过申请权限来访问其他应用的数据。</li>
+</ul>
+<p>There are four different types of application components. Each type serves a distinct purpose and has a distinct lifecycle that defines how the component is created and destroyed.Here are the four types of application components:</p>
+<ul>
+<li>Activities:An activity represents a single screen with a user interface.An activity is implemented as a subclass of Activity.Activity是一个用户界面。</li>
+<li>Services:A service is a component that runs in the background to perform long-running operations or to perform work for remote processes. A service does not provide a user interface.A service is implemented as a subclass of Service.Service是在后台运行的组件，不提供用户界面。</li>
+<li>Content providers:A content provider manages a shared set of application data. You can store the data in the file system, an SQLite database, on the web, or any other persistent storage location your application can access. Through the content provider, other applications can query or even modify the data (if the content provider allows it).Content providers are also useful for reading and writing data that is private to your application and not shared.A content provider is implemented as a subclass of ContentProvider and must implement a standard set of APIs that enable other applications to perform transactions. 一个ContentProvider管理共享的数据，可以把数据保存在文件系统中，SQLite数据库中或者在网上或者其他你的应用程序可以访问到的用于持久化数据的位置。其他应用如果有相关权限可以通过ContentProvider来查询或者修改数据。</li>
+<li>Broadcast receivers:A broadcast receiver is a component that responds to system-wide broadcast announcements.Although broadcast receivers don&rsquo;t display a user interface, they may create a status bar notification to alert the user when a broadcast event occurs. More commonly, though, a broadcast receiver is just a &ldquo;gateway&rdquo; to other components and is intended to do a very minimal amount of work. For instance, it might initiate a service to perform some work based on the event.A broadcast receiver is implemented as a subclass of <code>BroadcastReceiver</code> and each broadcast is delivered as an <code>Intent</code> object.一个Broadcast receiver会对系统范围内的广播进行响应。Broadcast receiver不会显示用户界面，但可以创建一个状态栏通知来告诉发生了广播事件。</li>
+</ul>
+<p>When the system starts a component, it starts the process for that application (if it&rsquo;s not already running) and instantiates the classes needed for the component.系统启动一个组件时，就会启动组件所在引用的进程并实例化组件所需要的相关类。 For example, if your application starts the activity in the camera application that captures a photo, that activity runs in the process that belongs to the camera application, not in your application&rsquo;s process. Therefore, unlike applications on most other systems, Android applications don&rsquo;t have a single entry point (there&rsquo;s no main() function, for example).</p>
+<p>Three of the four component types—<code>activities</code>, <code>services</code>, and <code>broadcast receivers</code>—are activated by an asynchronous message called an intent. Intents bind individual components to each other at runtime (you can think of them as the messengers that request an action from other components), whether the component belongs to your application or another.<code>Activity</code>,<code>Service</code>,<code>Broadcast receiver</code>可以通过<code>Intent</code>来被激活。</p>
+<p>An intent is created with an Intent object, which defines a message to activate either a specific component or a specific type of component—an intent can be either explicit or implicit, respectively.</p>
+<p>The other component type, content provider, is not activated by intents. Rather, it is activated when targeted by a request from a <code>ContentResolver</code>. The content resolver handles all direct transactions with the content provider so that the component that&rsquo;s performing transactions with the provider doesn&rsquo;t need to and instead calls methods on the ContentResolver object. This leaves a layer of abstraction between the content provider and the component requesting information (for security).<code>ContentProvider</code>会在请求调用<code>ContentResolver</code>时来被激活。</p>
+<p>There are separate methods for activating each type of component:</p>
+<ul>
+<li>You can start an activity (or give it something new to do) by passing an <code>Intent</code> to <code>startActivity()</code> or <code>startActivityForResult()</code> (when you want the activity to return a result).</li>
+<li>You can start a service (or give new instructions to an ongoing service) by passing an <code>Intent</code> to <code>startService()</code>. Or you can bind to the service by passing an Intent to <code>bindService()</code>.</li>
+<li>You can initiate a broadcast by passing an Intent to methods like <code>sendBroadcast(), sendOrderedBroadcast(), or sendStickyBroadcast()</code>.</li>
+<li>You can perform a query to a content provider by calling <code>query()</code> on a <code>ContentResolver</code>.</li>
+</ul>
+<p>Activities, services, and content providers that you include in your source but do not declare in the manifest are not visible to the system and, consequently, can never run. However, broadcast receivers can be either declared in the manifest or created dynamically in code (as BroadcastReceiver objects) and registered with the system by calling <code>registerReceiver()</code>.</p>
+<p>For every resource that you include in your Android project, the SDK build tools define a unique integer ID, which you can use to reference the resource from your application code or from other resources defined in XML.Android工程中的每个资源，都会被sdk build tools定义为一个唯一的id.One of the most important aspects of providing resources separate from your source code is the ability for you to provide alternative resources for different device configurations.</p>
+<h2 id="activities">Activities</h2>
+<p>An application usually consists of multiple activities that are loosely bound to each other. Typically, one activity in an application is specified as the &ldquo;main&rdquo; activity, which is presented to the user when launching the application for the first time. Each activity can then start another activity in order to perform different actions. Each time a new activity starts, the previous activity is stopped, but the system preserves the activity in a stack (the &ldquo;back stack&rdquo;). When a new activity starts, it is pushed onto the back stack and takes user focus. The back stack abides to the basic &ldquo;last in, first out&rdquo; stack mechanism, so, when the user is done with the current activity and presses the Back button, it is popped from the stack (and destroyed) and the previous activity resumes.一个应用通常有一个主activity,启动应用的时候呈现给用户。一个activity启动其他activity时会被压入到back stack中去。</p>
+<p>When an activity is stopped because a new activity starts, it is notified of this change in state through the activity&rsquo;s lifecycle callback methods. There are several callback methods that an activity might receive, due to a change in its state—whether the system is creating it, stopping it, resuming it, or destroying it—and each callback provides you the opportunity to perform specific work that&rsquo;s appropriate to that state change.当一个activity因为其他activity启动而进入stopped状态时，会触发相应的lifecycle callback方法。</p>
+<p>In your subclass, you need to implement callback methods that the system calls when the activity transitions between various states of its lifecycle, such as when the activity is being created, stopped, resumed, or destroyed. The two most important callback methods are:</p>
+<ul>
+<li><code>onCreate()</code>:You must implement this method. The system calls this when creating your activity. Within your implementation, you should initialize the essential components of your activity. Most importantly, this is where you must call <code>setContentView()</code> to define the layout for the activity&rsquo;s user interface.必须实现此方法，这是调用<code>setContentView()</code>的地方。</li>
+<li><code>onPause()</code>:The system calls this method as the first indication that the user is leaving your activity (though it does not always mean the activity is being destroyed). This is usually where you should commit any changes that should be persisted beyond the current user session (because the user might not come back).用户离开activity时会调用此方法，实现此方法中通常应该将应该持久化保存的数据保存下来。</li>
+</ul>
+<p>The user interface for an activity is provided by a hierarchy of views—objects derived from the <code>View</code> class. Each view controls a particular rectangular space within the activity&rsquo;s window and can respond to user interaction.Activity的用户界面由View来提供。</p>
+<p>The most common way to define a layout using views is with an XML layout file saved in your application resources. This way, you can maintain the design of your user interface separately from the source code that defines the activity&rsquo;s behavior. You can set the layout as the UI for your activity with <code>setContentView()</code>, passing the resource ID for the layout. However, you can also create new Views in your activity code and build a view hierarchy by inserting new Views into a <code>ViewGroup</code>, then use that layout by passing the root <code>ViewGroup</code> to <code>setContentView()</code>.可以使用xml来定义布局，也可以在代码中动态创建view和<code>ViewGroup</code>来传递给<code>setContentView</code>。</p>
+<p>You must declare your activity in the manifest file in order for it to be accessible to the system. 必须在manifest文件中声明activity来被系统所知悉并可以运行之。An <code>&lt;activity&gt;</code> element can also specify various intent filters—using the <code>&lt;intent-filter&gt;</code> element—in order to declare how other application components may activate it.可以通过声明<code>intent filter</code>来告知系统该activity可以被什么intent来激活响应。</p>
+<p>If you want your activity to respond to implicit intents that are delivered from other applications (and your own), then you must define additional intent filters for your activity. For each type of intent to which you want to respond, you must include an <code>&lt;intent-filter&gt;</code> that includes an <code>&lt;action&gt;</code> element and, optionally, a <code>&lt;category&gt;</code> element and/or a <code>&lt;data&gt;</code> element. These elements specify the type of intent to which your activity can respond.如果你的activity想要对其他组件发起的隐式intent进行响应，就需要在manifest中声明<code>&lt;intent-filter&gt;</code>，每个<code>&lt;intent-filter&gt;</code>必须包换<code>&lt;action&gt;</code>，可以包含<code>&lt;category&gt;</code>或<code>&lt;data&gt;</code>。</p>
+<p>You can start another activity by calling <code>startActivity()</code>, passing it an <code>Intent</code> that describes the activity you want to start. The intent specifies either the exact activity you want to start or describes the type of action you want to perform (and the system selects the appropriate activity for you, which can even be from a different application). An intent can also carry small amounts of data to be used by the activity that is started.Your application might also want to perform some action, such as send an email, text message, or status update, using data from your activity. In this case, your application might not have its own activities to perform such actions, so you can instead leverage the activities provided by other applications on the device, which can perform the actions for you. This is where intents are really valuable—you can create an intent that describes an action you want to perform and the system launches the appropriate activity from another application. If there are multiple activities that can handle the intent, then the user can select which one to use.显式intent和隐式intent。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Intent</span> <span class="n">intent</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Intent</span><span class="o">(</span><span class="n">Intent</span><span class="o">.</span><span class="na">ACTION_SEND</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">intent</span><span class="o">.</span><span class="na">putExtra</span><span class="o">(</span><span class="n">Intent</span><span class="o">.</span><span class="na">EXTRA_EMAIL</span><span class="o">,</span> <span class="n">recipientArray</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">startActivity</span><span class="o">(</span><span class="n">intent</span><span class="o">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Sometimes, you might want to receive a result from the activity that you start. In that case, start the activity by calling <code>startActivityForResult()</code> (instead of <code>startActivity()</code>). To then receive the result from the subsequent activity, implement the <code>onActivityResult()</code> callback method. When the subsequent activity is done, it returns a result in an Intent to your <code>onActivityResult()</code> method.</p>
+<p>You can shut down an activity by calling its <code>finish()</code> method. You can also shut down a separate activity that you previously started by calling <code>finishActivity()</code>.</p>
+<p>Managing the lifecycle of your activities by implementing callback methods is crucial to developing a strong and flexible application. The lifecycle of an activity is directly affected by its association with other activities, its task and back stack.An activity can exist in essentially three states:</p>
+<ul>
+<li><code>Resumed</code>:The activity is in the foreground of the screen and has user focus. (This state is also sometimes referred to as &ldquo;running&rdquo;.)</li>
+<li><code>Paused</code>:Another activity is in the foreground and has focus, but this one is still visible. That is, another activity is visible on top of this one and that activity is partially transparent or doesn&rsquo;t cover the entire screen. A paused activity is completely alive (the Activity object is retained in memory, it maintains all state and member information, and remains attached to the window manager), but can be killed by the system in extremely low memory situations.</li>
+<li><code>Stopped</code>:The activity is completely obscured by another activity (the activity is now in the &ldquo;background&rdquo;). A stopped activity is also still alive (the Activity object is retained in memory, it maintains all state and member information, but is not attached to the window manager). However, it is no longer visible to the user and it can be killed by the system when memory is needed elsewhere.</li>
+</ul>
+<p>If an activity is paused or stopped, the system can drop it from memory either by asking it to finish (calling its <code>finish()</code> method), or simply killing its process. When the activity is opened again (after being finished or killed), it must be created all over.
+在<code>paused</code>或者<code>stopped</code>状态的activity可能会被系统杀死。<code>paused</code>部分可见，<code>stopped</code>完全不可见。</p>
+<p>When an activity transitions into and out of the different states described above, it is notified through various callback methods. All of the callback methods are hooks that you can override to do appropriate work when the state of your activity changes. 当一个activity在不同状态之间切换时，会调用不同的lifecycle callback方法。Your implementation of these lifecycle methods must always call the superclass implementation before doing any work, as shown in the examples above.实现这些生命周期方法时，必须调用父类的方法。</p>
+<p>Taken together, these methods define the entire lifecycle of an activity. By implementing these methods, you can monitor three nested loops in the activity lifecycle:</p>
+<ul>
+<li>The <strong>entire lifetime</strong> of an activity happens between the call to <code>onCreate()</code> and the call to <code>onDestroy()</code>. Your activity should perform setup of &ldquo;global&rdquo; state (such as defining layout) in <code>onCreate()</code>, and release all remaining resources in <code>onDestroy()</code>. For example, if your activity has a thread running in the background to download data from the network, it might create that thread in <code>onCreate()</code> and then stop the thread in <code>onDestroy()</code>.Activity的整个生命周期从<code>onCreate</code>初始化开始，到<code>onDestory</code>释放资源结束。</li>
+<li>The <strong>visible lifetime</strong> of an activity happens between the call to <code>onStart()</code> and the call to <code>onStop()</code>. During this time, the user can see the activity on-screen and interact with it. For example, <code>onStop()</code> is called when a new activity starts and this one is no longer visible. Between these two methods, you can maintain resources that are needed to show the activity to the user. For example, you can register a BroadcastReceiver in onStart() to monitor changes that impact your UI, and unregister it in onStop() when the user can no longer see what you are displaying. The system might call onStart() and onStop() multiple times during the entire lifetime of the activity, as the activity alternates between being visible and hidden to the user.对用户可见的阶段是从<code>onStart</code>生命周期开始，到<code>onStop</code>生命周期结束。</li>
+<li>The <strong>foreground lifetime</strong> of an activity happens between the call to <code>onResume()</code> and the call to <code>onPause()</code>. During this time, the activity is in front of all other activities on screen and has user input focus. An activity can frequently transition in and out of the foreground—for example, onPause() is called when the device goes to sleep or when a dialog appears. Because this state can transition often, the code in these two methods should be fairly lightweight in order to avoid slow transitions that make the user wait.前台生命周期从<code>onResume</code>到<code>onPause</code>。</li>
+</ul>
+<center><p><img src="/images/activity_lifecycle.png" alt="activity lifecycle"></p></center>
+<p>Once the activity is created, <code>onPause()</code> is the last method that&rsquo;s guaranteed to be called before the process can be killed—if the system must recover memory in an emergency, then <code>onStop()</code> and <code>onDestroy()</code> might not be called. Therefore, you should use <code>onPause()</code> to write crucial persistent data (such as user edits) to storage. However, you should be selective about what information must be retained during <code>onPause()</code>, because any blocking procedures in this method block the transition to the next activity and slow the user experience.Activity一旦被创建，<code>onPause</code>是在进程被杀之前保证被调到的最后一个方法，如果系统内存紧缺，<code>onStop</code>和<code>onDestory</code>也许不会被调用。</p>
+<p>When the system destroys an activity in order to recover memory, the Activity object is destroyed, so the system cannot simply resume it with its state intact. Instead, the system must recreate the Activity object if the user navigates back to it. Yet, the user is unaware that the system destroyed the activity and recreated it and, thus, probably expects the activity to be exactly as it was. In this situation, you can ensure that important information about the activity state is preserved by implementing an additional callback method that allows you to save information about the state of your activity: <code>onSaveInstanceState()</code>.系统将activity摧毁后，activity重新创建后之前的状态不会被保存。The system calls <code>onSaveInstanceState()</code> before making the activity vulnerable to destruction. The system passes this method a Bundle in which you can save state information about the activity as name-value pairs, using methods such as <code>putString()</code> and <code>putInt()</code>. Then, if the system kills your application process and the user navigates back to your activity, the system recreates the activity and passes the Bundle to both <code>onCreate()</code> and <code>onRestoreInstanceState()</code>. Using either of these methods, you can extract your saved state from the Bundle and restore the activity state. If there is no state information to restore, then the Bundle passed to you is <code>null</code> (which is the case when the activity is created for the first time).在<code>onSaveInstanceState()</code>中被保存下来的状态会在<code>onCreate</code>或者<code>onRestoreInstanceState()</code>方法中被传递过去。There&rsquo;s no guarantee that <code>onSaveInstanceState()</code> will be called before your activity is destroyed, because there are cases in which it won&rsquo;t be necessary to save the state (such as when the user leaves your activity using the Back button, because the user is explicitly closing the activity). If the system calls <code>onSaveInstanceState()</code>, it does so before <code>onStop()</code> and possibly before <code>onPause()</code>.<code>onSaveInstanceState</code>无法保证被调用，如果被调用，可能会是在<code>onStop()</code>或者<code>onPause</code>之前。</p>
+<p>However, even if you do nothing and do not implement <code>onSaveInstanceState()</code>, some of the activity state is restored by the Activity class&rsquo;s default implementation of <code>onSaveInstanceState()</code>. Specifically, the default implementation calls the corresponding <code>onSaveInstanceState()</code> method for every View in the layout, which allows each view to provide information about itself that should be saved. Almost every widget in the Android framework implements this method as appropriate, such that any visible changes to the UI are automatically saved and restored when your activity is recreated. The only work required by you is to provide a unique ID (with the <code>android:id</code> attribute) for each widget you want to save its state. If a widget does not have an ID, then the system cannot save its state.布局中的view组件如果提供了<code>android:id</code>属性，状态会被自动保存。Because the default implementation of onSaveInstanceState() helps save the state of the UI, if you override the method in order to save additional state information, you should always call the superclass implementation of onSaveInstanceState() before doing any work. Likewise, you should also call the superclass implementation of onRestoreInstanceState() if you override it, so the default implementation can restore view states.如果要重写<code>onSaveInstanceState</code>或者<code>onRestoreInstanceState</code>，一定要调用父类的方法。 Because onSaveInstanceState() is not guaranteed to be called, you should use it only to record the transient state of the activity (the state of the UI)—you should never use it to store persistent data. Instead, you should use onPause() to store persistent data (such as data that should be saved to a database) when the user leaves the activity.<code>onSaveInstnceState</code>不保证被调用，如果一定要使用，保存瞬时数据，使用<code>onPause</code>来保存持久化数据。</p>
+<p>Some device configurations can change during runtime (such as screen orientation, keyboard availability, and language). When such a change occurs, Android recreates the running activity (the system calls onDestroy(), then immediately calls onCreate()). This behavior is designed to help your application adapt to new configurations by automatically reloading your application with alternative resources that you&rsquo;ve provided (such as different layouts for different screen orientations and sizes).Device configuration发生变化时，系统会销毁掉Activity然后重新创建，即调用<code>onDestory</code>然后调用<code>onCreate</code>。</p>
+<p>The order of lifecycle callbacks is well defined, particularly when the two activities are in the same process and one is starting the other. Here&rsquo;s the order of operations that occur when Activity A starts Acivity B:</p>
+<ul>
+<li>Activity A&rsquo;s <code>onPause()</code> method executes.</li>
+<li>Activity B&rsquo;s <code>onCreate()</code>, <code>onStart()</code>, and <code>onResume()</code> methods execute in sequence. (Activity B now has user focus.)</li>
+<li>Then, if Activity A is no longer visible on screen, its <code>onStop()</code> method executes.</li>
+</ul>
+<p>同一个进程中ActivityA启动ActivityB时，方法执行顺序是固定的，A的<code>onPause</code>方法被调用，B的<code>onCreate</code>,<code>onStart</code>和<code>onResume</code>方法被调用，如果A不可见了，则A的<code>onStop</code>方法会被调用。</p>
+<h3 id="fragment">Fragment</h3>
+<p>A fragment must always be embedded in an activity and the fragment&rsquo;s lifecycle is directly affected by the host activity&rsquo;s lifecycle.However, while an activity is running (it is in the resumed lifecycle state), you can manipulate each fragment independently, such as add or remove them. When you perform such a fragment transaction, you can also add it to a back stack that&rsquo;s managed by the activity—each back stack entry in the activity is a record of the fragment transaction that occurred. The back stack allows the user to reverse a fragment transaction (navigate backwards), by pressing the Back button.Fragment必须嵌入到Activity中去，并且生命周期显著受到Activity生命周期影响。一个Activity在运行状态时，可以添加或者去除fragment，进行这些fragment transaction时，可以将这些动作压入back stack。When you add a fragment as a part of your activity layout, it lives in a ViewGroup inside the activity&rsquo;s view hierarchy and the fragment defines its own view layout. You can insert a fragment into your activity layout by declaring the fragment in the activity&rsquo;s layout file, as a <fragment> element, or from your application code by adding it to an existing ViewGroup. However, a fragment is not required to be a part of the activity layout; you may also use a fragment without its own UI as an invisible worker for the activity.Fragment可以有UI，也可以无UI，可以在manifest文件中声明，也可以在代码中添加。</p>
+<p>To create a fragment, you must create a subclass of Fragment (or an existing subclass of it). The Fragment class has code that looks a lot like an Activity. It contains callback methods similar to an activity, such as onCreate(), onStart(), onPause(), and onStop().<code>Fragment</code>生命周期方法和<code>Activity</code>非常类似。</p>
+<p>Usually, you should implement at least the following lifecycle methods:</p>
+<ul>
+<li><code>onCreate()</code>:The system calls this when creating the fragment. Within your implementation, you should initialize essential components of the fragment that you want to retain when the fragment is paused or stopped, then resumed.系统调用这个方法来创建fragment。在这个方法实现中，应该初始化必须的组件。</li>
+<li><code>onCreateView()</code>:The system calls this when it&rsquo;s time for the fragment to draw its user interface for the first time. To draw a UI for your fragment, you must return a View from this method that is the root of your fragment&rsquo;s layout. You can return null if the fragment does not provide a UI.系统调用这个方法来绘制fragment的UI。</li>
+<li><code>onPause()</code>:The system calls this method as the first indication that the user is leaving the fragment (though it does not always mean the fragment is being destroyed). This is usually where you should commit any changes that should be persisted beyond the current user session (because the user might not come back).用户离开fragment时系统会调用这个方法。</li>
+</ul>
+<center><p><img src="/images/fragment_lifecycle.png" alt="fragment lifecycle"></p></center>
+<p>除了直接继承Fragment，还可以继承<code>DialogFragment</code>，<code>ListFragment</code>或者<code>PreferenceFragment</code>。</p>
+<p>When the system creates this activity layout, it instantiates each fragment specified in the layout and calls the <code>onCreateView()</code> method for each one, to retrieve each fragment&rsquo;s layout. The system inserts the View returned by the fragment directly in place of the <code>&lt;fragment&gt;</code> element.系统创建Activity布局时，会实例化各个<code>fragment</code>并调用其<code>onCreateView</code>方法来将其布局展开来插入到<code>Activity</code>布局文件中<code>fragment</code>标签所占的位置。</p>
+<p>Each fragment requires a unique identifier that the system can use to restore the fragment if the activity is restarted (and which you can use to capture the fragment to perform transactions, such as remove it). There are three ways to provide an ID for a fragment:</p>
+<ul>
+<li>Supply the <code>android:id</code> attribute with a unique ID.</li>
+<li>Supply the <code>android:tag</code> attribute with a unique string.</li>
+<li>If you provide neither of the previous two, the system uses the ID of the container view.</li>
+</ul>
+<p>每个fragment需要一个唯一的id来使系统在Activity restart的时候来恢复fragment状态，或者来进行fragment transaction。<code>android:id</code>，<code>android:tag</code>都可以作为id，如果没有提供系统将使用包含fragment的containver view的id。</p>
+<p>To make fragment transactions in your activity (such as add, remove, or replace a fragment), you must use APIs from <code>FragmentTransaction</code>. You can get an instance of FragmentTransaction from your Activity like this:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">FragmentManager</span> <span class="n">fragmentManager</span> <span class="o">=</span> <span class="n">getFragmentManager</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">FragmentTransaction</span> <span class="n">fragmentTransaction</span> <span class="o">=</span> <span class="n">fragmentManager</span><span class="o">.</span><span class="na">beginTransaction</span><span class="o">();</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>You can then add a fragment using the <code>add()</code> method, specifying the fragment to add and the view in which to insert it. For example:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">ExampleFragment</span> <span class="n">fragment</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ExampleFragment</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="n">fragmentTransaction</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">fragment_container</span><span class="o">,</span> <span class="n">fragment</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">fragmentTransaction</span><span class="o">.</span><span class="na">commit</span><span class="o">();</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Once you&rsquo;ve made your changes with FragmentTransaction, you must call <code>commit()</code> for the changes to take effect.Before you call <code>commit()</code>, however, you might want to call <code>addToBackStack()</code>, in order to add the transaction to a back stack of fragment transactions. This back stack is managed by the activity and allows the user to return to the previous fragment state, by pressing the Back button.If you add multiple changes to the transaction (such as another <code>add()</code> or <code>remove()</code>) and call <code>addToBackStack()</code>, then all changes applied before you call <code>commit()</code> are added to the back stack as a single transaction and the Back button will reverse them all together.If you do not call <code>addToBackStack()</code> when you perform a transaction that removes a fragment, then that fragment is destroyed when the transaction is committed and the user cannot navigate back to it. Whereas, if you do call <code>addToBackStack()</code> when removing a fragment, then the fragment is stopped and will be resumed if the user navigates back.调用<code>addToBackStack</code>方法后，remove掉掉一个fragment，fragment会进入stopped状态，返回后会重新resume，如果么有调用会销毁掉fragment，无法返回。</p>
+<p>To manage the fragments in your activity, you need to use <code>FragmentManager</code>. To get it, call <code>getFragmentManager()</code> from your activity.为了管理activity中的fragment，需要使用FragmentManager。</p>
+<p>Some things that you can do with FragmentManager include:</p>
+<ul>
+<li>Get fragments that exist in the activity, with <code>findFragmentById()</code> (for fragments that provide a UI in the activity layout) or <code>findFragmentByTag()</code> (for fragments that do or don&rsquo;t provide a UI).</li>
+<li>Pop fragments off the back stack, with <code>popBackStack()</code> (simulating a Back command by the user).</li>
+<li>Register a listener for changes to the back stack, with <code>addOnBackStackChangedListener()</code>.</li>
+</ul>
+<p>Calling <code>commit()</code> does not perform the transaction immediately. Rather, it schedules it to run on the activity&rsquo;s UI thread (the &ldquo;main&rdquo; thread) as soon as the thread is able to do so. If necessary, however, you may call <code>executePendingTransactions()</code> from your UI thread to immediately execute transactions submitted by commit(). Doing so is usually not necessary unless the transaction is a dependency for jobs in other threads.调用commit后，fragment transaction不会立即执行，而是会在UI线程中被规划调度执行，如果需要立即执行可以调用<code>executePendingTransactions()</code>方法。You can commit a transaction using <code>commit()</code> only prior to the activity saving its state (when the user leaves the activity). If you attempt to commit after that point, an exception will be thrown. This is because the state after the commit can be lost if the activity needs to be restored. For situations in which its okay that you lose the commit, use <code>commitAllowingStateLoss()</code>.如果需要保持fragment的状态，应该在用户离开activity之前调用commit，避免状态丢失，如果对这些状态不在意的话可以使用<code>commitAllowingStateLoss()</code>方法。</p>
+<p>Although a Fragment is implemented as an object that&rsquo;s independent from an Activity and can be used inside multiple activities, a given instance of a fragment is directly tied to the activity that contains it.fragment和包含他的activity紧密相连。Specifically, the fragment can access the Activity instance with <code>getActivity()</code> and easily perform tasks such as find a view in the activity layout:<code>View listView = getActivity().findViewById(R.id.list);</code>.Likewise, your activity can call methods in the fragment by acquiring a reference to the Fragment from <code>FragmentManager</code>, using <code>findFragmentById()</code> or <code>findFragmentByTag()</code>. For example:<code>ExampleFragment fragment = (ExampleFragment) getFragmentManager().findFragmentById(R.id.example_fragment);</code>.Fragment和Activity交互的方式。</p>
+<p>fragment和Activity之间交互事件可以通过在fragment中定义一个interface,Activity来实现这个interface，在fragment中<code>onAttach</code>方法中将Activity强制转换为fragment持有的一个interface实例。</p>
+<p>Managing the lifecycle of a fragment is a lot like managing the lifecycle of an activity. Like an activity, a fragment can exist in three states:</p>
+<ul>
+<li><code>Resumed</code>:The fragment is visible in the running activity.</li>
+<li><code>Paused</code>:Another activity is in the foreground and has focus, but the activity in which this fragment lives is still visible (the foreground activity is partially transparent or doesn&rsquo;t cover the entire screen).</li>
+<li><code>Stopped</code>:The fragment is not visible. Either the host activity has been stopped or the fragment has been removed from the activity but added to the back stack. A stopped fragment is still alive (all state and member information is retained by the system). However, it is no longer visible to the user and will be killed if the activity is killed.</li>
+</ul>
+<p>Also like an activity, you can retain the state of a fragment using a <code>Bundle</code>, in case the activity&rsquo;s process is killed and you need to restore the fragment state when the activity is recreated. You can save the state during the fragment&rsquo;s <code>onSaveInstanceState()</code> callback and restore it during either <code>onCreate()</code>, <code>onCreateView()</code>, or <code>onActivityCreated()</code>.</p>
+<p>The most significant difference in lifecycle between an activity and a fragment is how one is stored in its respective back stack. An activity is placed into a back stack of activities that&rsquo;s managed by the system when it&rsquo;s stopped, by default.However, a fragment is placed into a back stack managed by the host activity only when you explicitly request that the instance be saved by calling addToBackStack() during a transaction that removes the fragment.fragment和activity生命周期的一个不同点在于，activity会被放入系统管理的back stack中，用户返回时会重新进入activity。而fragment只有在显式调用<code>addToBackStack</code>后才会被保存状态在host activity管理的back stack中。</p>
+<p>If you need a Context object within your Fragment, you can call getActivity(). However, be careful to call getActivity() only when the fragment is attached to an activity. When the fragment is not yet attached, or was detached during the end of its lifecycle, getActivity() will return null.如果fragment需要一个context，可以调用<code>getActivity</code>来获取，但是只能在fragment attach到activity之后才能调用，否则会返回null。</p>
+<p>Fragments have a few extra lifecycle callbacks, however, that handle unique interaction with the activity in order to perform actions such as build and destroy the fragment&rsquo;s UI. These additional callback methods are:</p>
+<ul>
+<li><code>onAttach()</code>:Called when the fragment has been associated with the activity (the Activity is passed in here).</li>
+<li><code>onCreateView()</code>:Called to create the view hierarchy associated with the fragment.</li>
+<li><code>onActivityCreated()</code>:Called when the activity&rsquo;s onCreate() method has returned.</li>
+<li><code>onDestroyView()</code>:Called when the view hierarchy associated with the fragment is being removed.</li>
+<li><code>onDetach()</code>:Called when the fragment is being disassociated from the activity.</li>
+</ul>
+<center><p><img src="/images/activity_fragment_lifecycle.png"></p></center>
+<h3 id="loaders">Loaders</h3>
+<p>Loaders make it easy to asynchronously load data in an activity or fragment. Loaders have these characteristics:</p>
+<ul>
+<li>They are available to every Activity and Fragment.</li>
+<li>They provide asynchronous loading of data.</li>
+<li>They monitor the source of their data and deliver new results when the content changes.</li>
+<li>They automatically reconnect to the last loader&rsquo;s cursor when being recreated after a configuration change. Thus, they don&rsquo;t need to re-query their data.</li>
+</ul>
+<p>An application that uses loaders typically includes the following:</p>
+<ul>
+<li>An Activity or Fragment.</li>
+<li>An instance of the LoaderManager.</li>
+<li>A CursorLoader to load data backed by a ContentProvider. Alternatively, you can implement your own subclass of Loader or AsyncTaskLoader to load data from some other source.</li>
+<li>An implementation for LoaderManager.LoaderCallbacks. This is where you create new loaders and manage your references to existing loaders.</li>
+<li>A way of displaying the loader&rsquo;s data, such as a SimpleCursorAdapter.</li>
+<li>A data source, such as a ContentProvider, when using a CursorLoader.</li>
+</ul>
+<p>You typically initialize a Loader within the activity&rsquo;s onCreate() method, or within the fragment&rsquo;s onActivityCreated() method. You do this as follows:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">getLoaderManager</span><span class="o">().</span><span class="na">initLoader</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="k">this</span><span class="o">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The <code>initLoader()</code> call ensures that a loader is initialized and active. It has two possible outcomes:</p>
+<ul>
+<li>If the loader specified by the ID already exists, the last created loader is reused.</li>
+<li>If the loader specified by the ID does not exist, <code>initLoader()</code> triggers the <code>LoaderManager.LoaderCallbacks</code> method <code>onCreateLoader()</code>. This is where you implement the code to instantiate and return a new loader.</li>
+</ul>
+<p>When you use <code>initLoader()</code>, as shown above, it uses an existing loader with the specified ID if there is one. If there isn&rsquo;t, it creates one. But sometimes you want to discard your old data and start over.To discard your old data, you use <code>restartLoader()</code>. 重新获取数据使用<code>restartLoader()</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">onQueryTextChanged</span><span class="o">(</span><span class="n">String</span> <span class="n">newText</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Called when the action bar search text has changed.  Update
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// the search filter, and restart the loader to do a new query
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// with this filter.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">mCurFilter</span> <span class="o">=</span> <span class="o">!</span><span class="n">TextUtils</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">(</span><span class="n">newText</span><span class="o">)</span> <span class="o">?</span> <span class="n">newText</span> <span class="o">:</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">getLoaderManager</span><span class="o">().</span><span class="na">restartLoader</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="k">this</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>LoaderManager.LoaderCallbacks</code> is a callback interface that lets a client interact with the LoaderManager.Loaders, in particular <code>CursorLoader</code>, are expected to retain their data after being stopped. This allows applications to keep their data across the activity or fragment&rsquo;s <code>onStop()</code> and <code>onStart()</code> methods, so that when users return to an application, they don&rsquo;t have to wait for the data to reload. You use the <code>LoaderManager.LoaderCallbacks</code> methods when to know when to create a new loader, and to tell the application when it is time to stop using a loader&rsquo;s data.<code>LoaderManager.LoaderCallbacks</code> includes these methods:</p>
+<ul>
+<li><code>onCreateLoader()</code> — Instantiate and return a new Loader for the given ID.实例化创建一个Loader。</li>
+<li><code>onLoadFinished()</code> — Called when a previously created loader has finished its load.数据加载完成后调用。</li>
+<li><code>onLoaderReset()</code> — Called when a previously created loader is being reset, thus making its data unavailable.之前调用的Loader被reset时调用。</li>
+</ul>
+<h3 id="tasks-and-back-stack">Tasks and Back stack</h3>
+<p>A task is a collection of activities that users interact with when performing a certain job. The activities are arranged in a stack (the &ldquo;back stack&rdquo;), in the order in which each activity is opened.</p>
+<p>The device Home screen is the starting place for most tasks. When the user touches an icon in the application launcher (or a shortcut on the Home screen), that application&rsquo;s task comes to the foreground. If no task exists for the application (the application has not been used recently), then a new task is created and the &ldquo;main&rdquo; activity for that application opens as the root activity in the stack.Launcher是大部分task开始的地方。If the user continues to press Back, then each activity in the stack is popped off to reveal the previous one, until the user returns to the Home screen (or to whichever activity was running when the task began). When all activities are removed from the stack, the task no longer exists.如果用户在一个task中不停的按返回键，每个被压栈的activity逐个弹出直到回到Launcher。</p>
+<p>A task is a cohesive unit that can move to the &ldquo;background&rdquo; when users begin a new task or go to the Home screen, via the Home button. While in the background, all the activities in the task are stopped, but the back stack for the task remains intact—the task has simply lost focus while another task takes place.用户启动其他task或者按下Home键时，当前task进入后台状态。</p>
+<p>To summarize the default behavior for activities and tasks:</p>
+<ul>
+<li>When Activity A starts Activity B, Activity A is stopped, but the system retains its state (such as scroll position and text entered into forms). If the user presses the Back button while in Activity B, Activity A resumes with its state restored.</li>
+<li>When the user leaves a task by pressing the Home button, the current activity is stopped and its task goes into the background. The system retains the state of every activity in the task. If the user later resumes the task by selecting the launcher icon that began the task, the task comes to the foreground and resumes the activity at the top of the stack.</li>
+<li>If the user presses the Back button, the current activity is popped from the stack and destroyed. The previous activity in the stack is resumed. When an activity is destroyed, the system does not retain the activity&rsquo;s state.</li>
+<li>Activities can be instantiated multiple times, even from other tasks.</li>
+</ul>
+<p>The way Android manages tasks and the back stack, as described above—by placing all activities started in succession in the same task and in a &ldquo;last in, first out&rdquo; stack—works great for most applications and you shouldn&rsquo;t have to worry about how your activities are associated with tasks or how they exist in the back stack. However, you might decide that you want to interrupt the normal behavior. Perhaps you want an activity in your application to begin a new task when it is started (instead of being placed within the current task); or, when you start an activity, you want to bring forward an existing instance of it (instead of creating a new instance on top of the back stack); or, you want your back stack to be cleared of all activities except for the root activity when the user leaves the task.Android默认管理task和back stack的方式一般情况下不需要开发者担心，但是开发者也许想要与默认方式不同的方式来管理task和back stack。</p>
+<p>You can do these things and more, with attributes in the <code>&lt;activity&gt;</code> manifest element and with flags in the intent that you pass to <code>startActivity()</code>.In this regard, the principal <code>&lt;activity&gt;</code> attributes you can use are: <a href="http://www.slideshare.net/RanNachmany/manipulating-android-tasks-and-back-stack">http://www.slideshare.net/RanNachmany/manipulating-android-tasks-and-back-stack</a></p>
+<iframe src="//www.slideshare.net/slideshow/embed_code/10060458" width="427" height="356" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;" allowfullscreen> </iframe> <div style="margin-bottom:5px"> <strong> <a href="https://www.slideshare.net/RanNachmany/manipulating-android-tasks-and-back-stack" title="Manipulating Android tasks and back stack" target="_blank">Manipulating Android tasks and back stack</a> </strong> from <strong><a href="http://www.slideshare.net/RanNachmany" target="_blank">Ran Nachmany</a></strong> </div>
+<ul>
+<li><code>taskAffinity</code></li>
+<li><code>launchMode</code>:<code>standard</code>,<code>singleTop</code>,<code>singleTask</code>,<code>singleInstance</code></li>
+<li><code>allowTaskReparenting</code></li>
+<li><code>clearTaskOnLaunch</code></li>
+<li><code>alwaysRetainTaskState</code></li>
+<li><code>finishOnTaskLaunch</code></li>
+</ul>
+<p>And the principal intent flags you can use are:</p>
+<ul>
+<li><code>FLAG_ACTIVITY_NEW_TASK</code></li>
+<li><code>FLAG_ACTIVITY_CLEAR_TOP</code></li>
+<li><code>FLAG_ACTIVITY_SINGLE_TOP</code></li>
+</ul>
+<h2 id="service">Service</h2>
+<p>A Service is an application component that can perform long-running operations in the background and does not provide a user interface. Another application component can start a service and it will continue to run in the background even if the user switches to another application. Additionally, a component can bind to a service to interact with it and even perform interprocess communication (IPC).Service在后台运行，不提供UI。</p>
+<p>A service can essentially take two forms:</p>
+<ul>
+<li><code>Started</code>:A service is &ldquo;started&rdquo; when an application component (such as an activity) starts it by calling <code>startService()</code>. Once started, a service can run in the background indefinitely, even if the component that started it is destroyed. Usually, a started service performs a single operation and does not return a result to the caller. <code>startService</code>后，service会在后台一直运行下去。</li>
+<li><code>Bound</code>:A service is &ldquo;bound&rdquo; when an application component binds to it by calling <code>bindService()</code>. A bound service offers a client-server interface that allows components to interact with the service, send requests, get results, and even do so across processes with interprocess communication (IPC). A bound service runs only as long as another application component is bound to it. Multiple components can bind to the service at once, but when all of them unbind, the service is destroyed.其他应用组件调用<code>bindService</code>来绑定service。</li>
+</ul>
+<p>Service can work both ways—it can be started (to run indefinitely) and also allow binding. It&rsquo;s simply a matter of whether you implement a couple callback methods: onStartCommand() to allow components to start it and onBind() to allow binding.service可以同时在两种状态下工作，只要实现了相应的回调方法，实现<code>onStartCommand</code>来start service，实现<code>onBind</code>来bind service。</p>
+<p>Regardless of whether your application is started, bound, or both, any application component can use the service (even from a separate application), in the same way that any component can use an activity—by starting it with an Intent. However, you can declare the service as private, in the manifest file, and block access from other applications.不管service是started状态还是bound状态，其他应用组件可以通过Intent来启动service。可以在manifest中将<code>service</code>设置为private，<code>android:export=false</code>，来阻止其他应用来启动该service。</p>
+<p>A service runs in the main thread of its hosting process—the service does not create its own thread and does not run in a separate process.Service运行在主线程。</p>
+<p>A service is simply a component that can run in the background even when the user is not interacting with your application. Thus, you should create a service only if that is what you need.Service只是一个运行在后台不需要与用户交互的组件。If you need to perform work outside your main thread, but only while the user is interacting with your application, then you should probably instead create a new thread and not a service. For example, if you want to play some music, but only while your activity is running, you might create a thread in <code>onCreate()</code>, start running it in <code>onStart()</code>, then stop it in <code>onStop()</code>. Also consider using <code>AsyncTask</code> or <code>HandlerThread</code>, instead of the traditional <code>Thread</code> class.如果想在主线程之外做些操作，应该创建一个线程而不是service。可以使用<code>AsynTask</code>或者<code>HandlerThread</code>来进行相关工作而不是简单的使用<code>Thread</code>类。Remember that if you do use a service, it still runs in your application&rsquo;s main thread by default, so you should still create a new thread within the service if it performs intensive or blocking operations.Service运行在主线程，如果需要做耗时或者阻塞操作，应该在Service中创建线程。</p>
+<p>To create a service, you must create a subclass of <code>Service</code> (or one of its existing subclasses). In your implementation, you need to override some callback methods that handle key aspects of the service lifecycle and provide a mechanism for components to bind to the service, if appropriate. The most important callback methods you should override are:</p>
+<ul>
+<li><code>onStartCommand()</code>:The system calls this method when another component, such as an activity, requests that the service be started, by calling <code>startService()</code>. Once this method executes, the service is started and can run in the background indefinitely. If you implement this, it is your responsibility to stop the service when its work is done, by calling <code>stopSelf()</code> or <code>stopService()</code>. (If you only want to provide binding, you don&rsquo;t need to implement this method.)其他组件调用<code>startService</code>时，<code>onStartCommand</code>方法会被调用，如果调用了此方法，应该自己来停止Service运行，调用<code>stopSelf</code>或者<code>stopService</code>来停止服务运行。</li>
+<li><code>onBind()</code>:The system calls this method when another component wants to bind with the service (such as to perform RPC), by calling <code>bindService()</code>. In your implementation of this method, you must provide an interface that clients use to communicate with the service, by returning an <code>IBinder</code>. You must always implement this method, but if you don&rsquo;t want to allow binding, then you should return null.其他组件调用<code>bindService</code>时，此方法会被调用，如果希望与其他组件进行交互，可以返回一个<code>IBinder</code>，否则，可以返回<code>null</code>。</li>
+<li><code>onCreate()</code>:The system calls this method when the service is first created, to perform one-time setup procedures (before it calls either onStartCommand() or onBind()). If the service is already running, this method is not called.系统在Service被创建时调用<code>onCreate</code>一次来进行初始化工作，如果Service已经在运行了，不会调用此方法。</li>
+<li><code>onDestroy()</code>The system calls this method when the service is no longer used and is being destroyed. Your service should implement this to clean up any resources such as threads, registered listeners, receivers, etc. This is the last call the service receives.系统调用<code>onDestory</code>来摧毁Service，在此方法实现中，应该释放资源。</li>
+</ul>
+<p>If a component starts the service by calling startService() (which results in a call to onStartCommand()), then the service remains running until it stops itself with stopSelf() or another component stops it by calling stopService().If a component calls bindService() to create the service (and onStartCommand() is not called), then the service runs only as long as the component is bound to it. Once the service is unbound from all clients, the system destroys it.如果通过<code>startService</code>方式来启动一个service，则必须通过<code>stopSelf</code>或者<code>stopService</code>方式来停止service运行，如果是通过<code>bindService</code>方式来创建service，<code>onStartCommand</code>不会被调用，只要有应用组件bind到这个service上，这个service就会一直运行，否则当所有的应用组件从service unbind后，service会被系统销毁。</p>
+<p>Just like an activity, a service can define intent filters that allow other components to invoke the service using implicit intents. By declaring intent filters, components from any application installed on the user&rsquo;s device can potentially start your service if your service declares an intent filter that matches the intent another application passes to startService().可以在manifest文件service标签下定义<code>intent filter</code>来指定startService启动所对应的<code>intent filter</code>。</p>
+<p>If you plan on using your service only locally (other applications do not use it), then you don&rsquo;t need to (and should not) supply any intent filters. Without any intent filters, you must start the service using an intent that explicitly names the service class. 如果只打算在一个应用中使用service，不用提供<code>intent filter</code>，只能显式调用来<code>startService</code>。</p>
+<p>A started service is one that another component starts by calling <code>startService()</code>, resulting in a call to the service&rsquo;s <code>onStartCommand()</code> method.When a service is started, it has a lifecycle that&rsquo;s independent of the component that started it and the service can run in the background indefinitely, even if the component that started it is destroyed. As such, the service should stop itself when its job is done by calling <code>stopSelf()</code>, or another component can stop it by calling <code>stopService()</code>.An application component such as an activity can start the service by calling <code>startService()</code> and passing an Intent that specifies the service and includes any data for the service to use. The service receives this Intent in the <code>onStartCommand()</code> method.A services runs in the same process as the application in which it is declared and in the main thread of that application, by default. So, if your service performs intensive or blocking operations while the user interacts with an activity from the same application, the service will slow down activity performance.Service运行在主线程，如果有耗时操作需要另起线程。 To avoid impacting application performance, you should start a new thread inside the service.</p>
+<p>Traditionally, there are two classes you can extend to create a started service:</p>
+<ul>
+<li><code>Service</code>:This is the base class for all services. When you extend this class, it&rsquo;s important that you create a new thread in which to do all the service&rsquo;s work, because the service uses your application&rsquo;s main thread, by default, which could slow the performance of any activity your application is running.</li>
+<li><code>IntentService</code>:This is a subclass of Service that uses a worker thread to handle all start requests, one at a time. This is the best option if you don&rsquo;t require that your service handle multiple requests simultaneously. All you need to do is implement <code>onHandleIntent()</code>, which receives the intent for each start request so you can do the background work.<code>IntentService</code>逐个处理任务。</li>
+</ul>
+<p>The IntentService does the following:</p>
+<ul>
+<li>Creates a default worker thread that executes all intents delivered to <code>onStartCommand()</code> separate from your application&rsquo;s main thread.创建一个工作线程来逐个处理传送到<code>onStartCommand</code>的Intent。</li>
+<li>Creates a work queue that passes one intent at a time to your <code>onHandleIntent()</code> implementation, so you never have to worry about multi-threading.创建一个工作队列来给你的<code>onHandleIntent</code>实现每次发送一个<code>Intent</code>。</li>
+<li>Stops the service after all start requests have been handled, so you never have to call <code>stopSelf()</code>.</li>
+<li>Provides default implementation of <code>onBind()</code> that returns null.</li>
+<li>Provides a default implementation of <code>onStartCommand()</code> that sends the intent to the work queue and then to your <code>onHandleIntent()</code> implementation.</li>
+</ul>
+<p>That&rsquo;s all you need: a constructor and an implementation of onHandleIntent().If you decide to also override other callback methods, such as onCreate(), onStartCommand(), or onDestroy(), be sure to call the super implementation, so that the IntentService can properly handle the life of the worker thread.只需要重载<code>onHandleIntent</code>方法，提供一个构造方法就可以了，如果需要重载其他方法，记得调用父类的对应方法。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">HelloService</span> <span class="kd">extends</span> <span class="n">Service</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">private</span> <span class="n">Looper</span> <span class="n">mServiceLooper</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">private</span> <span class="n">ServiceHandler</span> <span class="n">mServiceHandler</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// Handler that receives messages from the thread
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kd">private</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">ServiceHandler</span> <span class="kd">extends</span> <span class="n">Handler</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="kd">public</span> <span class="nf">ServiceHandler</span><span class="o">(</span><span class="n">Looper</span> <span class="n">looper</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">          <span class="kd">super</span><span class="o">(</span><span class="n">looper</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">      <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">      <span class="kd">public</span> <span class="kt">void</span> <span class="nf">handleMessage</span><span class="o">(</span><span class="n">Message</span> <span class="n">msg</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">          <span class="c1">// Normally we would do some work here, like download a file.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>          <span class="c1">// For our sample, we just sleep for 5 seconds.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>          <span class="kt">long</span> <span class="n">endTime</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">()</span> <span class="o">+</span> <span class="mi">5</span><span class="o">*</span><span class="mi">1000</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">          <span class="k">while</span> <span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">()</span> <span class="o">&lt;</span> <span class="n">endTime</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">              <span class="kd">synchronized</span> <span class="o">(</span><span class="k">this</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                  <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                      <span class="n">wait</span><span class="o">(</span><span class="n">endTime</span> <span class="o">-</span> <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">                  <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">              <span class="o">}</span>
+</span></span><span class="line"><span class="cl">          <span class="o">}</span>
+</span></span><span class="line"><span class="cl">          <span class="c1">// Stop the service using the startId, so that we don&#39;t stop
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>          <span class="c1">// the service in the middle of handling another job
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>          <span class="n">stopSelf</span><span class="o">(</span><span class="n">msg</span><span class="o">.</span><span class="na">arg1</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Start up the thread running the service.  Note that we create a
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// separate thread because the service normally runs in the process&#39;s
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// main thread, which we don&#39;t want to block.  We also make it
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// background priority so CPU-intensive work will not disrupt our UI.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">HandlerThread</span> <span class="n">thread</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HandlerThread</span><span class="o">(</span><span class="s">&#34;ServiceStartArguments&#34;</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">            <span class="n">Process</span><span class="o">.</span><span class="na">THREAD_PRIORITY_BACKGROUND</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">thread</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1">// Get the HandlerThread&#39;s Looper and use it for our Handler 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">mServiceLooper</span> <span class="o">=</span> <span class="n">thread</span><span class="o">.</span><span class="na">getLooper</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">mServiceHandler</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ServiceHandler</span><span class="o">(</span><span class="n">mServiceLooper</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="kt">int</span> <span class="nf">onStartCommand</span><span class="o">(</span><span class="n">Intent</span> <span class="n">intent</span><span class="o">,</span> <span class="kt">int</span> <span class="n">flags</span><span class="o">,</span> <span class="kt">int</span> <span class="n">startId</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">Toast</span><span class="o">.</span><span class="na">makeText</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="s">&#34;service starting&#34;</span><span class="o">,</span> <span class="n">Toast</span><span class="o">.</span><span class="na">LENGTH_SHORT</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="c1">// For each start request, send a message to start a job and deliver the
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="c1">// start ID so we know which request we&#39;re stopping when we finish the job
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="n">Message</span> <span class="n">msg</span> <span class="o">=</span> <span class="n">mServiceHandler</span><span class="o">.</span><span class="na">obtainMessage</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="n">msg</span><span class="o">.</span><span class="na">arg1</span> <span class="o">=</span> <span class="n">startId</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">      <span class="n">mServiceHandler</span><span class="o">.</span><span class="na">sendMessage</span><span class="o">(</span><span class="n">msg</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      
+</span></span><span class="line"><span class="cl">      <span class="c1">// If we get killed, after returning from here, restart
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="k">return</span> <span class="n">START_STICKY</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="n">IBinder</span> <span class="nf">onBind</span><span class="o">(</span><span class="n">Intent</span> <span class="n">intent</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// We don&#39;t provide binding, so return null
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">  <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onDestroy</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Toast</span><span class="o">.</span><span class="na">makeText</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="s">&#34;service done&#34;</span><span class="o">,</span> <span class="n">Toast</span><span class="o">.</span><span class="na">LENGTH_SHORT</span><span class="o">).</span><span class="na">show</span><span class="o">();</span> 
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Notice that the <code>onStartCommand()</code> method must return an integer. The integer is a value that describes how the system should continue the service in the event that the system kills it.The return value from onStartCommand() must be one of the following constants:</p>
+<ul>
+<li><code>START_NOT_STICKY</code>:If the system kills the service after <code>onStartCommand()</code> returns, do not recreate the service, unless there are pending intents to deliver. This is the safest option to avoid running your service when not necessary and when your application can simply restart any unfinished jobs.不重新创建</li>
+<li><code>START_STICKY</code>:If the system kills the service after onStartCommand() returns, recreate the service and call onStartCommand(), but do not redeliver the last intent. Instead, the system calls onStartCommand() with a null intent, unless there were pending intents to start the service, in which case, those intents are delivered. This is suitable for media players (or similar services) that are not executing commands, but running indefinitely and waiting for a job.重新创建，但不传入Intent。</li>
+<li><code>START_REDELIVER_INTENT</code>:If the system kills the service after <code>onStartCommand()</code> returns, recreate the service and call <code>onStartCommand()</code> with the last intent that was delivered to the service. Any pending intents are delivered in turn. This is suitable for services that are actively performing a job that should be immediately resumed, such as downloading a file.重新创建并将最后的Intent传入。</li>
+</ul>
+<p>You can start a service from an activity or other application component by passing an Intent (specifying the service to start) to <code>startService()</code>. The Android system calls the service&rsquo;s <code>onStartCommand()</code> method and passes it the Intent. 其他应用组件调用<code>startService(intent)</code>来启动服务，系统调用service的<code>onStartCommand(intent,flags,startId)</code>方法，并将intent传入。</p>
+<p>If the service does not also provide binding, the intent delivered with <code>startService()</code> is the only mode of communication between the application component and the service. However, if you want the service to send a result back, then the client that starts the service can create a <code>PendingIntent</code> for a broadcast (with <code>getBroadcast()</code>) and deliver it to the service in the Intent that starts the service. The service can then use the broadcast to deliver a result.可以使用<code>PendingIntent</code>来启动service，来让service返回给发送者一个结果。</p>
+<p><a href="https://stackoverflow.com/questions/6099364/how-to-use-pendingintent-to-communicate-from-a-service-to-a-client-activity">https://stackoverflow.com/questions/6099364/how-to-use-pendingintent-to-communicate-from-a-service-to-a-client-activity</a></p>
+<p>Multiple requests to start the service result in multiple corresponding calls to the service&rsquo;s onStartCommand(). However, only one request to stop the service (with stopSelf() or stopService()) is required to stop it.多次对<code>startService</code>的请求调用会调用<code>onStartCommand</code>，但是<code>onCreate</code>只会调用一次。</p>
+<p>A started service must manage its own lifecycle. That is, the system does not stop or destroy the service unless it must recover system memory and the service continues to run after onStartCommand() returns. So, the service must stop itself by calling stopSelf() or another component can stop it by calling stopService().Once requested to stop with stopSelf() or stopService(), the system destroys the service as soon as possible.However, if your service handles multiple requests to onStartCommand() concurrently, then you shouldn&rsquo;t stop the service when you&rsquo;re done processing a start request, because you might have since received a new start request (stopping at the end of the first request would terminate the second one). To avoid this problem, you can use stopSelf(int) to ensure that your request to stop the service is always based on the most recent start request. That is, when you call stopSelf(int), you pass the ID of the start request (the startId delivered to onStartCommand()) to which your stop request corresponds. Then if the service received a new start request before you were able to call stopSelf(int), then the ID will not match and the service will not stop.必须自己来管控service的生命周期，通过<code>stopSelf(int)</code>中不同的startId值来实现停止service。It&rsquo;s important that your application stops its services when it&rsquo;s done working, to avoid wasting system resources and consuming battery power. If necessary, other components can stop the service by calling stopService(). Even if you enable binding for the service, you must always stop the service yourself if it ever received a call to onStartCommand().</p>
+<p>You should create a bound service when you want to interact with the service from activities and other components in your application or to expose some of your application&rsquo;s functionality to other applications, through interprocess communication (IPC).需哟啊从activity或者其他组件来与service进行交互时，可以创建bound service。To create a bound service, you must implement the onBind() callback method to return an IBinder that defines the interface for communication with the service. Other application components can then call bindService() to retrieve the interface and begin calling methods on the service. The service lives only to serve the application component that is bound to it, so when there are no components bound to the service, the system destroys it.</p>
+<p>A foreground service is a service that&rsquo;s considered to be something the user is actively aware of and thus not a candidate for the system to kill when low on memory. A foreground service must provide a notification for the status bar, which is placed under the &ldquo;Ongoing&rdquo; heading, which means that the notification cannot be dismissed unless the service is either stopped or removed from the foreground.一个前台service必须提供一个notification。</p>
+<p>To request that your service run in the foreground, call startForeground(). This method takes two parameters: an integer that uniquely identifies the notification and the Notification for the status bar. For example:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Notification</span> <span class="n">notification</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Notification</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">drawable</span><span class="o">.</span><span class="na">icon</span><span class="o">,</span> <span class="n">getText</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">string</span><span class="o">.</span><span class="na">ticker_text</span><span class="o">),</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl"><span class="n">Intent</span> <span class="n">notificationIntent</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Intent</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">ExampleActivity</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">PendingIntent</span> <span class="n">pendingIntent</span> <span class="o">=</span> <span class="n">PendingIntent</span><span class="o">.</span><span class="na">getActivity</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">notificationIntent</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">notification</span><span class="o">.</span><span class="na">setLatestEventInfo</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">getText</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">string</span><span class="o">.</span><span class="na">notification_title</span><span class="o">),</span>
+</span></span><span class="line"><span class="cl">        <span class="n">getText</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">string</span><span class="o">.</span><span class="na">notification_message</span><span class="o">),</span> <span class="n">pendingIntent</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">startForeground</span><span class="o">(</span><span class="n">ONGOING_NOTIFICATION_ID</span><span class="o">,</span> <span class="n">notification</span><span class="o">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The integer ID you give to startForeground() must not be 0.</p>
+<p>To remove the service from the foreground, call <code>stopForeground()</code>. This method takes a boolean, indicating whether to remove the status bar notification as well. This method does not stop the service. However, if you stop the service while it&rsquo;s still running in the foreground, then the notification is also removed.调用<code>stopForeground</code>来停止service前台执行，传入boolean值来指定是否去除statusbar notification，这个方法不会停止service执行，但如果service停止执行了，notification也会被移除。</p>
+<p>The service lifecycle—from when it&rsquo;s created to when it&rsquo;s destroyed—can follow two different paths:</p>
+<ul>
+<li><code>A started service</code>:The service is created when another component calls startService(). The service then runs indefinitely and must stop itself by calling stopSelf(). Another component can also stop the service by calling stopService(). When the service is stopped, the system destroys it..</li>
+<li><code>A bound service</code>:The service is created when another component (a client) calls bindService(). The client then communicates with the service through an IBinder interface. The client can close the connection by calling unbindService(). Multiple clients can bind to the same service and when all of them unbind, the system destroys the service. (The service does not need to stop itself.)</li>
+</ul>
+<center><p><img src="/images/service_lifecycle.png"></p></center>
+<p>By implementing these methods, you can monitor two nested loops of the service&rsquo;s lifecycle:</p>
+<ul>
+<li>The entire lifetime of a service happens between the time onCreate() is called and the time onDestroy() returns. Like an activity, a service does its initial setup in onCreate() and releases all remaining resources in onDestroy(). For example, a music playback service could create the thread where the music will be played in onCreate(), then stop the thread in onDestroy().The onCreate() and onDestroy() methods are called for all services, whether they&rsquo;re created by startService() or bindService().</li>
+<li>The active lifetime of a service begins with a call to either onStartCommand() or onBind(). Each method is handed the Intent that was passed to either startService() or bindService(), respectively.
+If the service is started, the active lifetime ends the same time that the entire lifetime ends (the service is still active even after onStartCommand() returns). If the service is bound, the active lifetime ends when onUnbind() returns.</li>
+</ul>
+<h3 id="bound-services">Bound Services</h3>
+<h3 id="aidl">AIDL</h3>
+<h2 id="contentproviders">ContentProviders</h2>
+<p>Content providers manage access to a structured set of data. They encapsulate the data, and provide mechanisms for defining data security. Content providers are the standard interface that connects data in one process with code running in another process.ContentProvider提供管理数据的方法，他们封装数据并保证数据安全性。When you want to access data in a content provider, you use the <code>ContentResolver</code> object in your application&rsquo;s <code>Context</code> to communicate with the provider as a client. The <code>ContentResolver</code> object communicates with the provider object, an instance of a class that implements <code>ContentProvider</code>. The provider object receives data requests from clients, performs the requested action, and returns the results.想要访问ContentProvider提供的数据，需要使用ContentResolver来做一层代理。</p>
+<p>Android itself includes content providers that manage data such as audio, video, images, and personal contact information. You can see some of them listed in the reference documentation for the <code>android.provider</code> package. With some restrictions, these providers are accessible to any Android application.Android本身提供了访问audio,video,images和personal contact information等数据的ContentProvider，其他应用程序只需要有一定的权限就可以使用这些数据。</p>
+<h3 id="contentprovider-basics">ContentProvider Basics</h3>
+<p>A content provider manages access to a central repository of data. A provider is part of an Android application, which often provides its own UI for working with the data. However, content providers are primarily intended to be used by other applications, which access the provider using a provider client object. Together, providers and provider clients offer a consistent, standard interface to data that also handles inter-process communication and secure data access.ContentProvider是Android应用程序的一部分，通常提供操作数据的自己的UI。Provider和Provider clients 提供了一个持久的标准接口来操作数据，同事进行 IPC 和 数据安全性。An application accesses the data from a content provider with a <code>ContentResolver</code> client object. This object has methods that call identically-named methods in the provider object, an instance of one of the concrete subclasses of ContentProvider. The <code>ContentResolver </code>methods provide the basic &ldquo;CRUD&rdquo; (create, retrieve, update, and delete) functions of persistent storage.The <code>ContentResolver</code> object in the client application&rsquo;s process and the <code>ContentProvider</code> object in the application that owns the provider automatically handle inter-process communication. <code>ContentProvider</code> also acts as an abstraction layer between its repository of data and the external appearance of data as tables.<code>ContentResolver</code>和<code>ContentProvider</code>自动进行IPC，<code>CotentProvider</code>在数据和操作数据的接口之间充当了一个抽象层。</p>
+<p>A content URI is a URI that identifies data in a provider. Content URIs include the symbolic name of the entire provider (its authority) and a name that points to a table (a path). When you call a client method to access a table in a provider, the content URI for the table is one of the arguments.In the preceding lines of code, the constant CONTENT_URI contains the content URI of the user dictionary&rsquo;s &ldquo;words&rdquo; table. The ContentResolver object parses out the URI&rsquo;s authority, and uses it to &ldquo;resolve&rdquo; the provider by comparing the authority to a system table of known providers.<code>ContentResolver</code>解析URI authority，利用他来和系统中所知的providet table进行对比解析得出正确的ContentProvider。 The ContentResolver can then dispatch the query arguments to the correct provider.</p>
+<p>The <code>Uri</code> and <code>Uri.Builder</code> classes contain convenience methods for constructing well-formed Uri objects from strings. The <code>ContentUris</code> contains convenience methods for appending id values to a URI. The previous snippet <code>Uri singleUri = ContentUris.withAppendedId(UserDictionary.Words.CONTENT_URI,4);</code>uses <code>withAppendedId()</code> to append an id to the UserDictionary content URI.</p>
+<p>To retrieve data from a provider, follow these basic steps:</p>
+<ul>
+<li>Request the read access permission for the provider.</li>
+<li>Define the code that sends a query to the provider.</li>
+</ul>
+<p>为了从ContentProvider中获取数据，需要申请ContentProvider的读权限，定义查询ContentProvider的代码。</p>
+<p>To retrieve data from a provider, your application needs &ldquo;read access permission&rdquo; for the provider. You can&rsquo;t request this permission at run-time; instead, you have to specify that you need this permission in your manifest, using the <uses-permission> element and the exact permission name defined by the provider. When you specify this element in your manifest, you are in effect &ldquo;requesting&rdquo; this permission for your application. When users install your application, they implicitly grant this request.为了读取ContentProvider的数据，应用需要有ContentProvider定义的权限，可以读取数据。</p>
+<p>To retrieve data from a provider, your application needs &ldquo;read access permission&rdquo; for the provider. You can&rsquo;t request this permission at run-time; instead, you have to specify that you need this permission in your manifest, using the <code>&lt;uses-permission&gt;</code> element and the exact permission name defined by the provider. When you specify this element in your manifest, you are in effect &ldquo;requesting&rdquo; this permission for your application. When users install your application, they implicitly grant this request.为了获取ContentProvider的数据，必须在manifest中申请相关权限。</p>
+<p>The <code>ContentResolver.query()</code> client method always returns a <code>Cursor</code> containing the columns specified by the query&rsquo;s projection for the rows that match the query&rsquo;s selection criteria. A <code>Cursor</code> object provides <strong>random read access</strong> to the rows and columns it contains. Using Cursor methods, you can iterate over the rows in the results, determine the data type of each column, get the data out of a column, and examine other properties of the results. Some <code>Cursor</code> implementations automatically update the object when the provider&rsquo;s data changes, or trigger methods in an observer object when the Cursor changes, or both.<code>ContentResolver.query()</code>返回一个<code>Cursor</code>。If no rows match the selection criteria, the provider returns a <code>Cursor</code> object for which <code>Cursor.getCount()</code> is 0 (an empty cursor).如果没有行匹配查询条件，则返回一个<code>Cursor.getCount()</code>为0的<code>Cursor</code>。If an internal error occurs, the results of the query depend on the particular provider. It may choose to return null, or it may throw an Exception.Since a Cursor is a &ldquo;list&rdquo; of rows, a good way to display the contents of a Cursor is to link it to a <code>ListView</code> via a <code>SimpleCursorAdapter</code>.To back a ListView with a Cursor, the cursor must contain a column named _ID. Because of this, the query shown previously retrieves the <code>_ID</code> column for the &ldquo;words&rdquo; table, even though the ListView doesn&rsquo;t display it. This restriction also explains why most providers have a _ID column for each of their tables.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// Defines a list of columns to retrieve from the Cursor and load into an output row
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">String</span><span class="o">[]</span> <span class="n">mWordListColumns</span> <span class="o">=</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">UserDictionary</span><span class="o">.</span><span class="na">Words</span><span class="o">.</span><span class="na">WORD</span><span class="o">,</span>   <span class="c1">// Contract class constant containing the word column name
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">UserDictionary</span><span class="o">.</span><span class="na">Words</span><span class="o">.</span><span class="na">LOCALE</span>  <span class="c1">// Contract class constant containing the locale column name
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Defines a list of View IDs that will receive the Cursor columns for each row
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">int</span><span class="o">[]</span> <span class="n">mWordListItems</span> <span class="o">=</span> <span class="o">{</span> <span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">dictWord</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">locale</span><span class="o">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Creates a new SimpleCursorAdapter
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">mCursorAdapter</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SimpleCursorAdapter</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">getApplicationContext</span><span class="o">(),</span>               <span class="c1">// The application&#39;s Context object
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">wordlistrow</span><span class="o">,</span>                  <span class="c1">// A layout in XML for one row in the ListView
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">mCursor</span><span class="o">,</span>                               <span class="c1">// The result from the query
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">mWordListColumns</span><span class="o">,</span>                      <span class="c1">// A string array of column names in the cursor
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">mWordListItems</span><span class="o">,</span>                        <span class="c1">// An integer array of view IDs in the row layout
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="mi">0</span><span class="o">);</span>                                    <span class="c1">// Flags (usually none are needed)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">// Sets the adapter for the ListView
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">mWordList</span><span class="o">.</span><span class="na">setAdapter</span><span class="o">(</span><span class="n">mCursorAdapter</span><span class="o">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// Determine the column index of the column named &#34;word&#34;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="n">mCursor</span><span class="o">.</span><span class="na">getColumnIndex</span><span class="o">(</span><span class="n">UserDictionary</span><span class="o">.</span><span class="na">Words</span><span class="o">.</span><span class="na">WORD</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * Only executes if the cursor is valid. The User Dictionary Provider returns null if
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * an internal error occurs. Other providers may throw an Exception instead of returning null.
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="o">(</span><span class="n">mCursor</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Moves to the next row in the cursor. Before the first movement in the cursor, the
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &#34;row pointer&#34; is -1, and if you try to retrieve data at that position you will get an
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * exception.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="k">while</span> <span class="o">(</span><span class="n">mCursor</span><span class="o">.</span><span class="na">moveToNext</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// Gets the value from the column.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">newWord</span> <span class="o">=</span> <span class="n">mCursor</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// Insert code here to process the retrieved word.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">        <span class="o">...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// end of while loop
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// Insert code here to report an error if the cursor is null or the provider threw an exception.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>A provider&rsquo;s application can specify permissions that other applications must have in order to access the provider&rsquo;s data. These permissions ensure that the user knows what data an application will try to access. Based on the provider&rsquo;s requirements, other applications request the permissions they need in order to access the provider. End users see the requested permissions when they install the application.包含ContentProvider的应用程序定义一个应用程序获取这个ContentProvider所需的权限，要获取应用数据的应用程序申请权限，应用程序在安装时会将需要的各种权限展现给用户。</p>
+<p>If a provider&rsquo;s application doesn&rsquo;t specify any permissions, then other applications have no access to the provider&rsquo;s data. However, components in the provider&rsquo;s application always have full read and write access, regardless of the specified permissions.如果包含ContentProvider的应用程序没有定义访问ContentProvider数据需要的各种权限，则在这个应用程序外部无法访问这个ContentProvider数据，但是应用程序内部可以读写ContentProvider数据。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// Defines a new Uri object that receives the result of the insertion
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">Uri</span> <span class="n">mNewUri</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Defines an object to contain the new values to insert
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">ContentValues</span> <span class="n">mNewValues</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ContentValues</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * Sets the values of each column and inserts the word. The arguments to the &#34;put&#34;
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * method are &#34;column name&#34; and &#34;value&#34;
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl"><span class="n">mNewValues</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">UserDictionary</span><span class="o">.</span><span class="na">Words</span><span class="o">.</span><span class="na">APP_ID</span><span class="o">,</span> <span class="s">&#34;example.user&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">mNewValues</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">UserDictionary</span><span class="o">.</span><span class="na">Words</span><span class="o">.</span><span class="na">LOCALE</span><span class="o">,</span> <span class="s">&#34;en_US&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">mNewValues</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">UserDictionary</span><span class="o">.</span><span class="na">Words</span><span class="o">.</span><span class="na">WORD</span><span class="o">,</span> <span class="s">&#34;insert&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">mNewValues</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">UserDictionary</span><span class="o">.</span><span class="na">Words</span><span class="o">.</span><span class="na">FREQUENCY</span><span class="o">,</span> <span class="s">&#34;100&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">mNewUri</span> <span class="o">=</span> <span class="n">getContentResolver</span><span class="o">().</span><span class="na">insert</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">UserDictionary</span><span class="o">.</span><span class="na">Word</span><span class="o">.</span><span class="na">CONTENT_URI</span><span class="o">,</span>   <span class="c1">// the user dictionary content URI
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">mNewValues</span>                          <span class="c1">// the values to insert
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The data for the new row goes into a single <code>ContentValues</code> object, which is similar in form to a one-row <code>cursor</code>.要插入的一行数据。The columns in this object don&rsquo;t need to have the same data type, and if you don&rsquo;t want to specify a value at all, you can set a column to null using <code>ContentValues.putNull()</code>.</p>
+<p>The content URI returned in newUri identifies the newly-added row, with the following format:<code>content://user_dictionary/words/&lt;id_value&gt;</code>,The &lt;id_value&gt; is the contents of <code>_ID</code> for the new row. Most providers can detect this form of content URI automatically and then perform the requested operation on that particular row.To get the value of <code>_ID</code> from the returned <code>Uri</code>, call <code>ContentUris.parseId()</code>.插入数据后返回一个URI，可以使用<code>ContentUris.parseId(uri)</code>来获取插入数据的<code>_ID</code>字段。</p>
+<p>To update a row, you use a ContentValues object with the updated values just as you do with an insertion, and selection criteria just as you do with a query. The client method you use is ContentResolver.update(). You only need to add values to the ContentValues object for columns you&rsquo;re updating. If you want to clear the contents of a column, set the value to null.更新操作和插入操作差不多。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// Defines an object to contain the updated values
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">ContentValues</span> <span class="n">mUpdateValues</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ContentValues</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Defines selection criteria for the rows you want to update
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">String</span> <span class="n">mSelectionClause</span> <span class="o">=</span> <span class="n">UserDictionary</span><span class="o">.</span><span class="na">Words</span><span class="o">.</span><span class="na">LOCALE</span> <span class="o">+</span>  <span class="s">&#34;LIKE ?&#34;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">String</span><span class="o">[]</span> <span class="n">mSelectionArgs</span> <span class="o">=</span> <span class="o">{</span><span class="s">&#34;en_%&#34;</span><span class="o">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Defines a variable to contain the number of updated rows
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">int</span> <span class="n">mRowsUpdated</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * Sets the updated value and updates the selected words.
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl"><span class="n">mUpdateValues</span><span class="o">.</span><span class="na">putNull</span><span class="o">(</span><span class="n">UserDictionary</span><span class="o">.</span><span class="na">Words</span><span class="o">.</span><span class="na">LOCALE</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">mRowsUpdated</span> <span class="o">=</span> <span class="n">getContentResolver</span><span class="o">().</span><span class="na">update</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">UserDictionary</span><span class="o">.</span><span class="na">Words</span><span class="o">.</span><span class="na">CONTENT_URI</span><span class="o">,</span>   <span class="c1">// the user dictionary content URI
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">mUpdateValues</span>                       <span class="c1">// the columns to update
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">mSelectionClause</span>                    <span class="c1">// the column to select on
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">mSelectionArgs</span>                      <span class="c1">// the value to compare to
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Deleting rows is similar to retrieving row data: you specify selection criteria for the rows you want to delete and the client method returns the number of deleted rows. The following snippet deletes rows whose appid matches &ldquo;user&rdquo;. The method returns the number of deleted rows.删除操作返回删除的行数。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// Defines selection criteria for the rows you want to delete
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">String</span> <span class="n">mSelectionClause</span> <span class="o">=</span> <span class="n">UserDictionary</span><span class="o">.</span><span class="na">Words</span><span class="o">.</span><span class="na">APP_ID</span> <span class="o">+</span> <span class="s">&#34; LIKE ?&#34;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">String</span><span class="o">[]</span> <span class="n">mSelectionArgs</span> <span class="o">=</span> <span class="o">{</span><span class="s">&#34;user&#34;</span><span class="o">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Defines a variable to contain the number of rows deleted
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">int</span> <span class="n">mRowsDeleted</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Deletes the words that match the selection criteria
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">mRowsDeleted</span> <span class="o">=</span> <span class="n">getContentResolver</span><span class="o">().</span><span class="na">delete</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">UserDictionary</span><span class="o">.</span><span class="na">Words</span><span class="o">.</span><span class="na">CONTENT_URI</span><span class="o">,</span>   <span class="c1">// the user dictionary content URI
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">mSelectionClause</span>                    <span class="c1">// the column to select on
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">mSelectionArgs</span>                      <span class="c1">// the value to compare to
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Three alternative forms of provider access are important in application development:</p>
+<ul>
+<li><code>Batch access</code>: You can create a batch of access calls with methods in the ContentProviderOperation class, and then apply them with <code>ContentResolver.applyBatch()</code>.批量操作</li>
+<li><code>Asynchronous queries</code>: You should do queries in a separate thread. One way to do this is to use a <code>CursorLoader</code> object. 异步查询</li>
+<li><code>Data access via intents</code>: Although you can&rsquo;t send an intent directly to a provider, you can send an intent to the provider&rsquo;s application, which is usually the best-equipped to modify the provider&rsquo;s data.向包含ContentProvider的应用程序发Intent，由应用程序来操作数据。</li>
+</ul>
+<p>To access a provider in &ldquo;batch mode&rdquo;, you create an <code>array</code> of <code>ContentProviderOperation</code> objects and then dispatch them to a content provider with <code>ContentResolver.applyBatch()</code>. You pass the content provider&rsquo;s authority to this method, rather than a particular content URI. This allows each <code>ContentProviderOperation</code> object in the array to work against a different table. A call to <code>ContentResolver.applyBatch()</code> returns an array of results.</p>
+<p>Intents can provide indirect access to a content provider. You allow the user to access data in a provider even if your application doesn&rsquo;t have access permissions, either by getting a result intent back from an application that has permissions, or by activating an application that has permissions and letting the user do work in it.Intent可以间接来获取数据。</p>
+<p>You can access data in a content provider, even if you don&rsquo;t have the proper access permissions, by sending an intent to an application that does have the permissions and receiving back a result intent containing &ldquo;URI&rdquo; permissions. These are permissions for a specific content URI that last until the activity that receives them is finished. The application that has permanent permissions grants temporary permissions by setting a flag in the result intent:</p>
+<ul>
+<li><code>Read permission</code>: <code>FLAG_GRANT_READ_URI_PERMISSION</code></li>
+<li><code>Write permission</code>: <code>FLAG_GRANT_WRITE_URI_PERMISSION</code></li>
+</ul>
+<p>These flags don&rsquo;t give general read or write access to the provider whose authority is contained in the content URI. The access is only for the URI itself.</p>
+<p>A provider defines URI permissions for content URIs in its manifest, using the <code>android:grantUriPermission</code> attribute of the <code>&lt;provider&gt;</code> element, as well as the <code>&lt;grant-uri-permission&gt;</code> child element of the <code>&lt;provider&gt;</code> element.
+For example, you can retrieve data for a contact in the Contacts Provider, even if you don&rsquo;t have the <code>READ_CONTACTS</code> permission. You might want to do this in an application that sends e-greetings to a contact on his or her birthday. Instead of requesting <code>READ_CONTACTS</code>, which gives you access to all of the user&rsquo;s contacts and all of their information, you prefer to let the user control which contacts are used by your application. To do this, you use the following process:</p>
+<ul>
+<li>Your application sends an intent containing the action <code>ACTION_PICK</code> and the &ldquo;contacts&rdquo; MIME type <code>CONTENT_ITEM_TYPE</code>, using the method <code>startActivityForResult()</code>.</li>
+<li>Because this intent matches the intent filter for the People app&rsquo;s &ldquo;selection&rdquo; activity, the activity will come to the foreground.</li>
+<li>In the selection activity, the user selects a contact to update. When this happens, the selection activity calls <code>setResult(resultcode, intent)</code> to set up a intent to give back to your application. The intent contains the content <code>URI</code> of the contact the user selected, and the &ldquo;extras&rdquo; flags <code>FLAG_GRANT_READ_URI_PERMISSION</code>. These flags grant URI permission to your app to read data for the contact pointed to by the content URI. The selection activity then calls <code>finish()</code> to return control to your application.</li>
+<li>Your activity returns to the foreground, and the system calls your activity&rsquo;s <code>onActivityResult()</code> method. This method receives the result intent created by the selection activity in the People app.
+<strong>With the content URI from the result intent, you can read the contact&rsquo;s data from the Contacts Provider, even though you didn&rsquo;t request permanent read access permission to the provider in your manifest.</strong> You can then get the contact&rsquo;s birthday information or his or her email address and then send the e-greeting.</li>
+</ul>
+<p>Content providers can return standard MIME media types, or custom MIME type strings, or both.MIME types have the format:<code>type/subtype</code>.Custom MIME type strings, also called &ldquo;vendor-specific&rdquo; MIME types, have more complex type and subtype values. The type value is always <code>vnd.android.cursor.dir</code> for multiple rows, or <code>vnd.android.cursor.item</code>for a single row.</p>
+<p>The subtype is provider-specific. The Android built-in providers usually have a simple subtype. For example, the when the Contacts application creates a row for a telephone number, it sets the following MIME type in the row:<code>vnd.android.cursor.item/phone_v2</code>.Notice that the subtype value is simply phone_v2.</p>
+<p>Other provider developers may create their own pattern of subtypes based on the provider&rsquo;s authority and table names. For example, consider a provider that contains train timetables. The provider&rsquo;s authority is <code>com.example.trains</code>, and it contains the tables <code>Line1, Line2, and Line3</code>. In response to the content URI <code>content://com.example.trains/Line1</code> for table <code>Line1</code>, the provider returns the MIME type <code>vnd.android.cursor.dir/vnd.example.line1</code>,In response to the content URI <code>content://com.example.trains/Line2/5</code> for row 5 in table Line2, the provider returns the MIME type <code>vnd.android.cursor.item/vnd.example.line2</code>. Most content providers define contract class constants for the MIME types they use. The Contacts Provider contract class <code>ContactsContract.RawContacts</code>, for example, defines the constant <code>CONTENT_ITEM_TYPE</code> for the MIME type of a single raw contact row.</p>
+<h3 id="creating-a-content-provider">Creating a Content Provider</h3>
+<p>Follow these steps to build your provider:</p>
+<ul>
+<li>
+<p>Design the raw storage for your data. A content provider offers data in two ways:</p>
+<ul>
+<li><code>File data</code>:Data that normally goes into files, such as photos, audio, or videos. Store the files in your application&rsquo;s private space. In response to a request for a file from another application, your provider can offer a handle to the file.数据以文件方式保存。</li>
+<li><code>&quot;Structured&quot; data</code>:Data that normally goes into a database, array, or similar structure. Store the data in a form that&rsquo;s compatible with tables of rows and columns. A row represents an entity, such as a person or an item in inventory. A column represents some data for the entity, such a person&rsquo;s name or an item&rsquo;s price. A common way to store this type of data is in an SQLite database, but you can use any type of persistent storage. 以数据库方式存储。</li>
+</ul>
+</li>
+<li>
+<p>Define a concrete implementation of the ContentProvider class and its required methods. This class is the interface between your data and the rest of the Android system. 继承<code>ContentProvider</code>并实现方法。</p>
+</li>
+<li>
+<p>Define the provider&rsquo;s authority string, its content URIs, and column names. If you want the provider&rsquo;s application to handle intents, also define intent actions, extras data, and flags. Also define the permissions that you will require for applications that want to access your data. You should consider defining all of these values as constants in a separate contract class; later, you can expose this class to other developers. For more information about content URIs, see the section Designing Content URIs. For more information about intents, see the section Intents and Data Access.</p>
+</li>
+<li>
+<p>Add other optional pieces, such as sample data or an implementation of AbstractThreadedSyncAdapter that can synchronize data between the provider and cloud-based data.</p>
+</li>
+</ul>
+<p>A content provider is the interface to data saved in a structured format. Before you create the interface, you must decide how to store the data. You can store the data in any form you like, and then design the interface to read and write the data as necessary.ContentProvider是数据访问的接口，在创建接口之前先确定如何保存数据然后定义读写数据的接口。These are some of the data storage technologies that are available in Android:</p>
+<ul>
+<li>The Android system includes an SQLite database API that Android&rsquo;s own providers use to store table-oriented data. The <code>SQLiteOpenHelper</code> class helps you create databases, and the <code>SQLiteDatabase</code> class is the base class for accessing databases.Remember that you don&rsquo;t have to use a database to implement your repository. A provider appears externally as a set of tables, similar to a relational database, but this is not a requirement for the provider&rsquo;s internal implementation.Android系统提供来SQLite支持，可以使用<code>SQLiteOpenHelper</code>来创建数据库，<code>SQLiteDatabase</code>来访问数据库，对外ContentProvider表现为几张表，但并不代表内部一定要以表的形式来存储数据。</li>
+<li>For storing file data, Android has a variety of file-oriented APIs. If you&rsquo;re designing a provider that offers media-related data such as music or videos, you can have a provider that combines table data and files.如果需要提供媒体相关的数据，如音乐或者视频可以使用文件来存储数据。</li>
+<li>For working with network-based data, use classes in <code>java.net</code> and <code>android.net</code>. You can also synchronize network-based data to a local data store such as a database, and then offer the data as tables or files. 对于网络存储的数据，可以使用<code>java.net</code>和<code>android.net</code>来和本地保存同步。</li>
+</ul>
+<p>Implementing a content provider involves always the following steps:</p>
+<ul>
+<li>Create a class that extends ContentProvider</li>
+<li>Create a contract class</li>
+<li>Create the UriMatcher definition</li>
+<li>Implement the onCreate() method</li>
+<li>Implement the getType() method</li>
+<li>Implement the CRUD methods</li>
+<li>Add the content provider to your AndroidManifest.xml</li>
+</ul>
+<h3 id="calendar-provider">Calendar Provider</h3>
+<h3 id="contacts-provider">Contacts Provider</h3>
+<h3 id="storage-access-framework">Storage Access Framework</h3>
+<h2 id="intent-and-intent-filters">Intent and Intent Filters</h2>
+<p>Three of the core components of an application — <code>activities</code>, <code>services</code>, and <code>broadcast receivers</code> — are activated through messages, called <code>intents</code>. Intent messaging is a facility for late run-time binding between components in the same or different applications. The intent itself, an Intent object, is a passive data structure holding an abstract description of an operation to be performed — or, often in the case of broadcasts, a description of something that has happened and is being announced. There are separate mechanisms for delivering intents to each type of component:</p>
+<ul>
+<li>An Intent object is passed to <code>Context.startActivity()</code> or <code>Activity.startActivityForResult()</code> to launch an activity or get an existing activity to do something new. (It can also be passed to <code>Activity.setResult()</code> to return information to the activity that called <code>startActivityForResult()</code>.)</li>
+<li>An Intent object is passed to <code>Context.startService()</code> to initiate a service or deliver new instructions to an ongoing service. Similarly, an intent can be passed to <code>Context.bindService()</code> to establish a connection between the calling component and a target service. It can optionally initiate the service if it&rsquo;s not already running.</li>
+<li>Intent objects passed to any of the broadcast methods (such as <code>Context.sendBroadcast()</code>, <code>Context.sendOrderedBroadcast()</code>, or <code>Context.sendStickyBroadcast()</code>) are delivered to all interested broadcast receivers. Many kinds of broadcasts originate in system code.</li>
+</ul>
+<p>An Intent object is a bundle of information. It contains information of interest to the component that receives the intent (such as the action to be taken and the data to act on) plus information of interest to the Android system (such as the category of component that should handle the intent and instructions on how to launch a target activity). Principally, it can contain the following:</p>
+<ul>
+<li><code>Component name</code>:The name of the component that should handle the intent. This field is a ComponentName object — a combination of the fully qualified class name of the target component (for example &ldquo;com.example.project.app.FreneticActivity&rdquo;) and the package name set in the manifest file of the application where the component resides (for example, &ldquo;com.example.project&rdquo;). The package part of the component name and the package name set in the manifest do not necessarily have to match.组件名称The component name is optional. If it is set, the Intent object is delivered to an instance of the designated class. If it is not set, Android uses other information in the Intent object to locate a suitable target — see Intent Resolution, later in this document.The component name is set by <code>setComponent()</code>, <code>setClass()</code>, or <code>setClassName()</code> and read by <code>getComponent(</code>.Component name可以通过<code>Intent</code>方法<code>setComponent</code>，<code>setClass</code>，<code>setClassName</code>来设置，通过<code>getComponent</code>来读取。</li>
+<li><code>Action</code>:A string naming the action to be performed — or, in the case of broadcast intents, the action that took place and is being reported. The Intent class defines a number of action constants, including these:<code>ACTION_CALL,ACTION_EDIT,ACTION_MAIN,ACTION_SYNC</code>由activity来接收处理，<code>ACTION_BATTERY_LOW,ACTION_HEADSET_PLUG,ACTION_SCREEN_ON,ACTION_TIMEZONE_CHANGED</code>由Broadcast receiver来接收处理。The action in an Intent object is set by the <code>setAction()</code> method and read by <code>getAction()</code>.Action可以通过Intent方法<code>setAction</code>来设置，<code>getAction</code>来读取。</li>
+<li><code>Data</code>:The URI of the data to be acted on and the MIME type of that data. Different actions are paired with different kinds of data specifications. For example, if the action field is <code>ACTION_EDIT</code>, the data field would contain the URI of the document to be displayed for editing. If the action is <code>ACTION_CALL</code>, the data field would be a <code>tel:</code> URI with the number to call. Similarly, if the action is <code>ACTION_VIEW</code> and the data field is an <code>http:</code> URI, the receiving activity would be called upon to download and display whatever data the URI refers to.When matching an intent to a component that is capable of handling the data, it&rsquo;s often important to know the type of data (its MIME type) in addition to its URI. For example, a component able to display image data should not be called upon to play an audio file.在解析应用时，除了URI之外最好知道data的mime类型。In many cases, the data type can be inferred from the URI — particularly content: URIs, which indicate that the data is located on the device and controlled by a content provider .通常情况下，可以从URI来推断出数据类型。 But the type can also be explicitly set in the Intent object. The <code>setData()</code> method specifies data only as a URI, <code>setType()</code> specifies it only as a <code>MIME</code> type, and <code>setDataAndType()</code> specifies it as both a URI and a MIME type. The URI is read by <code>getData()</code> and the type by <code>getType()</code>.</li>
+<li><code>Category</code>:A string containing additional information about the kind of component that should handle the intent.指定什么类型的应用可以对Intent作出响应。 Any number of category descriptions can be placed in an Intent object. As it does for actions, the Intent class defines several category constants, including these:<code>CATEGORY_BROWSABLE</code>,<code>CATEGORY_GADGET</code>,<code>CATEGORY_HOME</code>,<code>CATEGORY_LAUNCHER</code>,<code>CATEGORY_PREFERENCE</code>.The <code>addCategory()</code> method places a category in an Intent object, <code>removeCategory()</code> deletes a category previously added, and <code>getCategories()</code> gets the set of all categories currently in the object.</li>
+<li><code>Extras</code>:Key-value pairs for additional information that should be delivered to the component handling the intent. Just as some actions are paired with particular kinds of data URIs, some are paired with particular extras.键值对来提供额外的信息。The Intent object has a series of <code>put...()</code> methods for inserting various types of extra data and a similar set of <code>get...()</code> methods for reading the data. These methods parallel those for <code>Bundle</code> objects. In fact, the extras can be installed and read as a <code>Bundle</code> using the <code>putExtras()</code> and <code>getExtras()</code> methods.</li>
+<li><code>Flags</code>：Flags of various sorts. Many instruct the Android system how to launch an activity (for example, which task the activity should belong to) and how to treat it after it&rsquo;s launched (for example, whether it belongs in the list of recent activities). All these flags are defined in the Intent class.</li>
+</ul>
+<p>Android delivers an explicit intent to an instance of the designated target class. Nothing in the Intent object other than the component name matters for determining which component should get the intent.显式Intent</p>
+<p>A different strategy is needed for implicit intents. In the absence of a designated target, the Android system must find the best component (or components) to handle the intent — a single activity or service to perform the requested action or the set of broadcast receivers to respond to the broadcast announcement. It does so by comparing the contents of the Intent object to intent filters, structures associated with components that can potentially receive intents. Filters advertise the capabilities of a component and delimit the intents it can handle. They open the component to the possibility of receiving implicit intents of the advertised type. If a component does not have any intent filters, it can receive only explicit intents.处理隐式Intent需要不同的策略。通过比较Intent与应用声明的intent filter来解析Intent。A component with filters can receive both explicit and implicit intents.Only three aspects of an Intent object are consulted when the object is tested against an intent filter:</p>
+<ul>
+<li>action</li>
+<li>data (both URI and data type)</li>
+<li>category</li>
+</ul>
+<p>The <code>extras</code> and <code>flags</code> play no part in resolving which component receives an intent.</p>
+<p>For an intent to pass the category test, every category in the Intent object must match a category in the filter. The filter can list additional categories, but it cannot omit any that are in the intent.Intent中只要有一个和intent filter中category相匹配，就可以通过。In principle, therefore, an Intent object with no categories should always pass this test, regardless of what&rsquo;s in the filter. That&rsquo;s mostly true. However, with one exception, Android treats all implicit intents passed to <code>startActivity()</code> as if they contained at least one category: <code>&quot;android.intent.category.DEFAULT&quot;</code> (the <code>CATEGORY_DEFAULT</code> constant). Therefore, activities that are willing to receive implicit intents must include <code>&quot;android.intent.category.DEFAULT&quot;</code> in their intent filters.Activity如果想要通过隐式intent来启动，必须在intent filter中声明<code>android.intent.category.DEFAULT</code>。 (Filters with &ldquo;android.intent.action.MAIN&rdquo; and &ldquo;android.intent.category.LAUNCHER&rdquo; settings are the exception. They mark activities that begin new tasks and that are represented on the launcher screen. They can include &ldquo;android.intent.category.DEFAULT&rdquo; in the list of categories, but don&rsquo;t need to.) <code>android.intent.action.MAIN</code>和<code>android.intent.category.LAUNCHER</code>是例外，有这个intent filter的应用会显示在桌面上，可以包含<code>android.intent.category.DEFAULT</code>在intent filter的category中，但是没必要。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="o">&lt;</span><span class="n">intent</span><span class="o">-</span><span class="n">filter</span> <span class="o">.</span> <span class="o">.</span> <span class="o">.</span> <span class="o">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">&lt;</span><span class="n">data</span> <span class="n">android</span><span class="o">:</span><span class="n">mimeType</span><span class="o">=</span><span class="s">&#34;video/mpeg&#34;</span> <span class="n">android</span><span class="o">:</span><span class="n">scheme</span><span class="o">=</span><span class="s">&#34;http&#34;</span> <span class="o">.</span> <span class="o">.</span> <span class="o">.</span> <span class="o">/&gt;</span> 
+</span></span><span class="line"><span class="cl">    <span class="o">&lt;</span><span class="n">data</span> <span class="n">android</span><span class="o">:</span><span class="n">mimeType</span><span class="o">=</span><span class="s">&#34;audio/mpeg&#34;</span> <span class="n">android</span><span class="o">:</span><span class="n">scheme</span><span class="o">=</span><span class="s">&#34;http&#34;</span> <span class="o">.</span> <span class="o">.</span> <span class="o">.</span> <span class="o">/&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">.</span> <span class="o">.</span> <span class="o">.</span>
+</span></span><span class="line"><span class="cl"><span class="o">&lt;/</span><span class="n">intent</span><span class="o">-</span><span class="n">filter</span><span class="o">&gt;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Each <code>&lt;data&gt;</code> element can specify a <code>URI</code> and a data type (MIME media type). There are separate attributes — scheme, host, port, and path — for each part of the URI:<code>scheme://host:port/path</code>.For example, in the following URI,<code>content://com.example.project:200/folder/subfolder/etc</code>,the scheme is &ldquo;content&rdquo;, the host is &ldquo;com.example.project&rdquo;, the port is &ldquo;200&rdquo;, and the path is &ldquo;folder/subfolder/etc&rdquo;. The host and port together constitute the URI authority; if a host is not specified, the port is ignored.When the URI in an <code>Intent</code> object is compared to a URI specification in a filter, it&rsquo;s compared only to the parts of the <code>URI</code> actually mentioned in the filter. For example, if a filter specifies only a scheme, all URIs with that scheme match the filter. If a filter specifies a scheme and an authority but no path, all URIs with the same scheme and authority match, regardless of their paths. If a filter specifies a scheme, an authority, and a path, only URIs with the same scheme, authority, and path match. However, a path specification in the filter can contain wildcards to require only a partial match of the path.URI path部分可以使用通配符。</p>
+<p>The type attribute of a <code>&lt;data&gt;</code> element specifies the <code>MIME</code> type of the data. It&rsquo;s more common in filters than a URI. Both the Intent object and the filter can use a <code>&quot;*&quot;</code> wildcard for the subtype field — for example, <code>&quot;text/*&quot;</code> or <code>&quot;audio/*&quot;</code> — indicating any subtype matches.The data test compares both the URI and the data type in the <code>Intent</code> object to a <code>URI</code> and data type specified in the filter. The rules are as follows:</p>
+<ul>
+<li>An Intent object that contains neither a URI nor a data type passes the test only if the filter likewise does not specify any URIs or data types.Intent中不包含URI和data type，只有在intent filter也不包含URI和data type时才能通过intent resolve。</li>
+<li>An Intent object that contains a URI but no data type (and a type cannot be inferred from the URI) passes the test only if its URI matches a URI in the filter and the filter likewise does not specify a type. This will be the case only for URIs like <code>mailto:</code> and <code>tel:</code> that do not refer to actual data.Intent中包含有URI但不包含data type时，只有intent filter同样如此时才能通过intent resolve。</li>
+<li>An Intent object that contains a data type but not a URI passes the test only if the filter lists the same data type and similarly does not specify a URI.</li>
+<li>An Intent object that contains both a URI and a data type (or a data type can be inferred from the URI) passes the data type part of the test only if its type matches a type listed in the filter. It passes the URI part of the test either if its URI matches a URI in the filter or if it has a <code>content:</code> or <code>file:</code> URI and the filter does not specify a URI. In other words, a component is presumed to support <code>content:</code> and <code>file:</code> data if its filter lists only a data type.如果一个Intent中包含有URI和data type，能通过data type解析的条件是和intent filter中类型中的一个相匹配。URI部分匹配要么和intent filter中相匹配，要么Intent中包含有<code>content:</code>或<code>file:</code>类型的URI，而intent filter中没有指定URI，就是说，应用程序假定支持<code>content:</code>和<code>file:</code>类型URI，如果intent filter只列举了data type。</li>
+<li>If an intent can pass through the filters of more than one activity or service, the user may be asked which component to activate. An exception is raised if no target can be found.</li>
+</ul>
+<p>The last rule shown above for the data test, rule (d), reflects the expectation that components are able to get local data from a file or content provider. Therefore, their filters can list just a data type and do not need to explicitly name the <code>content:</code> and <code>file:</code> schemes. This is a typical case. A <code>&lt;data&gt;</code> element like the following, for example, tells Android that the component can get image data from a content provider and display it:<code>&lt;data android:mimeType=&quot;image/*&quot; /&gt;</code>.一个应用组件可以从file或者content provider中来获取本地数据。Since most available data is dispensed by content providers, filters that specify a data type but not a URI are perhaps the most common.</p>
+<p>Another common configuration is filters with a scheme and a data type. For example, a <code>&lt;data&gt;</code> element like the following tells Android that the component can get video data from the network and display it:<code>&lt;data android:scheme=&quot;http&quot; android:type=&quot;video/*&quot; /&gt;</code>Consider, for example, what the browser application does when the user follows a link on a web page. It first tries to display the data (as it could if the link was to an HTML page). If it can&rsquo;t display the data, it puts together an implicit intent with the scheme and data type and tries to start an activity that can do the job. If there are no takers, it asks the download manager to download the data. That puts it under the control of a content provider, so a potentially larger pool of activities (those with filters that just name a data type) can respond.点击网页上一个链接时，浏览器首先尝试解析链接数据并展示，如果无法展示，浏览器会把链接中的schema和data type放到一起来组成隐式intent，然后startActivity，如果没有activity能处理这个intent，会由download manager来将数据下载下来，下载完成后，会有能处理这种数据类型的应用来对下载下来的数据进行响应。</p>
+<p>Intents are matched against intent filters not only to discover a target component to activate, but also to discover something about the set of components on the device.Intent和intent filter 匹配不仅仅用来找到能响应对应intent的应用，还可以用来发现能对某些action和category进行响应的应用分组。 For example, the Android system populates the application launcher, the top-level screen that shows the applications that are available for the user to launch, by finding all the activities with intent filters that specify the &ldquo;android.intent.action.MAIN&rdquo; action and &ldquo;android.intent.category.LAUNCHER&rdquo; category (as illustrated in the previous section). It then displays the icons and labels of those activities in the launcher.launcher应用程序的获取。 Similarly, it discovers the home screen by looking for the activity with &ldquo;android.intent.category.HOME&rdquo; in its filter. home screen桌面应用。Whenever you press the home button, all the applications installed in your phone which have <code>CATEGORY.HOME</code> category and <code>Action_Main</code> in intent-filter in their AndroidManifest.xml will be listed (unless you have chosen some application as default) in a chooser for the user to select which HOME they want to launch.</p>
+<p>Your application can use intent matching is a similar way. The <code>PackageManager</code> has a set of <code>query...()</code> methods that return all components that can accept a particular intent, and a similar series of <code>resolve...()</code> methods that determine the best component to respond to an intent. For example, <code>queryIntentActivities()</code> returns a list of all activities that can perform the intent passed as an argument, and <code>queryIntentServices()</code> returns a similar list of services. Neither method activates the components; they just list the ones that can respond. There&rsquo;s a similar method, <code>queryBroadcastReceivers()</code>, for broadcast receivers.</p>
+<h2 id="process-and-threads">Process and Threads</h2>
+<p>When an application component starts and the application does not have any other components running, the Android system starts a new Linux process for the application with a single thread of execution. By default, all components of the same application run in the same process and thread (called the &ldquo;main&rdquo; thread). If an application component starts and there already exists a process for that application (because another component from the application exists), then the component is started within that process and uses the same thread of execution. However, you can arrange for different components in your application to run in separate processes, and you can create additional threads for any process.当一个应用组件启动时，如果所在应用没有其他组件在运行，则Android系统会创建一个Linux进程来运行它，这个Linux进程默认是单线程的，又叫做主线程。如果应用组件启动时，它所在应用程序已经有组件在运行，则组件会运行在应用程序所在地进程中。默认如此，不过可以修改这种行为。</p>
+<p>By default, all components of the same application run in the same process and most applications should not change this. However, if you find that you need to control which process a certain component belongs to, you can do so in the manifest file.默认应用程序组件运行在同一个进程中。The manifest entry for each type of component element—<code>&lt;activity&gt;</code>, <code>&lt;service&gt;</code>, <code>&lt;receiver&gt;</code>, and <code>&lt;provider&gt;</code>—supports an <code>android:process</code> attribute that can specify a process in which that component should run.四大组件在manifest中支持<code>android:process</code>tag来指定组件运行所在地进程。 You can set this attribute so that each component runs in its own process or so that some components share a process while others do not. You can also set <code>android:process</code> so that components of different applications run in the same process—provided that the applications share the same Linux user ID and are signed with the same certificates.不同应用如果uid相同，签名相同(sharedUid的前提是签名相同)，则可以使不同应用程序运行在同一个进程中。The <code>&lt;application&gt;</code> element also supports an <code>android:process</code> attribute, to set a default value that applies to all components.<code>&lt;application&gt;</code>也支持<code>android:process</code>tag，来将应用程序中各组件运行在同一个进程中。</p>
+<p>Android might decide to shut down a process at some point, when memory is low and required by other processes that are more immediately serving the user. Application components running in the process that&rsquo;s killed are consequently destroyed. A process is started again for those components when there&rsquo;s again work for them to do.When deciding which processes to kill, the Android system weighs their relative importance to the user. Android回收内存时会将进程杀死，进程中的各个组件就会被销毁掉。</p>
+<p>The Android system tries to maintain an application process for as long as possible, but eventually needs to remove old processes to reclaim memory for new or more important processes. To determine which processes to keep and which to kill, the system places each process into an &ldquo;importance hierarchy&rdquo; based on the components running in the process and the state of those components. Processes with the lowest importance are eliminated first, then those with the next lowest importance, and so on, as necessary to recover system resources.系统杀进程时，会将不那么重要的进程先杀死。</p>
+<p>There are five levels in the importance hierarchy. The following list presents the different types of processes in order of importance (the first process is most important and is killed last):进程重要性有5个级别：</p>
+<ul>
+<li>
+<p><code>Foreground process</code>：A process that is required for what the user is currently doing.正在与用户进行交互的前台进程。 A process is considered to be in the foreground if any of the following conditions are true:如果应用中组件做了以下任何一件事情，则会被视为前台进程。</p>
+<ul>
+<li>It hosts an Activity that the user is interacting with (the Activity&rsquo;s <code>onResume()</code> method has been called).Activity正处于<code>onResume</code> lifecycle中。</li>
+<li>It hosts a <code>Service</code> that&rsquo;s bound to the activity that the user is interacting with.进程中service和一个正在与用户交互的activity在绑定。It hosts a <code>Service</code> that&rsquo;s running &ldquo;in the foreground&rdquo;—the service has called <code>startForeground()</code>.进程中的service调用了<code>startForeground</code>。It hosts a Service that&rsquo;s executing one of its lifecycle callbacks (<code>onCreate()</code>, <code>onStart()</code>, or <code>onDestroy()</code>).进程中的service正在执行<code>onCreate</code>，<code>onStart</code>或<code>onDestory</code>生命周期回调方法。</li>
+<li>It hosts a <code>BroadcastReceiver</code> that&rsquo;s executing its <code>onReceive()</code> method.进程中的<code>BroadcastReceiver</code>正在执行<code>onReceive()</code>方法。
+Generally, only a few foreground processes exist at any given time. They are killed only as a last resort—if memory is so low that they cannot all continue to run. Generally, at that point, the device has reached a memory paging state, so killing some foreground processes is required to keep the user interface responsive.</li>
+</ul>
+</li>
+<li>
+<p><code>Visible process</code>:A process that doesn&rsquo;t have any foreground components, but still can affect what the user sees on screen. A process is considered to be visible if either of the following conditions are true:只要以下几种情况发生一个，一个进程就能被视为visible。</p>
+<ul>
+<li>It hosts an Activity that is not in the foreground, but is still visible to the user (its <code>onPause()</code> method has been called). This might occur, for example, if the foreground activity started a dialog, which allows the previous activity to be seen behind it.进程中有Activity不在前台，但仍然可见。Activity正在经历<code>onPause</code>生命周期回调函数。</li>
+<li>It hosts a <code>Service</code> that&rsquo;s bound to a visible (or foreground) activity.进程中有service 被绑定到一个visible activity。
+A visible process is considered extremely important and will not be killed unless doing so is required to keep all foreground processes running.</li>
+</ul>
+</li>
+<li>
+<p><code>Service process</code>：A process that is running a service that has been started with the <code>startService()</code> method and does not fall into either of the two higher categories.进程中有service通过<code>startService</code>来运行并且其他组件没有落入上面的两种情况中。 Although service processes are not directly tied to anything the user sees, they are generally doing things that the user cares about (such as playing music in the background or downloading data on the network), so the system keeps them running unless there&rsquo;s not enough memory to retain them along with all foreground and visible processes.</p>
+</li>
+<li>
+<p><code>Background process</code>:A process holding an activity that&rsquo;s not currently visible to the user (the activity&rsquo;s <code>onStop()</code> method has been called). These processes have no direct impact on the user experience, and the system can kill them at any time to reclaim memory for a foreground, visible, or service process. Usually there are many background processes running, so they are kept in an LRU (least recently used) list to ensure that the process with the activity that was most recently seen by the user is the last to be killed. If an activity implements its lifecycle methods correctly, and saves its current state, killing its process will not have a visible effect on the user experience, because when the user navigates back to the activity, the activity restores all of its visible state. 进程中有对用户不可见的activity，很多后台进程在运行，这些对用户不可见的activity被保存在一个LRU队列中。</p>
+</li>
+<li>
+<p><code>Empty process</code>:A process that doesn&rsquo;t hold any active application components. The only reason to keep this kind of process alive is for caching purposes, to improve startup time the next time a component needs to run in it. The system often kills these processes in order to balance overall system resources between process caches and the underlying kernel caches.进程中没有任何活动的组件，系统保留这种进程仅仅时为了cache目的。</p>
+</li>
+</ul>
+<p>Android ranks a process at the highest level it can, based upon the importance of the components currently active in the process. In addition, a process&rsquo;s ranking might be increased because other processes are dependent on it—a process that is serving another process can never be ranked lower than the process it is serving.Because a process running a service is ranked higher than a process with background activities, an activity that initiates a long-running operation might do well to start a service for that operation, rather than simply create a worker thread—particularly if the operation will likely outlast the activity.由于service process 优先级比background process高，如果需要在activity中做长时间的操作，不如start a service来做这些longing-running operation，而不是在activity中创建一个worker thread来做这些操作。For example, an activity that&rsquo;s uploading a picture to a web site should start a service to perform the upload so that the upload can continue in the background even if the user leaves the activity. Using a service guarantees that the operation will have at least &ldquo;service process&rdquo; priority, regardless of what happens to the activity. This is the same reason that broadcast receivers should employ services rather than simply put time-consuming operations in a thread.</p>
+<p>When an application is launched, the system creates a thread of execution for the application, called &ldquo;main.&rdquo; This thread is very important because it is in charge of dispatching events to the appropriate user interface widgets, including drawing events. It is also the thread in which your application interacts with components from the Android UI toolkit (components from the android.widget and android.view packages). As such, the main thread is also sometimes called the UI thread.主线程(UI线程)</p>
+<p>The system does not create a separate thread for each instance of a component. All components that run in the same process are instantiated in the UI thread, and system calls to each component are dispatched from that thread. Consequently, methods that respond to system callbacks (such as <code>onKeyDown()</code> to report user actions or a lifecycle callback method) always run in the UI thread of the process.应用的每个组件都运行在主线程中。For instance, when the user touches a button on the screen, your app&rsquo;s UI thread dispatches the touch event to the widget, which in turn sets its pressed state and posts an invalidate request to the event queue. The UI thread dequeues the request and notifies the widget that it should redraw itself.</p>
+<p>When your app performs intensive work in response to user interaction, this single thread model can yield poor performance unless you implement your application properly. Specifically, if everything is happening in the UI thread, performing long operations such as network access or database queries will block the whole UI. When the thread is blocked, no events can be dispatched, including drawing events.当UI线程被耗时操作阻塞时，事件不会得到分发，包括重绘事件。 From the user&rsquo;s perspective, the application appears to hang.从用户角度看，界面好像卡住了。 Even worse, if the UI thread is blocked for more than a few seconds (about 5 seconds currently) the user is presented with the infamous &ldquo;application not responding&rdquo; (ANR) dialog.如果UI线程被阻塞超过了5s，将会弹给用户一个ANR对话框。 The user might then decide to quit your application and uninstall it if they are unhappy.</p>
+<p>Additionally, the Andoid UI toolkit is not thread-safe. So, you must not manipulate your UI from a worker thread—you must do all manipulation to your user interface from the UI thread.必须在UI线程中操作用户界面。 Thus, there are simply two rules to Android&rsquo;s single thread model:Do not block the UI thread,Do not access the Android UI toolkit from outside the UI thread.不要阻塞UI线程，不要在UI线程之外操作UI。</p>
+<p>Android offers several ways to access the UI thread from other threads. Here is a list of methods that can help:Android系统提供了几种方式来供其他线程来操作UI线程。</p>
+<ul>
+<li><code>Activity.runOnUiThread(Runnable)</code></li>
+<li><code>View.post(Runnable)</code></li>
+<li><code>View.postDelayed(Runnable, long)</code></li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">new</span> <span class="n">Thread</span><span class="o">(</span><span class="k">new</span> <span class="n">Runnable</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">final</span> <span class="n">Bitmap</span> <span class="n">bitmap</span> <span class="o">=</span> <span class="n">loadImageFromNetwork</span><span class="o">(</span><span class="s">&#34;http://example.com/image.png&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">mImageView</span><span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="k">new</span> <span class="n">Runnable</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">mImageView</span><span class="o">.</span><span class="na">setImageBitmap</span><span class="o">(</span><span class="n">bitmap</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="o">});</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}).</span><span class="na">start</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>To handle more complex interactions with a worker thread, you might consider using a <code>Handler</code> in your worker thread, to process messages delivered from the UI thread. Perhaps the best solution, though, is to extend the <code>AsyncTask</code> class, which simplifies the execution of worker thread tasks that need to interact with the UI.</p>
+<p><code>AsyncTask</code> allows you to perform asynchronous work on your user interface. It performs the blocking operations in a worker thread and then publishes the results on the UI thread, without requiring you to handle threads and/or handlers yourself.To use it, you must subclass AsyncTask and implement the doInBackground() callback method, which runs in a pool of background threads. To update your UI, you should implement <code>onPostExecute()</code>, which delivers the result from <code>doInBackground()</code> and runs in the UI thread, so you can safely update your UI. You can then run the task by calling <code>execute()</code> from the UI thread.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">new</span> <span class="n">DownloadImageTask</span><span class="o">().</span><span class="na">execute</span><span class="o">(</span><span class="s">&#34;http://example.com/image.png&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">private</span> <span class="kd">class</span> <span class="nc">DownloadImageTask</span> <span class="kd">extends</span> <span class="n">AsyncTask</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Void</span><span class="o">,</span> <span class="n">Bitmap</span><span class="o">&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="cm">/** The system calls this to perform work in a worker thread and
+</span></span></span><span class="line"><span class="cl"><span class="cm">      * delivers it the parameters given to AsyncTask.execute() */</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">protected</span> <span class="n">Bitmap</span> <span class="nf">doInBackground</span><span class="o">(</span><span class="n">String</span><span class="o">...</span> <span class="n">urls</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">loadImageFromNetwork</span><span class="o">(</span><span class="n">urls</span><span class="o">[</span><span class="mi">0</span><span class="o">]);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="cm">/** The system calls this to perform work in the UI thread and delivers
+</span></span></span><span class="line"><span class="cl"><span class="cm">      * the result from doInBackground() */</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onPostExecute</span><span class="o">(</span><span class="n">Bitmap</span> <span class="n">result</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">mImageView</span><span class="o">.</span><span class="na">setImageBitmap</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Here is a quick overview of how <code>AsyncTask</code> works:</p>
+<ul>
+<li>You can specify the type of the parameters, the progress values, and the final value of the task, using generics</li>
+<li>The method <code>doInBackground()</code> executes automatically on a worker thread</li>
+<li><code>onPreExecute()</code>, <code>onPostExecute()</code>, and <code>onProgressUpdate()</code> are all invoked on the UI thread</li>
+<li>The value returned by <code>doInBackground()</code> is sent to <code>onPostExecute()</code></li>
+<li>You can call <code>publishProgress()</code> at anytime in <code>doInBackground()</code> to execute <code>onProgressUpdate()</code> on the UI thread</li>
+<li>You can cancel the task at any time, from any thread</li>
+</ul>
+<h2 id="permissions">Permissions</h2>
+<p>A central design point of the Android security architecture is that no application, by default, has permission to perform any operations that would adversely impact other applications, the operating system, or the user. This includes reading or writing the user&rsquo;s private data (such as contacts or e-mails), reading or writing another application&rsquo;s files, performing network access, keeping the device awake, etc.Android安全架构设计思想是默认没有应用有权限来做对其他应用程序，对系统或者其他用户有影响的操作。</p>
+<p>All Android applications (.apk files) must be signed with a certificate whose private key is held by their developer.</p>
+<p>At install time, Android gives each package a distinct Linux user ID. Because security enforcement happens at the process level, the code of any two packages can not normally run in the same process, since they need to run as different Linux users. You can use the <code>sharedUserId</code> attribute in the AndroidManifest.xml&rsquo;s manifest tag of each package to have them assigned the same user ID. By doing this, for purposes of security the two packages are then treated as being the same application, with the same user ID and file permissions. Note that in order to retain security, only two applications signed with the same signature (and requesting the same sharedUserId) will be given the same user ID.</p>
+<p>A basic Android application has no permissions associated with it by default, meaning it can not do anything that would adversely impact the user experience or any data on the device. To make use of protected features of the device, you must include in your AndroidManifest.xml one or more <code>&lt;uses-permission&gt;</code> tags declaring the permissions that your application needs.默认情况下APP不具有任何权限,如果想要获取设备上的数据或其他必须在安装APP时声明这些权限.</p>
+<p>The permissions provided by the Android system can be found at <code>Manifest.permission</code>. Any application may also define and enforce its own permissions, so this is not a comprehensive list of all possible permissions.Android系统提供的权限可以在<code>Manifest.permission</code>中找到,APP也可以自己定义自己的权限.</p>
+<p>A particular permission may be enforced at a number of places during your program&rsquo;s operation:</p>
+<ul>
+<li>At the time of a call into the system, to prevent an application from executing certain functions.</li>
+<li>When starting an activity, to prevent applications from launching activities of other applications.</li>
+<li>Both sending and receiving broadcasts, to control who can receive your broadcast or who can send a broadcast to you.</li>
+<li>When accessing and operating on a content provider.</li>
+<li>Binding to or starting a service.</li>
+</ul>
+<p>Android makes the decision as to whether an app might need the permission based on the value provided for the <code>targetSdkVersion</code> attribute. If the value is lower than the version in which the permission was added, then Android adds the permission.For example, the <code>WRITE_EXTERNAL_STORAGE</code> permission was added in API level 4 to restrict access to the shared storage space. If your <code>targetSdkVersion</code> is 3 or lower, this permission is added to your app on newer versions of Android.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;manifest</span> <span class="na">xmlns:android=</span><span class="s">&#34;http://schemas.android.com/apk/res/android&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="na">package=</span><span class="s">&#34;com.me.app.myapp&#34;</span> <span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;permission</span> <span class="na">android:name=</span><span class="s">&#34;com.me.app.myapp.permission.DEADLY_ACTIVITY&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="na">android:label=</span><span class="s">&#34;@string/permlab_deadlyActivity&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="na">android:description=</span><span class="s">&#34;@string/permdesc_deadlyActivity&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="na">android:permissionGroup=</span><span class="s">&#34;android.permission-group.COST_MONEY&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="na">android:protectionLevel=</span><span class="s">&#34;dangerous&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">    ...
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/manifest&gt;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>adb shell pm list permissions</code>,<code>adb shell pm list permissions -s</code></p>
+<p>Activity permissions (applied to the <code>&lt;activity&gt;</code> tag) restrict who can start the associated activity. The permission is checked during <code>Context.startActivity()</code> and <code>Activity.startActivityForResult()</code>; if the caller does not have the required permission then <code>SecurityException</code> is thrown from the call.</p>
+<p>Service permissions (applied to the <code>&lt;service&gt;</code> tag) restrict who can start or bind to the associated service. The permission is checked during <code>Context.startService()</code>, <code>Context.stopService()</code> and <code>Context.bindService()</code>; if the caller does not have the required permission then SecurityException is thrown from the call.</p>
+<p>BroadcastReceiver permissions (applied to the <code>&lt;receiver&gt;</code> tag) restrict who can send broadcasts to the associated receiver. The permission is checked after <code>Context.sendBroadcast()</code> returns, as the system tries to deliver the submitted broadcast to the given receiver. As a result, a permission failure will not result in an exception being thrown back to the caller; it will just not deliver the intent. In the same way, a permission can be supplied to <code>Context.registerReceiver()</code> to control who can broadcast to a programmatically registered receiver. Going the other way, a permission can be supplied when calling <code>Context.sendBroadcast()</code> to restrict which BroadcastReceiver objects are allowed to receive the broadcast (see below).</p>
+<p>ContentProvider permissions (applied to the <code>&lt;provider&gt;</code> tag) restrict who can access the data in a <code>ContentProvider</code>. (Content providers have an important additional security facility available to them called URI permissions which is described later.) Unlike the other components, there are two separate permission attributes you can set: <code>android:readPermission</code> restricts who can read from the provider, and <code>android:writePermission</code> restricts who can write to it. Note that if a provider is protected with both a read and write permission, holding only the write permission does not mean you can read from a provider. The permissions are checked when you first retrieve a provider (if you don&rsquo;t have either permission, a <code>SecurityException</code> will be thrown), and as you perform operations on the provider. Using <code>ContentResolver.query()</code> requires holding the read permission; using <code>ContentResolver.insert()</code>, <code>ContentResolver.update()</code>, <code>ContentResolver.delete()</code> requires the write permission. In all of these cases, not holding the required permission results in a <code>SecurityException</code> being thrown from the call.</p>
+<p>Note that both a receiver and a broadcaster can require a permission. When this happens, both permission checks must pass for the Intent to be delivered to the associated target.</p>
+<p>The standard permission system described so far is often not sufficient when used with content providers. A content provider may want to protect itself with read and write permissions, while its direct clients also need to hand specific URIs to other applications for them to operate on. A typical example is attachments in a mail application. Access to the mail should be protected by permissions, since this is sensitive user data. However, if a URI to an image attachment is given to an image viewer, that image viewer will not have permission to open the attachment since it has no reason to hold a permission to access all e-mail.</p>
+<p>The solution to this problem is <code>per-URI permissions</code>: when starting an activity or returning a result to an activity, the caller can set <code>Intent.FLAG_GRANT_READ_URI_PERMISSION</code> and/or <code>Intent.FLAG_GRANT_WRITE_URI_PERMISSION</code>. This grants the receiving activity permission access the specific data URI in the Intent, regardless of whether it has any permission to access data in the content provider corresponding to the Intent.</p>
+<p>The granting of fine-grained URI permissions does, however, require some cooperation with the content provider holding those URIs. It is strongly recommended that content providers implement this facility, and declare that they support it through the <code>android:grantUriPermissions</code> attribute or <code>&lt;grant-uri-permissions&gt;</code> tag.</p>
+<h2 id="app-widgets">App Widgets</h2>
+<h2 id="android-manifest">Android Manifest</h2>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2014-09-21
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/2014/09/30/moving-bitbucket-repo-to-github/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Moving Bitbucket Repo to Github</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/2014/09/16/zhihu-intent-fileter-schema/">
+            <span class="next-text nav-default">Zhihu Intent Fileter Schema</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

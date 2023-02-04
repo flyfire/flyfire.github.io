@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>tools on Solarex&#39;s Blog</title>
+    <link>https://flyfire.github.io/categories/tools/</link>
+    <description>Recent content in tools on Solarex&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Wed, 18 Sep 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://flyfire.github.io/categories/tools/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Android Studio Proxy</title>
+      <link>https://flyfire.github.io/post/2019/09/18/android-studio-proxy/</link>
+      <pubDate>Wed, 18 Sep 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2019/09/18/android-studio-proxy/</guid>
+      <description>Android Studio 设置代理后gradle sync失败，解决方法。 今天到公司后，新需求下来了，同步代码，sync工程，开完晨会发现gradle sync失败了</description>
+    </item>
+    
+    <item>
+      <title>Mac Dev Setup</title>
+      <link>https://flyfire.github.io/post/2015/05/05/mac-dev-setup/</link>
+      <pubDate>Tue, 05 May 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2015/05/05/mac-dev-setup/</guid>
+      <description>System preferences In Apple Icon &amp;gt; System Preferences: Trackpad &amp;gt; Tap to click Keyboard &amp;gt; Key Repeat &amp;gt; Fast (all the way to the right) Keyboard &amp;gt; Delay Until Repeat &amp;gt; Short (all the way to the right) Dock &amp;gt; Automatically hide and show the Dock Homebrew install command line tools xcode-select --install,xcode-select -p /Library/Developer/CommandLineTools to check if command line tools is installed install homebrew ruby -e &amp;quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)&amp;quot;</description>
+    </item>
+    
+    <item>
+      <title>Using GNU Command Line Tools on Mac Os X</title>
+      <link>https://flyfire.github.io/post/2015/03/22/using-gnu-command-line-tools-on-mac-os-x/</link>
+      <pubDate>Sun, 22 Mar 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2015/03/22/using-gnu-command-line-tools-on-mac-os-x/</guid>
+      <description>Unlike Ubuntu shipped with GNU command line tools,Mac OS X shipped with the BSD version,which make me WTF when I encountered with some compatibility issues.Fortunately,it&#39;s quit easy to install gnu tools by using homebrew in Mac OS X and set them as default. First comes with the most important one &amp;ndash; GNU coreutils,which contains the most essential commands like ls,cat and bla,bla&amp;hellip;
+brew install coreutils,and export PATH=&amp;quot;$(brew --prefix)/opt/coreutils/libexec/gnubin:/usr/local/bin:$PATH&amp;quot;,and add this alias to your .</description>
+    </item>
+    
+    <item>
+      <title>Moving Bitbucket Repo to Github</title>
+      <link>https://flyfire.github.io/post/2014/09/30/moving-bitbucket-repo-to-github/</link>
+      <pubDate>Tue, 30 Sep 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2014/09/30/moving-bitbucket-repo-to-github/</guid>
+      <description> 1 2 3 4 5 6 git clone https://bitbucket.org/username/repos.git local_dir cd local_dir git remote rename origin bitbucket git remote add origin git@github.com:username/repos.git git push -u origin master git remote rm bitbucket </description>
+    </item>
+    
+    <item>
+      <title>Notes on Git</title>
+      <link>https://flyfire.github.io/post/2014/09/02/notes-on-git/</link>
+      <pubDate>Tue, 02 Sep 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2014/09/02/notes-on-git/</guid>
+      <description>起步 Git 和其他版本控制系统的主要差别在于，Git 只关心文件数据的整体是否发生变化，而大多数其他系统则只关心文件内容的具体差异。这类系统（CVS</description>
+    </item>
+    
+    <item>
+      <title>Ssh Key Config for Multi Github Accounts</title>
+      <link>https://flyfire.github.io/post/2014/06/02/ssh-key-config-for-multi-github-accounts/</link>
+      <pubDate>Mon, 02 Jun 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2014/06/02/ssh-key-config-for-multi-github-accounts/</guid>
+      <description>在同一台电脑上有多个github账户时，切换ssh key会比较麻烦，可以使用ssh config来简化这一动作。 在使用ssh-keygen时，</description>
+    </item>
+    
+    <item>
+      <title>Git Basic Config</title>
+      <link>https://flyfire.github.io/post/2013/11/29/git-basic-config/</link>
+      <pubDate>Fri, 29 Nov 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2013/11/29/git-basic-config/</guid>
+      <description>用git大概有2年多了吧，不过大都停留在add，commit，clone，push这些简单的操作上，最近看了git-scm网站的维护者，Pr</description>
+    </item>
+    
+    <item>
+      <title>Install Ubuntu 13.04 on MacBook Pro 2011</title>
+      <link>https://flyfire.github.io/post/2013/11/21/install-ubuntu-13-dot-04-on-macbook-pro-2011/</link>
+      <pubDate>Thu, 21 Nov 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2013/11/21/install-ubuntu-13-dot-04-on-macbook-pro-2011/</guid>
+      <description>之前已经在MacBook上装过Ubuntu了，不知怎么搞的，最近Ubuntu更新后，分辨率一直保持在1024×768，屏幕惨不忍睹，网上搜了</description>
+    </item>
+    
+    <item>
+      <title>Blog on Github</title>
+      <link>https://flyfire.github.io/post/2012/07/27/blog-on-github/</link>
+      <pubDate>Fri, 27 Jul 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2012/07/27/blog-on-github/</guid>
+      <description>Ubuntu下建立Octopress博客过程 首先安装git 1 sudo apt-get install git 安装rvm和ruby 1.9.3 1 curl -L https://get.rvm.io | bash -s stable --ruby=1.9.3 克隆octopress到本地 1 git</description>
+    </item>
+    
+  </channel>
+</rss>

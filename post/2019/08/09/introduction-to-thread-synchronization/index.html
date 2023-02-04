@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Introduction to Thread Synchronization - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="清空Reeder发现internal/pointers一系列关于多线程的文章，感觉很不错，转载在此。 这是系列第二篇。 A look at one of the most popular ways of concurrency control" /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/2019/08/09/introduction-to-thread-synchronization/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Introduction to Thread Synchronization" />
+<meta property="og:description" content="清空Reeder发现internal/pointers一系列关于多线程的文章，感觉很不错，转载在此。 这是系列第二篇。 A look at one of the most popular ways of concurrency control" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/2019/08/09/introduction-to-thread-synchronization/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2019-08-09T00:00:00+00:00" />
+<meta property="article:modified_time" content="2019-08-09T00:00:00+00:00" />
+<meta itemprop="name" content="Introduction to Thread Synchronization">
+<meta itemprop="description" content="清空Reeder发现internal/pointers一系列关于多线程的文章，感觉很不错，转载在此。 这是系列第二篇。 A look at one of the most popular ways of concurrency control"><meta itemprop="datePublished" content="2019-08-09T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2019-08-09T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2419">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Introduction to Thread Synchronization"/>
+<meta name="twitter:description" content="清空Reeder发现internal/pointers一系列关于多线程的文章，感觉很不错，转载在此。 这是系列第二篇。 A look at one of the most popular ways of concurrency control"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Introduction to Thread Synchronization</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2019-08-09 </span>
+        <div class="post-category">
+            <a href="/categories/concurrency/"> concurrency </a>
+            <a href="/categories/dev/"> dev </a>
+            </div>
+          <span class="more-meta"> 约 2419 字 </span>
+          <span class="more-meta"> 预计阅读 5 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#what-is-synchronization">What is synchronization</a></li>
+            <li><a href="#common-synchronization-primitives">Common synchronization primitives</a></li>
+            <li><a href="#mutexes">Mutexes</a></li>
+            <li><a href="#recursive-mutexes">Recursive mutexes</a></li>
+            <li><a href="#readerwriter-mutexes">Reader/Writer Mutexes</a></li>
+            <li><a href="#semaphores">Semaphores</a></li>
+            <li><a href="#binary-semaphores">Binary semaphores</a></li>
+            <li><a href="#condition-variables">Condition variables</a></li>
+            <li><a href="#common-problems-in-synchronization">Common problems in synchronization</a></li>
+            <li><a href="#whats-next">What&rsquo;s next</a></li>
+            <li><a href="#reference">reference</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>清空Reeder发现internal/pointers一系列关于多线程的文章，感觉很不错，转载在此。</p>
+<p>这是系列第二篇。</p>
+<p>A look at one of the most popular ways of concurrency control in a multithreaded application.</p>
+<!-- more -->
+<p>As emerged from <a href="https://www.internalpointers.com/post/gentle-introduction-multithreading">my previous introduction to multithreading</a>, writing concurrent code can be tricky. Two big problems might emerge: data races, when a writer thread modifies the memory while a reader thread is reading it and race conditions, when two or more threads do their job in an unpredictable order. Luckily for us there are several ways to prevent these errors: in this article I will take a look at the most common one known as <strong>synchronization</strong>.</p>
+<h3 id="what-is-synchronization">What is synchronization</h3>
+<p>Synchronization is a bag of tricks that make sure two or more threads behave themselves. More specifically, synchronization will help you to achieve at least two important features in your multithreaded program:</p>
+<ul>
+<li><strong>atomicity</strong> — if your code contains instructions that operate on data shared across multiple threads, an unregulated concurrent access to that data might trigger a data race. The code segment that contains those instructions is called <strong>critical section</strong>. You want to make sure that critical sections are executed <em>atomically</em>: as defined in the previous episode, an <a href="https://www.internalpointers.com/post/gentle-introduction-multithreading#data-races">atomic operation</a> can&rsquo;t be broken into smaller ones, so that while a thread is executing it no other thread can slip through;</li>
+<li><strong>ordering</strong> — sometimes you want two or more threads to perform their job in a predictable order, or put a restriction on how many threads can access a specific resource. Normally you don&rsquo;t have control over these things, which might be the root cause of race conditions. With synchronization you can orchestrate your threads to perform according to a plan.</li>
+</ul>
+<p>Synchronization is implemented through special objects called <strong>synchronization primitives</strong> provided by the operating system or any programming language that supports threading. You then make use of such synchronization primitives in your code to make sure your threads don&rsquo;t trigger data races, race conditions or both.</p>
+<p>Synchronization takes place both in hardware and software, as well as between threads and operating system processes. This article is about synchronization of software threads: the physical counterpart and process synchronization are fascinating topics that will surely get some love in a future post.</p>
+<h3 id="common-synchronization-primitives">Common synchronization primitives</h3>
+<p>The most important synchronization primitives are <strong>mutexes</strong>, <strong>semaphores</strong> and <strong>condition variables</strong>. There are no official definitions for these terms, so different texts and implementations associate slightly different characteristics with each primitive.</p>
+<p>Operating systems provide these tools natively. For example Linux and macOS support <strong>POSIX threads</strong>, also known as <strong>pthreads</strong>, a set of functions that allows you to write safe multithreaded applications. Windows has its own synchronization tools in the C Run-Time Libraries (CRT): conceptually similar to POSIX threads functions but with different names.</p>
+<p>Unless you are writing very low-level code, you usually want to employ the synchronization primitives shipped with the programming language of your choice. Every programming language that deals with multithreading has its own toolbox of synchronization primitives, along with other functions to fiddle around with threads. For example Java provides the <code>java.util.concurrent</code> package, modern C++ has its own <code>thread</code> library, C# ships the <code>System.Threading</code> namespace and so on. All these functions and objects are based upon the underlying operating system primitives, of course.</p>
+<p>There are many other synchronization tools around. In this article I&rsquo;ll stick to the three mentioned above, as they act as a foundation often used to build more complex entities. Let&rsquo;s take a closer look.</p>
+<h3 id="mutexes">Mutexes</h3>
+<p>A <strong>mutex</strong> (<strong>mut</strong>ual <strong>ex</strong>clusion) is a synchronization primitive that puts a restriction around a critical section, in order to prevent data races. A mutex guarantees <em>atomicity</em>, by making sure that only one thread accesses the critical section at a time.</p>
+<p>Technically, a mutex is a global object in your application, shared across multiple threads, that provides two functions usually called <code>lock</code> and <code>unlock</code>. A thread that is about to enter the critical section calls <code>lock</code> to lock the mutex; when it&rsquo;s done, that is when the critical section is over, the same thread calls <code>unlock</code> to unlock it. The important feature of a mutex: only the thread that locks the mutex is allowed to unlock it later on.</p>
+<p>If another thread jumps in and tries to lock a locked mutex, the operating system puts it to sleep until the first thread has finished its task and has unlocked the mutex. This way only one thread can access the critical section; any other thread is excluded from it and must wait for the unlock. For this reason a mutex is also known as a <strong>locking mechanism</strong>.</p>
+<p>You can use a mutex to protect simple actions like a concurrent read and write of a shared variable, as well as bigger and more complex operations that need to be executed by one thread at a time, such as writing to a log file or modifying a database. Anyway, the mutex lock/unlock operations always match the boundaries of the critical section.</p>
+<h3 id="recursive-mutexes">Recursive mutexes</h3>
+<p>In any regular mutex implementation, a thread that locks a mutex twice causes an error. A <strong>recursive mutex</strong> allows this, instead: a thread can lock a recursive mutex multiple times without unlocking it first. However no other thread can lock the recursive mutex until all the locks held by the first thread have been released. This synchronization primitive is also known as <strong>reentrant mutex</strong>, where <strong>reentrancy</strong> is the ability to call a function multiple times (i.e. to enter it again) before the previous invocations are over.</p>
+<p>Recursive mutexes are difficult to work with and are error-prone. You have to keep track of which thread has locked the mutex how many times and make sure the same thread unlocks it completely. Failing to do so would leave locked mutexes around with nasty consequences. Most of the time a regular mutex is enough.</p>
+<h3 id="readerwriter-mutexes">Reader/Writer Mutexes</h3>
+<p>As we know from the previous episode, multiple threads can concurrently read from a shared resource without harm as long as they don&rsquo;t modify it. So why bother locking a mutex if some of your threads are operating in &ldquo;read-only&rdquo; mode? For example consider a concurrent database that is frequently read by many threads, while another thread seldomly writes updates. You certainly need a mutex to protect the read/write access, but most of the time you would end up locking it just for read operations, preventing other reading threads to do their job.</p>
+<p>A <strong>reader/writer mutex</strong> allows <em>concurrent</em> reads from multiple threads and <em>exclusive</em> writes from a single thread to a shared resource. It can be locked in <em>read</em> or <em>write</em> mode. To modify a resource, a thread must first acquire the exclusive write lock. An exclusive write lock is not permitted until all read locks have been released.</p>
+<h3 id="semaphores">Semaphores</h3>
+<p>A <strong>semaphore</strong> is a synchronization primitive used to orchestrate threads: which one starts first, how many threads can access a resource and so on. Like a street semaphore regulates the traffic, a programming semaphore regulates the multithreading flow: for this reason a semaphore is also known as a <strong>signaling mechanism</strong>. It can be seen as an evolution of a mutex, because it guarantees both <em>ordering</em> and <em>atomicity</em>. However in a few paragraphs I will show you why using semaphores for atomicity only is not a great idea.</p>
+<p>Technically, a semaphore is a global object in your application, shared across multiple threads, that contains a <em>numeric counter</em> managed by two functions: one that increases the counter, another one that decreases it. Historically called <code>P</code> and <code>V</code>, modern implementations use more friendly names for those functions such as <code>acquire</code> and <code>release</code>.</p>
+<p>A semaphore controls the access to a shared resource: the counter determines the maximum number of threads that can simultaneously access it. At the beginning of your program, when the semaphore gets initialized, you choose that number according to your needs. Then, a thread that wants to access a shared resource calls <code>acquire</code>:</p>
+<ul>
+<li>if the counter is <em>greater than zero</em> the thread can proceed. The counter gets reduced by one right away, then the current thread starts doing its job. When done, it calls <code>release</code> which in turn increases the counter by one.</li>
+<li>if the counter is <em>equal to zero</em> the thread cannot proceed: other threads have already filled up the available space. The current thread is put to sleep by the operating system and will wake up when the semaphore counter becomes greater than zero again (that is when any other thread calls <code>release</code> once its job is done).</li>
+</ul>
+<p>Unlike a mutex, <em>any thread can release a semaphore</em>, not only the one that has acquired it in the first place.</p>
+<p>A single semaphore is used to limit the number of threads accessing a shared resource: for example to cap the number of multithreaded database connections, where each thread is triggered by someone connecting to your server.</p>
+<p>By combining multiple semaphores together you can solve thread ordering problems: for example the thread that renders a web page in your browser must start after the thread that downloads the HTML files from the Internet. Thread A would notify thread B when it&rsquo;s done, so that B can wake up and proceed with its job: this is also known as the famous <a href="https://en.wikipedia.org/wiki/Producer%E2%80%93consumer_problem">Producer-Consumer problem</a>.</p>
+<h3 id="binary-semaphores">Binary semaphores</h3>
+<p>A semaphore whose counter is restricted to the values 0 and 1 is called <strong>binary semaphore</strong>: only one thread at a time can access the shared resource. Wait: this is basically a mutex protecting a critical section! You can actually replicate the mutex behavior with a binary semaphore. However there are two important points to keep in mind:</p>
+<ul>
+<li>a mutex can be unlocked only by thread that had locked it first, while a semaphore can be released from any other thread. This could lead to confusion and subtle bugs if what you want is just a locking mechanism;</li>
+<li>semaphores are signaling mechanisms that orchestrate threads, while mutexes are locking mechanisms that protects shared resources. You should not use semaphores to protect shared resources, nor mutexes for signaling: your intent will be more clear to you and to anyone who will read your code.</li>
+</ul>
+<h3 id="condition-variables">Condition variables</h3>
+<p>Condition variables are another synchronization primitive designed for <em>ordering</em>. They are used for sending a wake up signal across different threads. A condition variable always goes hand in hand with a mutex; using it alone doesn&rsquo;t make sense.</p>
+<p>Technically, a condition variable is a global object in your application, shared across multiple threads, that provides three functions usually called <code>wait</code>, <code>notify_one</code> and <code>notify_all</code>, plus a mechanism to pass it an existing mutex to work with (the exact way depends on the implementation).</p>
+<p>A thread that calls <code>wait</code> on the condition variable is put to sleep by the operating system. Then another thread that wants to wake it up invokes <code>notify_one</code> or <code>notify_all</code>. The difference is that <code>notify_one</code> unfreezes only one thread, while <code>notify_all</code> sends the wake up call to all the threads that are sleeping after the <code>wait</code> call on the condition variable. The mutex is used internally to provide the sleep/wakeup mechanism.</p>
+<p>Condition variables are a powerful mechanism to send signals between threads that you couldn&rsquo;t achieve with mutexes alone. For example you can use them to solve the Producer-Consumer problem once again, where thread A emits a signal when it&rsquo;s done so that thread B can start its job.</p>
+<h3 id="common-problems-in-synchronization">Common problems in synchronization</h3>
+<p>All the synchronization primitives described in this article have something in common: they put threads to sleep. For this reason they are also called <strong>blocking mechanisms</strong>. A blocking mechanism is a good way to prevent concurrent access to a shared resource if you want to avoid data races or race conditions: a sleeping thread does no harm. But it can trigger unfortunate side effects. Let&rsquo;s take a quick look at them.</p>
+<h4 id="deadlock">Deadlock</h4>
+<p>A <strong>deadlock</strong> occurs when a thread is waiting for a shared variable that another thread holds, and this second thread is waiting for a shared variable that the first thread holds. These things usually happen when working with multiple mutexes: the two threads remain waiting forever in an infinite circular loop: thread A waits for thread B which waits for thread A which waits for thread B which&hellip;</p>
+<h4 id="starvation">Starvation</h4>
+<p>A thread goes in <strong>starvation</strong> mode when it doesn&rsquo;t get enough love: it remains stuck indefinitely in its sleep state while waiting for access to a shared resource that is continuously given to other threads. For example a poorly designed semaphore-based algorithm might forget to wake up one of the many threads behind the waiting line, by giving precedence only to a subset of them. The starving thread would wait forever without doing any useful work.</p>
+<h4 id="spurious-wake-ups">Spurious wake-ups</h4>
+<p>This is a subtle problem that comes from how condition variables are actually implemented in some operating systems. In a <strong>spurious wake-up</strong> a thread wakes up even if not signaled through the condition variable. That&rsquo;s why most synchronization primitives also include a way to check if the wakeup signal really comes from the condition variable the thread is waiting on.</p>
+<h4 id="priority-inversion">Priority inversion</h4>
+<p><strong>Priority inversion</strong> occurs when a thread performing a high-priority task is blocked waiting for a lower-priority thread to release a resource, such as a mutex. For example when the thread that outputs audio to the soundcard (high priority) is blocked by the thread that displays the interface (low priority), resulting in a bad glitch through your speakers.</p>
+<h3 id="whats-next">What&rsquo;s next</h3>
+<p>All these synchronization problems have been studied for years and many solutions, both technical and architectural are available. A careful design and a bit of experience help a lot in prevention. Also, given the <a href="https://www.internalpointers.com/post/gentle-introduction-multithreading#race-conditions">non-deterministic</a>, (i.e. extremely hard) nature of multithreaded applications, people have developed interesting tools to detect errors and potential pitfalls in concurrent code. Projects like <a href="https://github.com/google/sanitizers/wiki/ThreadSanitizerCppManual">Google&rsquo;s TSan</a> or <a href="http://valgrind.org/docs/manual/hg-manual.html">Helgrind</a> are just a few of them.</p>
+<p>However, sometimes you want to take a different route and get rid of any blocking mechanism in your multithreaded application. This would mean to enter the <strong>non-blocking</strong> realm: a very low-level territory, where threads are never put to sleep by the operating system and concurrency is regulated through <strong>atomic primitives</strong> and <strong>lock-free data structures</strong>. It&rsquo;s a challenging field, not always necessary, which can boost the speed of your software or wreak havoc on it. But this is a story for the next episode&hellip;</p>
+<h3 id="reference">reference</h3>
+<ul>
+<li><a href="https://www.internalpointers.com/post/introduction-thread-synchronization">Introduction to thread synchronization</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2019-08-09
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/2019/08/10/lock-free-multithreading-with-atomic-operations/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Lock Free Multithreading With Atomic Operations</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/2019/08/07/a-gentle-introduction-to-multithreading/">
+            <span class="next-text nav-default">A Gentle Introduction to Multithreading</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Writing Better Adapters - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="Implementing adapters is one of the most frequent tasks for an Android developer. It’s the base for every list. Looking at apps, lists are the base of most apps. The schema we follow to implement list views is often the same: a View with an adapter that holds the data. Doing this all the time can make us blind to what we are writing, even to ugly" /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/2016/12/26/writing-better-adapters/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Writing Better Adapters" />
+<meta property="og:description" content="Implementing adapters is one of the most frequent tasks for an Android developer. It’s the base for every list. Looking at apps, lists are the base of most apps. The schema we follow to implement list views is often the same: a View with an adapter that holds the data. Doing this all the time can make us blind to what we are writing, even to ugly" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/2016/12/26/writing-better-adapters/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2016-12-26T00:00:00+00:00" />
+<meta property="article:modified_time" content="2016-12-26T00:00:00+00:00" />
+<meta itemprop="name" content="Writing Better Adapters">
+<meta itemprop="description" content="Implementing adapters is one of the most frequent tasks for an Android developer. It’s the base for every list. Looking at apps, lists are the base of most apps. The schema we follow to implement list views is often the same: a View with an adapter that holds the data. Doing this all the time can make us blind to what we are writing, even to ugly"><meta itemprop="datePublished" content="2016-12-26T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2016-12-26T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1984">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Writing Better Adapters"/>
+<meta name="twitter:description" content="Implementing adapters is one of the most frequent tasks for an Android developer. It’s the base for every list. Looking at apps, lists are the base of most apps. The schema we follow to implement list views is often the same: a View with an adapter that holds the data. Doing this all the time can make us blind to what we are writing, even to ugly"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Writing Better Adapters</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2016-12-26 </span>
+        <div class="post-category">
+            <a href="/categories/android/"> android </a>
+            <a href="/categories/dev/"> dev </a>
+            </div>
+          <span class="more-meta"> 约 1984 字 </span>
+          <span class="more-meta"> 预计阅读 4 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#recyclerview-basics">RecyclerView Basics</a></li>
+        <li><a href="#recyclerview-with-different-types">RecyclerView With Different Types</a></li>
+        <li><a href="#the-uglyness">The Uglyness</a></li>
+        <li><a href="#lets-fix-it">Let’s Fix It</a></li>
+        <li><a href="#the-viewmodel">The ViewModel</a></li>
+        <li><a href="#the-visitor">The Visitor</a></li>
+        <li><a href="#conclusion">Conclusion</a></li>
+        <li><a href="#reference">reference</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>Implementing adapters is one of the most frequent tasks for an Android developer. It’s the base for every list. Looking at apps, lists are the base of most apps.</p>
+<p>The schema we follow to implement list views is often the same: a View with an adapter that holds the data. Doing this all the time can make us blind to what we are writing, even to ugly code. Even worse, we end up repeating that ugly code.</p>
+<p>It’s time to take a close look into adapters.</p>
+<h2 id="recyclerview-basics">RecyclerView Basics</h2>
+<p>The basic operations for RecyclerViews (but also applicable for ListView) are:</p>
+<ul>
+<li>Creating the view and the ViewHolder that holds the view information.</li>
+<li>Binding the ViewHolder to the data that the adapter holds, probably a list of model classes.</li>
+</ul>
+<p>Implementing this is pretty straightforward and not much can be done wrong here.</p>
+<!-- more -->
+<h2 id="recyclerview-with-different-types">RecyclerView With Different Types</h2>
+<p>It gets trickier when you need to have different kind of items in your views. It might be different kind of cards in case you use CardViews or could be ads stitched in between your elements. You might even have a list of completely different kind of objects (this article uses Kotlin but it can be easily applied to Java as no language specific feature are used)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">interface Animal
+</span></span><span class="line"><span class="cl">class Mouse: Animal
+</span></span><span class="line"><span class="cl">class Duck: Animal
+</span></span><span class="line"><span class="cl">class Dog: Animal
+</span></span><span class="line"><span class="cl">class Car
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>You have various animals and then suddenly something like a car that is totally unrelated.</p>
+<p>In those use cases you have probably different view types you need to show. Means you need to create different ViewHolders and probably inflate different layouts in each. The API defines type identifier as integers, that’s where the ugliness starts!</p>
+<p>But let’s look at some code. When you have more than one item type you announce this by overriding:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">override fun getItemViewType(position: Int) : Int
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>as the default implementation always returns zero. The implementer needs to translate the types into Integer values.</p>
+<p>Next step: create the ViewHolders. So you have to implement:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>In this method the API tells the Integer type you passed earlier as parameter.
+The implementation is pretty trivial: a switch statement, or something similar, can be used to create ViewHolders for every given type.</p>
+<p>The difference comes when binding the newly created (or recycled) ViewHolder:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">override fun onBindViewHolder(holder: ViewHolder, position: Int): Any
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Notice that here there is no type parameter. You could use getItemViewType if needed but normally it’s not needed. You could have some bind() method in a base class of all our different ViewHolders that you can call.</p>
+<h2 id="the-uglyness">The Uglyness</h2>
+<p>So what is the problem now? Looks straightforward to implement, isn’t it?</p>
+<p>Let’s look once again into getItemViewType().</p>
+<p>The system needs the type for every position. So you have to translate an item in your backing model list to a view type.</p>
+<p>You might want to write something like:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">if (things.get(position) is Duck) {
+</span></span><span class="line"><span class="cl">    return TYPE_DUCK
+</span></span><span class="line"><span class="cl">} else if (things.get(position) is Mouse) {
+</span></span><span class="line"><span class="cl">    return TYPE_MOUSE
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Can we agree on how ugly this is?</p>
+<p>It might get even worse if your ViewHolders don’t share a common base class. If they are totally different types, in your lists you have the same ugly code when binding the ViewHolder:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+</span></span><span class="line"><span class="cl">    val thing = things.get(position)
+</span></span><span class="line"><span class="cl">    if (thing is Animal) {
+</span></span><span class="line"><span class="cl">        (holder as AnimalViewHolder).bind(thing as Animal)
+</span></span><span class="line"><span class="cl">    } else if (thing is Car) {
+</span></span><span class="line"><span class="cl">        (holder as CarViewHolder).bind(thing as Car)
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>This is a mess. instance-of checks and dozens of casting. Both are code smells and should be even considered anti-patterns.</p>
+<p>Many years ago I had a couple of quotes attached to my monitor. One of them was from Effective C++ by Scott Meyers (one of the best IT books ever written) and goes like this:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">Anytime you find yourself writing code of the form “if the object is of type T1, then do something, but if it’s of type T2, then do something else,” slap yourself.
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>If you look at those adapter implementation, there is a lot of slapping to be done.</p>
+<ul>
+<li>We have type checks and we have lots of ugly casts!</li>
+<li>This is simply not object orientated code! OO just celebrated its 50th birthday so we should try to use more of its strengths.</li>
+<li>In addition, the way we implemented those adapters is a violation of the “Open-Closed” rule from the SOLID principles. It says: “open for extension but closed for modifications”.</li>
+</ul>
+<p>But when we would add another type to our classes, another Model, let’s say Rabbit and therefore RabbitViewHolder, we have to change lots of methods in the adapter. A clear violation of the principle. A new kind of object should not lead to modifications in existing methods.</p>
+<p>So let’s try to solve this.</p>
+<h2 id="lets-fix-it">Let’s Fix It</h2>
+<p>One alternative would be to put something in the middle to do the translation for us. It could be as simple as putting your Class types in some Map and retrieve the type with one call. It would be something like:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">override fun getItemViewType(position: Int) : Int 
+</span></span><span class="line"><span class="cl">   = types.get(things.javaClass)
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>It’s much better now isn’t it?
+The sad answer is: not really! In the end this just hides instance-of.</p>
+<p>How would you implement the onBindViewholder() we’ve seen above? It would be something like: if object is of type T1 then do.. else… so still slapping to be done here.</p>
+<p>The goal should be to be able to <strong>add new view types without even touching the adapter</strong>.</p>
+<p>Therefore: don’t create your own type mapping in the adapter between the models and the views in the first place. Google suggests using layout ids. With this trick you don’t need the artificial type mappings by simply using the layout id you’re inflating. And of course you probably save another enum as #perfmatters.</p>
+<p>But still you need to map those to each other? How?</p>
+<p>In the end end you need to map models to views. Could this knowledge move to the model?</p>
+<p>It would be tempting to put the type into your model, something like.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">fun getType() : Int = R.layout.item_duck
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>This way the adapter implementation for type could be totally generic:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">override fun getItemViewType(pos: Int) = things[pos].getType()
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Open-Closed principle is applied, no changes needed when adding new models.</p>
+<p>But now you totally mixed our layers and indeed broke the complete architecture. Entities know about presentation, arrows pointing into the wrong direction. This must be unacceptable for us.</p>
+<p>And again: adding a method into an object to asks for it’s type is not object orientated. You again would just hide the instance-of check.</p>
+<h2 id="the-viewmodel">The ViewModel</h2>
+<p>One way to approach this, is to have separat ViewModels instead of using our Model directly. In the end our problem was that our models are disjoint, they don’t share a common base: a car is not an animal. And this is correct. Only for the presentation layer you need to show them in on list. So when you introduce models for this layer you don’t have this problem, they can have a common base.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">abstract class ViewModel {
+</span></span><span class="line"><span class="cl">    abstract fun type(): Int
+</span></span><span class="line"><span class="cl">}
+</span></span><span class="line"><span class="cl">class DuckViewModel(val duck: Duck): ViewModel() {
+</span></span><span class="line"><span class="cl">    override fun type() = R.layout.duck
+</span></span><span class="line"><span class="cl">}
+</span></span><span class="line"><span class="cl">class CarViewModel(val car: Car): ViewModel() {
+</span></span><span class="line"><span class="cl">    override fun type() = R.layout.car
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>So you simply wrapped the models. You don’t need to modify them at all and keep view specific code in those new ViewModels.</p>
+<p>This way you can also add all formatting logic into there and use Android’s new Data Binding Library.</p>
+<p>The idea of using list of ViewModels in the adapter instead of the Models helps especially when you need artificial items like dividers, section headers or simply advertisement items.</p>
+<p>This is one approach to solve the problem. But not the only one.</p>
+<h2 id="the-visitor">The Visitor</h2>
+<p>Let’s go back to our initial idea of only using the Model. If you would have lots of model classes, maybe you don’t want to create lots of ViewModel one each.</p>
+<p>Thinking of the type() method that you added in the first place into the model, you missed some decoupling. You need to avoid having the presentation code in there directly. You need to indirect it, move the actual type knowledge to somewhere else. How about adding an interface into this type() method:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">interface Visitable {
+</span></span><span class="line"><span class="cl">    fun type(typeFactory: TypeFactory) : Int
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Now you might ask what have you won here as the factory would still need to branch between types like the adapter did in the first place, right?</p>
+<p>No it does not! This approach will be based on the Visitor pattern, one of the classic Gang-of-Four pattern. All the model will do, is forwarding this type call:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">interface Animal : Visitable
+</span></span><span class="line"><span class="cl">interface Car : Visitable
+</span></span><span class="line"><span class="cl">class Mouse: Animal {
+</span></span><span class="line"><span class="cl">    override fun type(typeFactory: TypeFactory) 
+</span></span><span class="line"><span class="cl">        = typeFactory.type(this)
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The factory has variations you need:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">interface TypeFactory {
+</span></span><span class="line"><span class="cl">    fun type(duck: Duck): Int
+</span></span><span class="line"><span class="cl">    fun type(mouse: Mouse): Int
+</span></span><span class="line"><span class="cl">    fun type(dog: Dog): Int
+</span></span><span class="line"><span class="cl">    fun type(car: Car): Int
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>This way it’s totally type safe, no instance-of, no casts needed at all.</p>
+<p>And the responsibility of the factory is clear: it knows about the view types:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">class TypeFactoryForList : TypeFactory {
+</span></span><span class="line"><span class="cl">    override fun type(duck: Duck) = R.layout.duck
+</span></span><span class="line"><span class="cl">    override fun type(mouse: Mouse) = R.layout.mouse
+</span></span><span class="line"><span class="cl">    override fun type(dog: Dog) = R.layout.dog
+</span></span><span class="line"><span class="cl">    override fun type(car: Car) = R.layout.car
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>I could even also create ViewHolders to keep the knowledge about the ids in one place. So when adding a new view, this is the place to add. This should be pretty SOLID. You might need another method for new types but not modify any existing method: Open for Extension, Closed for Modification.</p>
+<p>Now you might ask: why not use the factory directly from adapter instead using the indirection of the model?</p>
+<p>Only with this path you get the type safety without need of casts and type checks. Take a moment to realize this here, there is not a single cast needed!This indirection is the magic behind Visitor Pattern.</p>
+<p>Following this approach leaves the adapter with a very generic implementation that hardly ever needs to be changed.</p>
+<h2 id="conclusion">Conclusion</h2>
+<ul>
+<li>Try to keep your presentation code clean.</li>
+<li>Instance-of checks should be a red flag!</li>
+<li>Look out for down casting as it’s a code smell.</li>
+<li>Try to replace those two with correct OO usage. Think about interfaces and inheritance.</li>
+<li>Try to use generics to prevent castings.</li>
+<li>Use ViewModels.</li>
+<li>Check out for usages for the Visitor pattern.</li>
+</ul>
+<p>I would be happy to learn other ideas to make our Adapters cleaner.</p>
+<p>PS: thanks to Jan M and Dmitri Kudrenko who crated examples on Github for Java and Kotlin:
+<a href="https://github.com/dmitrikudrenko/BetterAdapters">https://github.com/dmitrikudrenko/BetterAdapters</a>
+<a href="https://github.com/meierjan/BetterAdapters">https://github.com/meierjan/BetterAdapters</a></p>
+<h2 id="reference">reference</h2>
+<ul>
+<li><a href="https://medium.com/@dpreussler/writing-better-adapters-1b09758407d2#.vc2pos5tm">Writing Better Adapters</a></li>
+<li><a href="https://juejin.im/entry/57fda1fe5bbb50005b3fef76?utm_source=gold-miner&amp;utm_medium=readme&amp;utm_campaign=github">关于 Android Adapter，你的实现方式可能一直都有问题</a></li>
+<li><a href="http://github.com/flyfire/MultitypeBaseAdapter">MultitypeBaseAdapter</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2016-12-26
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/2017/10/18/develop-jni-program-in-mac/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Develop Jni Program in Mac</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/2016/10/10/choreographer-in-android/">
+            <span class="next-text nav-default">Choreographer in Android</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

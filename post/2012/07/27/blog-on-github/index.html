@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Blog on Github - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="Ubuntu下建立Octopress博客过程 首先安装git 1 sudo apt-get install git 安装rvm和ruby 1.9.3 1 curl -L https://get.rvm.io | bash -s stable --ruby=1.9.3 克隆octopress到本地 1 git" /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/2012/07/27/blog-on-github/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Blog on Github" />
+<meta property="og:description" content="Ubuntu下建立Octopress博客过程 首先安装git 1 sudo apt-get install git 安装rvm和ruby 1.9.3 1 curl -L https://get.rvm.io | bash -s stable --ruby=1.9.3 克隆octopress到本地 1 git" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/2012/07/27/blog-on-github/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2012-07-27T00:00:00+00:00" />
+<meta property="article:modified_time" content="2012-07-27T00:00:00+00:00" />
+<meta itemprop="name" content="Blog on Github">
+<meta itemprop="description" content="Ubuntu下建立Octopress博客过程 首先安装git 1 sudo apt-get install git 安装rvm和ruby 1.9.3 1 curl -L https://get.rvm.io | bash -s stable --ruby=1.9.3 克隆octopress到本地 1 git"><meta itemprop="datePublished" content="2012-07-27T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2012-07-27T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1344">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Blog on Github"/>
+<meta name="twitter:description" content="Ubuntu下建立Octopress博客过程 首先安装git 1 sudo apt-get install git 安装rvm和ruby 1.9.3 1 curl -L https://get.rvm.io | bash -s stable --ruby=1.9.3 克隆octopress到本地 1 git"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Blog on Github</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2012-07-27 </span>
+        <div class="post-category">
+            <a href="/categories/tools/"> tools </a>
+            </div>
+          <span class="more-meta"> 约 1344 字 </span>
+          <span class="more-meta"> 预计阅读 3 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <center><em>Ubuntu下建立Octopress博客过程</em></center>
+<center><p><img src="/images/octopress_logo.jpg" alt="Octopress"></p></center>
+<ul>
+<li>首先安装<code>git</code></li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo apt-get install git
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>安装<code>rvm</code>和<code>ruby 1.9.3</code></li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl -L https://get.rvm.io <span class="p">|</span> bash -s stable --ruby<span class="o">=</span>1.9.3
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>克隆<code>octopress</code>到本地</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">git clone git://github.com/imathis/octopress.git 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>安装依赖</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">gem sources -a http://ruby.taobao.org/
+</span></span><span class="line"><span class="cl">gem sources -r http://rubygems.org/
+</span></span><span class="line"><span class="cl">gem sources -l <span class="c1">#确保只有淘宝的ruby镜像</span>
+</span></span><span class="line"><span class="cl">gem install bundle
+</span></span><span class="line"><span class="cl">bundle install <span class="c1">#建议更改Gemfile第一行source为taobao镜像</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>安装<code>slash</code>主题</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">git clone git://github.com/tommy351/Octopress-Theme-Slash.git .themes/slash
+</span></span><span class="line"><span class="cl">rake install<span class="o">[</span><span class="s1">&#39;slash&#39;</span><span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以定制<code>slash</code>主题，由于众所周知的原因，我把博客的分享换成了国内的jiathis，评论系统换成了国内的多说，需要更改的地方也不是很多，就不详细叙述了，具体可以参考我的代码。当然你也可以使用其他的分享、评论系统，或者使用默认的也行。至于其他的第三方帐号，我只使用了Google Analytics，这个也很简单，就不赘述了。</p>
+<ul>
+<li>生成网站、预览</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">rake generate <span class="o">&amp;&amp;</span> rake preview
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>如果你没有改动<code>Rakefile</code>里的<code>server_port</code>的话，默认就可以在 http://localhost:4000/ 查看博客了。</p>
+<!-- more -->
+<ul>
+<li>部署到github</li>
+</ul>
+<p>首先你得有一个github帐号，比如说yourname，然后create repo，名字是yourname.github.com。新手的话可能还需要设置下git和github服务器通信，可以参考github的帮助页，<a href="https://help.github.com/articles/set-up-git">setup-git</a>和<a href="https://help.github.com/articles/generating-ssh-keys">generating-ssh-keys</a>等来进行设置。
+OK，以上搞定后，可以在本地操作了。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">rake setup_github_pages
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>按照提示输入你的github repo url就可以了。
+然后部署。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">rake generate <span class="o">&amp;&amp;</span> rake deploy
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>等几分种刷新下http://yourname.github.com 应该就不会显示404页面而是你的博客页了。</p>
+<ul>
+<li>把修改后的<code>octopress</code>和<code>slash</code>主题也push到github</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">git add . 
+</span></span><span class="line"><span class="cl">git commit -m <span class="s1">&#39;push source&#39;</span>
+</span></span><span class="line"><span class="cl">git push origin <span class="nb">source</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>这样子的话，这个repo就有了2个branch，一个是master，就是<code>rake generate</code>生成的博客网站，一个是source，就是你修改的octopress配置文件和slash主题。</p>
+<ul>
+<li>设置域名</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;youdomain.com&#34;</span> &gt;&gt;source/CNAME
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>到域名服务商那里设置DNS就可以了。</p>
+<ul>
+<li>写文章、发表</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">rake new_post<span class="o">[</span><span class="s1">&#39;new-post-title&#39;</span><span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>这个命令会在source/_posts目录下生成一个markdown文件，编辑这个markdown文件即可。markdown的语法可以在<a href="http://gitcafe.com/riku/Markdown-Syntax-CN/blob/master/syntax.md">gitcafe</a>上查看。</p>
+<p>写了新文章后，push到github。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">git add . 
+</span></span><span class="line"><span class="cl">git commit -m <span class="s1">&#39;new post&#39;</span>
+</span></span><span class="line"><span class="cl">git push origin <span class="nb">source</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>然后deploy到github page</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">rake generate
+</span></span><span class="line"><span class="cl">rake deploy
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>过不了多久就可以在http://yourname.github.com 上查看最新写的文章了。</p>
+<ul>
+<li>更换工作环境后，恢复octopress和原来的文章</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">git clone -b <span class="nb">source</span>  git@github.com:yourname/yourname.github.com.git
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>剩下的安装<code>rvm</code>等参考前面文章。
+获得博客网站有两种方式，一是<code>rake generate</code>直接在本地生成，另一种是从github服务器上取回来。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">cd</span> yourname.github.com
+</span></span><span class="line"><span class="cl">mkdir _deploy <span class="o">&amp;&amp;</span> <span class="nb">cd</span> _deploy
+</span></span><span class="line"><span class="cl">git init
+</span></span><span class="line"><span class="cl">git remote add origin git@github.com:yourname/yourname.github.com.git
+</span></span><span class="line"><span class="cl">git pull origin master
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>OK，现在可以继续写博客，然后po了。</p>
+<hr>
+<p>后记：</p>
+<ul>
+<li>写了文章，执行<code>rake deploy</code>可能会显示错误，修改Rakefile文件里的deploy函数中的<code>push</code>为<code>push -f</code>即可，注意文件中的第<strong>18</strong>行是修改过的。</li>
+</ul>
+<pre><code>
+desc "deploy public directory to github pages"
+multitask :push do
+  puts "## Deploying branch to Github Pages "
+  puts "## Pulling any updates from Github Pages "
+  cd "#{deploy_dir}" do 
+    system "git pull"
+  end
+  (Dir["#{deploy_dir}/*"]).each { |f| rm_rf(f) }
+  Rake::Task[:copydot].invoke(public_dir, deploy_dir)
+  puts "\n## Copying #{public_dir} to #{deploy_dir}"
+  cp_r "#{public_dir}/.", deploy_dir
+  cd "#{deploy_dir}" do
+    system "git add -A"
+    puts "\n## Commiting: Site updated at #{Time.now.utc}"
+    message = "Site updated at #{Time.now.utc}"
+    system "git commit -m \"#{message}\""
+    puts "\n## Pushing generated #{deploy_dir} website"
+    system "git push -f origin #{deploy_branch}"
+    puts "\n## Github Pages deploy complete"
+  end
+end
+</code></pre>
+<ul>
+<li>学习git可以参考<a href="/files/learninggit.pdf">看日记学git</a>和<a href="https://github.com/numbbbbb/progit-zh-pdf-epub-mobi">pro-git-zh</a>。</li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2012-07-27
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/2013/11/21/install-ubuntu-13-dot-04-on-macbook-pro-2011/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Install Ubuntu 13.04 on MacBook Pro 2011</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

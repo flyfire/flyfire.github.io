@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>android  on Solarex&#39;s Blog</title>
+    <link>https://flyfire.github.io/categories/android/</link>
+    <description>Recent content in android  on Solarex&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Mon, 05 Apr 2021 20:00:33 +0800</lastBuildDate><atom:link href="https://flyfire.github.io/categories/android/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Recyclerview Learning Roadmap</title>
+      <link>https://flyfire.github.io/post/recyclerview-learning-roadmap/</link>
+      <pubDate>Mon, 05 Apr 2021 20:00:33 +0800</pubDate>
+      
+      <guid>https://flyfire.github.io/post/recyclerview-learning-roadmap/</guid>
+      <description>&lt;p&gt;去年的时候组内分技术储备方向，由于我主要负责练习题这块，用到RecyclerView比较多，就被分到了RecyclerView深入理解这块，但是去年一直在赶需求，没空做这个，最近迭代任务不太多了，准备把这块补起来。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Summary of Custom Views Part Iii</title>
+      <link>https://flyfire.github.io/post/2019/03/12/summary-of-custom-views-part-iii/</link>
+      <pubDate>Tue, 12 Mar 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2019/03/12/summary-of-custom-views-part-iii/</guid>
+      <description>自定义View总结 - 触摸反馈 之前分析了Android触摸事件分发机制，在自定义View的时候进行触摸反馈，一般都是重写onTouchEven</description>
+    </item>
+    
+    <item>
+      <title>Summary of Custom Views Part Ii</title>
+      <link>https://flyfire.github.io/post/2019/02/12/summary-of-custom-views-part-ii/</link>
+      <pubDate>Tue, 12 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2019/02/12/summary-of-custom-views-part-ii/</guid>
+      <description>自定义View总结 - 布局 布局基础 布局过程，就是程序在运行时利用布局文件中的代码来计算出实际尺寸和位置的过程。有两个阶段，测量阶段和布局阶段，</description>
+    </item>
+    
+    <item>
+      <title>Summary of Custom Views Part I</title>
+      <link>https://flyfire.github.io/post/2019/01/12/summary-of-custom-views-part-i/</link>
+      <pubDate>Sat, 12 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2019/01/12/summary-of-custom-views-part-i/</guid>
+      <description>自定义View总结 - 绘制 绘制基础 Canvas.drawColor(@ColorInt int color) 颜色填充 drawCircle(float centerX, float centerY, float radius, Paint paint) 画圆 Paint.setColor(int color),Paint.setStyle(Paint.Style style),Paint.setStrokeWidth(float width),Paint.setAntiAlias(boolean aa) drawRect(float left, float top, float right, float bottom, Paint paint) 画矩形 drawPoint(float x, float y, Paint paint) 画点 drawPoints(float[] pts, int offset, int count, Paint paint) / drawPoints(float[] pts,</description>
+    </item>
+    
+    <item>
+      <title>Recyclerview Smooth Scoll to Position</title>
+      <link>https://flyfire.github.io/post/2018/05/30/recyclerview-smooth-scoll-to-position/</link>
+      <pubDate>Wed, 30 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2018/05/30/recyclerview-smooth-scoll-to-position/</guid>
+      <description>最近在做一个周日历的新需求，其中有个要求是要RecyclerView平滑的滑动到指定位置，刚开始的时候我以为只要调用smoothScroll</description>
+    </item>
+    
+    <item>
+      <title>Java Proxy</title>
+      <link>https://flyfire.github.io/post/2018/04/26/java-proxy/</link>
+      <pubDate>Thu, 26 Apr 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2018/04/26/java-proxy/</guid>
+      <description>Java代理有静态代理和动态代理之分。 静态代理 静态代理类图如下： ProxyObject持有RealObject的引用，在someOperat</description>
+    </item>
+    
+    <item>
+      <title>Okhttp3 Source Analysis</title>
+      <link>https://flyfire.github.io/post/2018/04/23/okhttp3-source-analysis/</link>
+      <pubDate>Mon, 23 Apr 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2018/04/23/okhttp3-source-analysis/</guid>
+      <description>周末在家断点调试了一下okhttp的执行流程，翻看了一下okhttp的源码，对okhttp有了一个大致的了解，在这记录一下。okhttp的精</description>
+    </item>
+    
+    <item>
+      <title>Writing Better Adapters</title>
+      <link>https://flyfire.github.io/post/2016/12/26/writing-better-adapters/</link>
+      <pubDate>Mon, 26 Dec 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2016/12/26/writing-better-adapters/</guid>
+      <description>Implementing adapters is one of the most frequent tasks for an Android developer. It’s the base for every list. Looking at apps, lists are the base of most apps. The schema we follow to implement list views is often the same: a View with an adapter that holds the data. Doing this all the time can make us blind to what we are writing, even to ugly</description>
+    </item>
+    
+    <item>
+      <title>Choreographer in Android</title>
+      <link>https://flyfire.github.io/post/2016/10/10/choreographer-in-android/</link>
+      <pubDate>Mon, 10 Oct 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2016/10/10/choreographer-in-android/</guid>
+      <description>Choreographer is the one which acts like a interface between application view system and lower layer display system for rendering the views.
+ViewRootImpl is the ViewParent or root below which only Activity window DecorView will be attached. All the view layouts set by the activity through setContentView() will attached the DecorView whose parent is ViewRootImpl. Actually ViewRootImpl is not a View its just a ViewParent which handled and manages the View Hierarchies for displaying, handling input events etc.</description>
+    </item>
+    
+    <item>
+      <title>Vsync in Android</title>
+      <link>https://flyfire.github.io/post/2016/10/09/vsync-in-android/</link>
+      <pubDate>Sun, 09 Oct 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2016/10/09/vsync-in-android/</guid>
+      <description>In Android What is VSYNC and its usage? VSYNC is the event posted periodically by the kernal at fixed interval where the input handling, Animation and Window drawing happening synchroniiously at the same VSYNC interval. Below have given the detail explanation about the VSYNC event before VSYNC is introduced and after VSYNC is introduced.
+Before VSYNC is introduced: Before VSYNC is introduced then there was no synchronization happening for Input, animation and draw.</description>
+    </item>
+    
+    <item>
+      <title>Aspect Oriented Programming in Android</title>
+      <link>https://flyfire.github.io/post/2016/09/20/aspect-oriented-programming-in-android/</link>
+      <pubDate>Tue, 20 Sep 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2016/09/20/aspect-oriented-programming-in-android/</guid>
+      <description>Aspect-oriented programming entails breaking down program logic into &amp;ldquo;concerns&amp;rdquo; (cohesive areas of functionality). This means, that with AOP, we can add executable blocks to some source code without explicitly changing it. This programming paradigm pretends that “cross-cutting concerns” (the logic needed at many places, without a single class where to implement them) should be implemented once and injected it many times into those places.
+Code injection becomes a very important part of AOP: it is useful for dealing with the mentioned &amp;ldquo;concerns&amp;rdquo; that cut across the whole application, such as logging or performance monitoring, and, using it in this way, should not be something used rarely as you might think, quite the contrary; every programmer will come into a situation where this ability of injecting code, could prevent a lot of pain and frustration.</description>
+    </item>
+    
+    <item>
+      <title>Make an Android Custom View Publish and Open Source</title>
+      <link>https://flyfire.github.io/post/2016/05/28/make-an-android-custom-view-publish-and-open-source/</link>
+      <pubDate>Sat, 28 May 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2016/05/28/make-an-android-custom-view-publish-and-open-source/</guid>
+      <description>Today I’m going to create an android custom view to implement circular SeekBar like the mockup below, make it as a library, open source at GitHub, and publish it to JCenter. In this post, I will cover several fundamental concepts of android custom view, write a helpful README on GitHub, and how to publish your library.
+Before you start… Try to understand the requirement or design specification, take a look at this widget first, the user can touch the indicator icon through this arc to set the current progress level.</description>
+    </item>
+    
+    <item>
+      <title>Mobile Apps Offline Support</title>
+      <link>https://flyfire.github.io/post/2016/03/14/mobile-apps-offline-support/</link>
+      <pubDate>Mon, 14 Mar 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2016/03/14/mobile-apps-offline-support/</guid>
+      <description>Offline support for mobile applications can be thought of as the ability for the application to react gracefully to the lack of stability of the network connection. The rather new context of mobile devices introduced problems such as presence or absence of a network connection or even high latency and low bandwidth. These problems are rather new and thus not very well known to engineers starting with mobile development. Among</description>
+    </item>
+    
+    <item>
+      <title>The Clean Architecture</title>
+      <link>https://flyfire.github.io/post/2016/03/13/the-clean-architecture/</link>
+      <pubDate>Sun, 13 Mar 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2016/03/13/the-clean-architecture/</guid>
+      <description>Over the last several years we’ve seen a whole range of ideas regarding the architecture of systems. These include: Hexagonal Architecture (a.k.a. Ports and Adapters) by Alistair Cockburn and adopted by Steve Freeman, and Nat Pryce in their wonderful book Growing Object Oriented Software. Onion Architecture by Jeffrey Palermo Screaming Architecture from a blog of mine last year DCI from James Coplien, and Trygve Reenskaug. BCE</description>
+    </item>
+    
+    <item>
+      <title>Android Handler Memory Leaks</title>
+      <link>https://flyfire.github.io/post/2016/02/25/android-handler-memory-leaks/</link>
+      <pubDate>Thu, 25 Feb 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2016/02/25/android-handler-memory-leaks/</guid>
+      <description>Android uses Java as a platform for development. This helps us with many low level issues including memory management, platform type dependencies, and so on. However we still sometimes get crashes with OutOfMemory. So where’s the garbage collector?
+I’m going to focus on one of the cases where big objects in memory can’t be cleared for a lengthy period of time. This case is not ultimately a memory leak - objects will be collected at some point - so we sometimes ignore it.</description>
+    </item>
+    
+    <item>
+      <title>Recyclerview Animation Part Ii</title>
+      <link>https://flyfire.github.io/post/2016/02/12/recyclerview-animation-part-ii/</link>
+      <pubDate>Fri, 12 Feb 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2016/02/12/recyclerview-animation-part-ii/</guid>
+      <description>In the first article, I’ve covered the main idea on how predictive animations run in RecyclerView. There is actually a lot more going on to achieve this simplicity (for the LayoutManager). Here are some important points that you should know about.
+RecyclerView keeps some children attached although they have been removed by the LayoutManager. How does it work? Does it invalidate the contract between the LayoutManager and RecyclerView?
+Yes it does ‘kind of’ violate the contract with LayoutManager, but:</description>
+    </item>
+    
+    <item>
+      <title>Recyclerview Animation Part I</title>
+      <link>https://flyfire.github.io/post/2016/02/11/recyclerview-animation-part-i/</link>
+      <pubDate>Thu, 11 Feb 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2016/02/11/recyclerview-animation-part-i/</guid>
+      <description>ListView is one of the most popular widgets of the Android Framework. It has many features, yet it is fairly complex and hard to modify. As the UX paradigms evolved and phones got faster, its limitations started to overshadow its feature set.
+With Lollipop, the Android team decided to release a new widget that will make writing different collection views much easier with a pluggable architecture. Many different behaviors can be controlled easily by implementing simple contracts to change:</description>
+    </item>
+    
+    <item>
+      <title>Building a Recyclerview Layoutmanager Part Iv</title>
+      <link>https://flyfire.github.io/post/2016/01/15/building-a-recyclerview-layoutmanager-part-iv/</link>
+      <pubDate>Fri, 15 Jan 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2016/01/15/building-a-recyclerview-layoutmanager-part-iv/</guid>
+      <description>While writing what was intended to be the final post of this series, a discussion of predictive animations, I ran into a number of interesting challenges that I thought warranted their own discussion. This series began as an investigation into whether RecyclerView could easily handle a layout structure that could scroll in both the horizontal and vertical axes, and how difficult it would be for the developer to build their own LayoutManager.</description>
+    </item>
+    
+    <item>
+      <title>Building a Recyclerview Layoutmanager Part Iii</title>
+      <link>https://flyfire.github.io/post/2016/01/13/building-a-recyclerview-layoutmanager-part-iii/</link>
+      <pubDate>Wed, 13 Jan 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2016/01/13/building-a-recyclerview-layoutmanager-part-iii/</guid>
+      <description>In the previous post, we discussed adding proper support for data set changes and targeted scrolling. In this installment of the series, we will focus on properly supporting animations in your fancy new LayoutManager.In case you’ve forgotten, the code samples are on GitHub.
+The Problem With Free We talked about notifyDataSetChanged() the last time, but you may have noticed that changing the data in this way doesn’t animate the change**. RecyclerView includes a new API for making animated changes, which requires you to notify the adapter which positions in the adapter have changed, and what the action was:</description>
+    </item>
+    
+    <item>
+      <title>Building a Recyclerview Layoutmanager Part Ii</title>
+      <link>https://flyfire.github.io/post/2016/01/11/building-a-recyclerview-layoutmanager-part-ii/</link>
+      <pubDate>Mon, 11 Jan 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2016/01/11/building-a-recyclerview-layoutmanager-part-ii/</guid>
+      <description>In the last post, we walked through the core functionality necessary for building a RecyclerView LayoutManager. In this post, we are going to add support for a few additional features that the average adapter-based view is expected to have.A reminder that the entire sample application can be found here on GitHub.
+Supporting Item Decorations RecyclerView has a really neat feature in which an RecyclerView.ItemDecoration instance can be supplied to do custom drawing alongside the child view content, as well as provide insets (margins) that will apply to the child views without the need for modifying layout parameters.</description>
+    </item>
+    
+    <item>
+      <title>Building a Recyclerview Layoutmanager Part I</title>
+      <link>https://flyfire.github.io/post/2016/01/10/building-a-recyclerview-layoutmanager-part-i/</link>
+      <pubDate>Sun, 10 Jan 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2016/01/10/building-a-recyclerview-layoutmanager-part-i/</guid>
+      <description>By now, if you’re an Android developer paying any attention, you’ve at least heard of RecyclerView; a new component that will be added to the support library to facilitate custom implementations of high-performance view collections by facilitating view recycling. Others have already done a remarkable job describing the basics of how to use RecyclerView with the built-in pieces already provided, including item animations. So rather than dive into all that again, here are some resources to get you up to speed:</description>
+    </item>
+    
+    <item>
+      <title>A First Glance at Recyclerview</title>
+      <link>https://flyfire.github.io/post/2015/12/10/a-first-glance-at-recyclerview/</link>
+      <pubDate>Thu, 10 Dec 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2015/12/10/a-first-glance-at-recyclerview/</guid>
+      <description>At this year’s Google I/O, Google released a preview to the upcoming Android version. The so called L Developer Preview. This is a very big improvement over previous releases and I really love that Google is doing this. I think we all benefit by this decision. As developers and as consumers alike!
+Part of this preview are two new views: RecyclerView and CardView. This post gives you an introduction to the RecyclerView, it’s many internal classes and interfaces, how they interact and how you can use them.</description>
+    </item>
+    
+    <item>
+      <title>Android Starting Window</title>
+      <link>https://flyfire.github.io/post/2015/11/23/android-starting-window/</link>
+      <pubDate>Mon, 23 Nov 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2015/11/23/android-starting-window/</guid>
+      <description>I will never say it out loud enough: always do overwhelm your users with your mobile apps. One of the most important way to mind-blow your users is to polish what is usually called the first impression. Indeed, the first impression is essential if you want to catch your users&amp;rsquo; attention. Contrary to what most people think, this process doesn’t start at the first launch of your application. It starts way before this when your potential users are looking at your app’s description, screenshots, icons, reviews, etc.</description>
+    </item>
+    
+    <item>
+      <title>Saving Android View State</title>
+      <link>https://flyfire.github.io/post/2015/11/23/saving-android-view-state/</link>
+      <pubDate>Mon, 23 Nov 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2015/11/23/saving-android-view-state/</guid>
+      <description>Today we will talk about saving and restoring View states in Android. I intentionally want to keep our focus on Android Views state just because I found this process just a little bit trickier than saving your Activity or Fragment state. Plus I think I&amp;rsquo;ve seen enough of re-invented wheels (sometimes really ugly ones) throughout the internet.
+Why do we need to save View state? Very good question! I have very strong belief that mobile application should help you solve existing problems, not add new ones.</description>
+    </item>
+    
+    <item>
+      <title>Android Message Handling Mechanism</title>
+      <link>https://flyfire.github.io/post/2015/09/22/android-message-handling-mechanism/</link>
+      <pubDate>Tue, 22 Sep 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2015/09/22/android-message-handling-mechanism/</guid>
+      <description>Android is a message driven, message driven several elements: The message says: Message Message queue: MessageQueue The news cycle, remove the message processing for circulation: Looper Message processing, message loop out messages from the message queue should be carried out after the processing of messages: Handler Usually we use most often is Message and Handler, if you use HandlerThread or similar HandlerThread things may come into contact with Looper, while</description>
+    </item>
+    
+    <item>
+      <title>Android Custom View</title>
+      <link>https://flyfire.github.io/post/2015/05/05/android-custom-view/</link>
+      <pubDate>Tue, 05 May 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2015/05/05/android-custom-view/</guid>
+      <description>Subclass View onMeasure MeasureSpec setMeasureDimension onLayout layout(left, top, right, bottom) onDraw Canvas While viewgroups dont generally draw any content of their own,there are many situations where this could be useful,there are help instances where we can ask viewgroup to do some drawing.The first is inside the method dispatchDraw() after super.dispatchDraw has been called,at this stage,child views have already been drawn and we have an opportunity to do additional drawing on top.</description>
+    </item>
+    
+    <item>
+      <title>Android Best Practices for Background Jobs</title>
+      <link>https://flyfire.github.io/post/2014/10/31/android-best-practices-for-background-jobs/</link>
+      <pubDate>Fri, 31 Oct 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2014/10/31/android-best-practices-for-background-jobs/</guid>
+      <description>Background jobs best practices Running in a background service Loading data in the background Managing the device awake state Best Practices for Background Jobs These classes show you how to run jobs in the background to boost your application’s performance and minimize its drain on the battery. Running in a background service This class describes how to implement</description>
+    </item>
+    
+    <item>
+      <title>Android Multithreading in a Ui Environment</title>
+      <link>https://flyfire.github.io/post/2014/10/31/android-multithreading-in-a-ui-environment/</link>
+      <pubDate>Fri, 31 Oct 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2014/10/31/android-multithreading-in-a-ui-environment/</guid>
+      <description>Why do we need multithreading in Android applications? Let’s say you want to do a very long operation when the user pushes a button.If you are not using another thread, it will look something like this:
+1 2 3 4 5 6 7 8 9 ((Button)findViewById(R.id.Button01)).setOnClickListener( new OnClickListener() { @Override public void onClick(View v) { int result = doLongOperation(); updateUI(result); } }); What will happen?The UI freezes. This is a really bad UI experience.</description>
+    </item>
+    
+    <item>
+      <title>Android Dealing With Asynctask and Screen Orientation</title>
+      <link>https://flyfire.github.io/post/2014/10/26/android-dealing-with-asynctask-and-screen-orientation/</link>
+      <pubDate>Sun, 26 Oct 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2014/10/26/android-dealing-with-asynctask-and-screen-orientation/</guid>
+      <description>A common task in Android is to perform some background activity in another thread, meanwhile displaying a ProgressDialog to the user. Example of these tasks include downloading some data from internet, logging into an application, etc. Implementing an AsyncTask is fairly a simple job, the big challenge is how to handle it properly when an orientation change occurs.
+In this article I will walk though a series of potential solutions to address the screen orientation issues when using an AsyncTask.</description>
+    </item>
+    
+    <item>
+      <title>Android Contentprovider</title>
+      <link>https://flyfire.github.io/post/2014/10/24/android-contentprovider/</link>
+      <pubDate>Fri, 24 Oct 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2014/10/24/android-contentprovider/</guid>
+      <description>Android ContentProvider Content Provider Basics Using Content Providers Writing your own Content Provider Better Performance with ContentProviderOperation Android ContentProvider This is a tutorial covering Android&amp;rsquo;s ContentProvider.
+ContentProvider Basics What are content providers? Content providers are Android’s central mechanism that enables you to access data of other applications – mostly information stored in databases or flat files. As such content providers are one of Android’s central component types to support the modular approach common to Android.</description>
+    </item>
+    
+    <item>
+      <title>Android Loader</title>
+      <link>https://flyfire.github.io/post/2014/10/24/android-loader/</link>
+      <pubDate>Fri, 24 Oct 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2014/10/24/android-loader/</guid>
+      <description>Android Loader Life before Loaders Understanding the LoaderManager Implementing Loaders Android Loader This post gives a brief introduction to Loaders and the LoaderManager. The first section describes how data was loaded prior to the release of Android 3.0, pointing out out some of the flaws of the pre-Honeycomb APIs. The second section defines the purpose of each class and summarizes their powerful ability in asynchronously loading data.
+Life before Loaders Before Android 3.</description>
+    </item>
+    
+    <item>
+      <title>Android Asynctask Pitfalls</title>
+      <link>https://flyfire.github.io/post/2014/10/19/android-asynctask-pitfalls/</link>
+      <pubDate>Sun, 19 Oct 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2014/10/19/android-asynctask-pitfalls/</guid>
+      <description>I originally wrote this article when I was (foolishly) still using AsyncTasks. Nowadays I simply consider it a mistake in all cases. As you&amp;rsquo;ll see from the original article, there are a lot of problems with it - and there are much better solutions.
+My preferred alternative these days are combining RxJava with schedulers. You get the same effect as an AsyncTask with none of the problems, plus you get an awesome framework in addition.</description>
+    </item>
+    
+    <item>
+      <title>Android Tips</title>
+      <link>https://flyfire.github.io/post/2014/10/19/android-tips/</link>
+      <pubDate>Sun, 19 Oct 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2014/10/19/android-tips/</guid>
+      <description>*	[Android Tips and Tricks](#overview) * [Part I](#part1) * [Part II](#part2) * [Part III](#part3) * [Part IV](#part4) * [Part V](#part5) Android Tips and Tricks Part I Activity.startActivities() - Nice for launching to the middle of an app flow.
+TextUtils.isEmpty() - Simple utility I use everywhere.
+Html.fromHtml() - Quick method for formatting Html. It&amp;rsquo;s not particularly fast so I wouldn&amp;rsquo;t use it constantly (e.g., don&amp;rsquo;t use it just to bold part of a string - construct the Spannable manually instead), but it&amp;rsquo;s fine for rendering text obtained from the web.</description>
+    </item>
+    
+    <item>
+      <title>Android Context</title>
+      <link>https://flyfire.github.io/post/2014/10/14/android-context/</link>
+      <pubDate>Tue, 14 Oct 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2014/10/14/android-context/</guid>
+      <description>Context is probably the most used element in Android applications…it may also be the most misused.Context objects are so common, and get passed around so frequently, it can be easy to create a situation you didn’t intend. Loading resources, launching a new Activity, obtaining a system service, getting internal file paths, and creating views all require a Context (and that’s not even getting started on the full list!) to accomplish the task.</description>
+    </item>
+    
+    <item>
+      <title>Android Looper Handler</title>
+      <link>https://flyfire.github.io/post/2014/10/13/android-looper-handler/</link>
+      <pubDate>Mon, 13 Oct 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2014/10/13/android-looper-handler/</guid>
+      <description>What can you do with Loopers and Handlers? Basically, they implement a common concurrency pattern that I call the Pipeline Thread. Here’s how it works: The Pipeline Thread holds a queue of tasks which are just some units of work that can be executed or processed. Other threads can safely push new tasks into the Pipeline Thread’s queue</description>
+    </item>
+    
+    <item>
+      <title>Android Main Thread</title>
+      <link>https://flyfire.github.io/post/2014/10/13/android-main-thread/</link>
+      <pubDate>Mon, 13 Oct 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2014/10/13/android-main-thread/</guid>
+      <description>When facing bugs that were related to how we interact with the main thread, I decided to get a closer look at what the main thread really is.
+1 2 3 4 5 public class BigBang { public static void main(String... args) { // The Java universe starts here. } } All Java programs start with a call to a public static void main() method. This is true for Java Desktop programs, JEE servlet containers, and Android applications.</description>
+    </item>
+    
+    <item>
+      <title>Android Decompile</title>
+      <link>https://flyfire.github.io/post/2014/10/12/android-decompile/</link>
+      <pubDate>Sun, 12 Oct 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2014/10/12/android-decompile/</guid>
+      <description>有时候在Google Play Store看到一些有趣的应用，或者对有些应用的资源图片之类的很感兴趣，这时候就需要用到Android反编译APK的一些</description>
+    </item>
+    
+    <item>
+      <title>Android Guide App Component</title>
+      <link>https://flyfire.github.io/post/2014/09/21/android-guide-app-component/</link>
+      <pubDate>Sun, 21 Sep 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2014/09/21/android-guide-app-component/</guid>
+      <description>TL,DR; Once installed on a device, each Android application lives in its own security sandbox: The Android operating system is a multi-user Linux system in which each application is a different user. By default, the system assigns each application a unique Linux user ID (the ID is used only by the system and is unknown to the application). The system sets permissions for all the files in an application so</description>
+    </item>
+    
+    <item>
+      <title>Zhihu Intent Fileter Schema</title>
+      <link>https://flyfire.github.io/post/2014/09/16/zhihu-intent-fileter-schema/</link>
+      <pubDate>Tue, 16 Sep 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2014/09/16/zhihu-intent-fileter-schema/</guid>
+      <description>之前使用浏览器浏览知乎网站时，网站上会显示打开应用，不同的浏览器点击会有不同的反应(跳转网页或者打开知乎应用)，当时思考了一下具体的实现方式</description>
+    </item>
+    
+    <item>
+      <title>Checking Intent Availability</title>
+      <link>https://flyfire.github.io/post/2014/06/02/checking-intent-availability/</link>
+      <pubDate>Mon, 02 Jun 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2014/06/02/checking-intent-availability/</guid>
+      <description>Intents are probably Android’s most powerful tool. They tie together loosely coupled components and make it possible to start Activities that are not part of your own app. Using intents you can delegate to the Contacts app to select a contact or you can start the browser, share data and so on.
+The receiving apps declare intent filters which describe the intents its component react to. If you know which intent filters the app provides and if the components are publicly available you can start any Activity of any app on the users device.</description>
+    </item>
+    
+    <item>
+      <title>Recent Summary</title>
+      <link>https://flyfire.github.io/post/2013/12/24/recent-summary/</link>
+      <pubDate>Tue, 24 Dec 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2013/12/24/recent-summary/</guid>
+      <description>没有什么比漫无目的的徘徊更让人心烦意乱，消磨意志的了，最近就处于这样一种状态。Android开发基础已经基本上掌握了，但是高级点的技巧依然无</description>
+    </item>
+    
+  </channel>
+</rss>

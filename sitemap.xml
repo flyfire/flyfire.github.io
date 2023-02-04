@@ -1,0 +1,773 @@
+<?xml-stylesheet type="text/xsl" href="https://flyfire.github.io/sitemap.xsl"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+  <url>
+    <loc>https://flyfire.github.io/post/</loc>
+    <lastmod>2023-02-04T21:16:50+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/seven-ways-to-refactor-java-switch-statements/</loc>
+    <lastmod>2023-02-04T21:16:50+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/</loc>
+    <lastmod>2023-02-04T21:16:50+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/jvm/</loc>
+    <lastmod>2022-03-12T18:35:09+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/java-io/</loc>
+    <lastmod>2022-03-12T13:30:48+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/rxjava-learning/</loc>
+    <lastmod>2022-03-09T20:22:23+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/lifecycle/</loc>
+    <lastmod>2022-03-09T14:38:59+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/rxjava/</loc>
+    <lastmod>2022-03-06T13:04:08+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/json/</loc>
+    <lastmod>2022-03-06T12:08:26+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/java-xuliehua/</loc>
+    <lastmod>2022-02-26T19:43:52+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/java-thread-basics/</loc>
+    <lastmod>2022-02-13T12:22:29+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/java-dynamic-proxy/</loc>
+    <lastmod>2022-02-13T10:49:07+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/java-annotations/</loc>
+    <lastmod>2022-02-12T17:37:41+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/java-generics/</loc>
+    <lastmod>2022-02-12T10:31:52+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/categories/</loc>
+    <lastmod>2021-04-05T20:07:32+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/categories/kotlin/</loc>
+    <lastmod>2021-04-05T20:07:32+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/whats-behind-kotlin-open-val/</loc>
+    <lastmod>2021-04-05T20:07:32+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/categories/android/</loc>
+    <lastmod>2021-04-05T20:00:33+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/recyclerview-learning-roadmap/</loc>
+    <lastmod>2021-04-05T20:00:33+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/categories/concurrecy/</loc>
+    <lastmod>2020-10-09T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/categories/java/</loc>
+    <lastmod>2020-10-09T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/understanding-memory-reordering/</loc>
+    <lastmod>2020-10-09T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/categories/life/</loc>
+    <lastmod>2019-10-07T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2019/10/07/que-sera-sera/</loc>
+    <lastmod>2019-10-07T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2019/09/18/android-studio-proxy/</loc>
+    <lastmod>2019-09-18T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/categories/tools/</loc>
+    <lastmod>2019-09-18T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/categories/dev/</loc>
+    <lastmod>2019-08-12T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2019/08/12/singleton-pattern/</loc>
+    <lastmod>2019-08-12T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/categories/concurrency/</loc>
+    <lastmod>2019-08-10T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2019/08/10/lock-free-multithreading-with-atomic-operations/</loc>
+    <lastmod>2019-08-10T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2019/08/09/introduction-to-thread-synchronization/</loc>
+    <lastmod>2019-08-09T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2019/08/07/a-gentle-introduction-to-multithreading/</loc>
+    <lastmod>2019-08-07T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2019/08/04/java-threadpoolexecutor/</loc>
+    <lastmod>2019-08-04T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2019/08/01/java-blockingqueue/</loc>
+    <lastmod>2019-08-01T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2019/07/28/aqs/</loc>
+    <lastmod>2019-07-28T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2019/06/28/futuretask/</loc>
+    <lastmod>2019-06-28T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2019/05/28/thread/</loc>
+    <lastmod>2019-05-28T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2019/04/18/how-kotlin-generate-method-default-arguments/</loc>
+    <lastmod>2019-04-18T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2019/03/12/summary-of-custom-views-part-iii/</loc>
+    <lastmod>2019-03-12T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2019/02/12/summary-of-custom-views-part-ii/</loc>
+    <lastmod>2019-02-12T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2019/01/12/summary-of-custom-views-part-i/</loc>
+    <lastmod>2019-01-12T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2018/09/12/a-few-lately-thoughts/</loc>
+    <lastmod>2018-09-12T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2018/07/10/java-enum-syntactic-sugar/</loc>
+    <lastmod>2018-07-10T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/categories/algorithm/</loc>
+    <lastmod>2018-07-02T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2018/07/02/analysis-of-hashmap/</loc>
+    <lastmod>2018-07-02T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/categories/notes/</loc>
+    <lastmod>2018-07-02T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2018/07/01/datastructure-and-algorithms/</loc>
+    <lastmod>2018-07-01T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2018/06/18/why-java-string-designed-as-final/</loc>
+    <lastmod>2018-06-18T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2018/05/30/recyclerview-smooth-scoll-to-position/</loc>
+    <lastmod>2018-05-30T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2018/04/26/java-proxy/</loc>
+    <lastmod>2018-04-26T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2018/04/23/okhttp3-source-analysis/</loc>
+    <lastmod>2018-04-23T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2017/10/18/develop-jni-program-in-mac/</loc>
+    <lastmod>2017-10-18T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2016/12/26/writing-better-adapters/</loc>
+    <lastmod>2016-12-26T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2016/10/10/choreographer-in-android/</loc>
+    <lastmod>2016-10-10T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2016/10/09/vsync-in-android/</loc>
+    <lastmod>2016-10-09T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2016/09/20/aspect-oriented-programming-in-android/</loc>
+    <lastmod>2016-09-20T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2016/09/17/using-annotations-element-value-pairs-in-aspectj/</loc>
+    <lastmod>2016-09-17T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2016/09/16/defining-pointcuts-by-annotations/</loc>
+    <lastmod>2016-09-16T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2016/09/15/defining-pointcuts-by-pattern/</loc>
+    <lastmod>2016-09-15T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2016/09/14/the-basics-of-aop/</loc>
+    <lastmod>2016-09-14T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2016/09/13/aspectj-dictionary/</loc>
+    <lastmod>2016-09-13T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2016/05/28/make-an-android-custom-view-publish-and-open-source/</loc>
+    <lastmod>2016-05-28T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2016/03/14/mobile-apps-offline-support/</loc>
+    <lastmod>2016-03-14T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2016/03/13/the-clean-architecture/</loc>
+    <lastmod>2016-03-13T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2016/02/25/android-handler-memory-leaks/</loc>
+    <lastmod>2016-02-25T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2016/02/12/recyclerview-animation-part-ii/</loc>
+    <lastmod>2016-02-12T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2016/02/11/recyclerview-animation-part-i/</loc>
+    <lastmod>2016-02-11T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2016/01/15/building-a-recyclerview-layoutmanager-part-iv/</loc>
+    <lastmod>2016-01-15T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2016/01/13/building-a-recyclerview-layoutmanager-part-iii/</loc>
+    <lastmod>2016-01-13T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2016/01/11/building-a-recyclerview-layoutmanager-part-ii/</loc>
+    <lastmod>2016-01-11T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2016/01/10/building-a-recyclerview-layoutmanager-part-i/</loc>
+    <lastmod>2016-01-10T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2015/12/10/a-first-glance-at-recyclerview/</loc>
+    <lastmod>2015-12-10T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2015/11/23/android-starting-window/</loc>
+    <lastmod>2015-11-23T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2015/11/23/saving-android-view-state/</loc>
+    <lastmod>2015-11-23T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2015/09/22/android-message-handling-mechanism/</loc>
+    <lastmod>2015-09-22T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2015/05/05/android-custom-view/</loc>
+    <lastmod>2015-05-05T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2015/05/05/mac-dev-setup/</loc>
+    <lastmod>2015-05-05T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2015/03/22/using-gnu-command-line-tools-on-mac-os-x/</loc>
+    <lastmod>2015-03-22T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2014/10/31/android-best-practices-for-background-jobs/</loc>
+    <lastmod>2014-10-31T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2014/10/31/android-multithreading-in-a-ui-environment/</loc>
+    <lastmod>2014-10-31T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2014/10/26/android-dealing-with-asynctask-and-screen-orientation/</loc>
+    <lastmod>2014-10-26T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2014/10/24/android-contentprovider/</loc>
+    <lastmod>2014-10-24T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2014/10/24/android-loader/</loc>
+    <lastmod>2014-10-24T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2014/10/19/android-asynctask-pitfalls/</loc>
+    <lastmod>2014-10-19T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2014/10/19/android-tips/</loc>
+    <lastmod>2014-10-19T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2014/10/18/oauth-2-dot-0/</loc>
+    <lastmod>2014-10-18T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2014/10/17/java-singleton/</loc>
+    <lastmod>2014-10-17T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2014/10/14/android-context/</loc>
+    <lastmod>2014-10-14T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2014/10/14/java-thread-tutorial/</loc>
+    <lastmod>2014-10-14T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2014/10/13/android-looper-handler/</loc>
+    <lastmod>2014-10-13T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2014/10/13/android-main-thread/</loc>
+    <lastmod>2014-10-13T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2014/10/12/android-decompile/</loc>
+    <lastmod>2014-10-12T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/categories/git/</loc>
+    <lastmod>2014-09-30T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2014/09/30/moving-bitbucket-repo-to-github/</loc>
+    <lastmod>2014-09-30T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2014/09/21/android-guide-app-component/</loc>
+    <lastmod>2014-09-21T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/categories/guides/</loc>
+    <lastmod>2014-09-21T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2014/09/16/zhihu-intent-fileter-schema/</loc>
+    <lastmod>2014-09-16T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2014/09/04/java-class-loaded-and-initialized/</loc>
+    <lastmod>2014-09-04T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2014/09/02/notes-on-git/</loc>
+    <lastmod>2014-09-02T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/categories/c/</loc>
+    <lastmod>2014-09-01T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2014/09/01/what-can-we-learn-from-hello-world/</loc>
+    <lastmod>2014-09-01T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2014/06/02/checking-intent-availability/</loc>
+    <lastmod>2014-06-02T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2014/06/02/ssh-key-config-for-multi-github-accounts/</loc>
+    <lastmod>2014-06-02T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/projects/</loc>
+    <lastmod>2014-04-03T21:37:31+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2013/12/24/recent-summary/</loc>
+    <lastmod>2013-12-24T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2013/11/29/git-basic-config/</loc>
+    <lastmod>2013-11-29T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2013/11/21/install-ubuntu-13-dot-04-on-macbook-pro-2011/</loc>
+    <lastmod>2013-11-21T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/about/</loc>
+    <lastmod>2013-07-27T00:27:31+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/post/2012/07/27/blog-on-github/</loc>
+    <lastmod>2012-07-27T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://flyfire.github.io/tags/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+</urlset>

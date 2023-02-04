@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Zhihu Intent Fileter Schema - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="之前使用浏览器浏览知乎网站时，网站上会显示打开应用，不同的浏览器点击会有不同的反应(跳转网页或者打开知乎应用)，当时思考了一下具体的实现方式" /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/2014/09/16/zhihu-intent-fileter-schema/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Zhihu Intent Fileter Schema" />
+<meta property="og:description" content="之前使用浏览器浏览知乎网站时，网站上会显示打开应用，不同的浏览器点击会有不同的反应(跳转网页或者打开知乎应用)，当时思考了一下具体的实现方式" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/2014/09/16/zhihu-intent-fileter-schema/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2014-09-16T00:00:00+00:00" />
+<meta property="article:modified_time" content="2014-09-16T00:00:00+00:00" />
+<meta itemprop="name" content="Zhihu Intent Fileter Schema">
+<meta itemprop="description" content="之前使用浏览器浏览知乎网站时，网站上会显示打开应用，不同的浏览器点击会有不同的反应(跳转网页或者打开知乎应用)，当时思考了一下具体的实现方式"><meta itemprop="datePublished" content="2014-09-16T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2014-09-16T00:00:00+00:00" />
+<meta itemprop="wordCount" content="3050">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Zhihu Intent Fileter Schema"/>
+<meta name="twitter:description" content="之前使用浏览器浏览知乎网站时，网站上会显示打开应用，不同的浏览器点击会有不同的反应(跳转网页或者打开知乎应用)，当时思考了一下具体的实现方式"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Zhihu Intent Fileter Schema</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2014-09-16 </span>
+        <div class="post-category">
+            <a href="/categories/dev/"> dev </a>
+            <a href="/categories/android/"> android </a>
+            </div>
+          <span class="more-meta"> 约 3050 字 </span>
+          <span class="more-meta"> 预计阅读 7 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#第一招拦截-http-跳转">第一招：拦截 Http 跳转</a></li>
+        <li><a href="#第二招自定义-scheme">第二招：自定义 Scheme</a></li>
+        <li><a href="#第三招chrome-intent">第三招：Chrome Intent</a></li>
+        <li><a href="#必杀技内嵌-http-服务">必杀技：内嵌 Http 服务</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <center><p><img src="/images/zhihu_logo.png" alt="zhihu"></p></center>
+<p>之前使用浏览器浏览知乎网站时，网站上会显示打开应用，不同的浏览器点击会有不同的反应(跳转网页或者打开知乎应用)，当时思考了一下具体的实现方式，觉得可能是知乎网站根据UC或者Chrome浏览器不同的UA显示不同的网页代码，在点击应用的时候会触发超链接，知乎客户端根据特定的Schema来在客户端中打开不同的问题页面，最近在网上浏览到一片文章，作者对这种冲浏览器跳转到客户端应用的实现方式进行了具体的分析，我只想到文章中的前两种方式，后面的Chrome浏览器的Chrome Intent以及后台启动http服务来响应网页链接的方式囿于眼界没有想到，不得不佩服文章作者视野之开阔。文章不错，特分享在此。</p>
+<p>Ref:<a href="http://zhuanlan.zhihu.com/andlib/19848910">#黑科技# 跳出浏览器</a></p>
+<p>当移动浪潮来袭，不论是传统 PC 网站/应用，还是新兴的移动互联网，都一并蜂拥的走进用户的手机。提供一个便于手机浏览的 Web 页面，再造一个功能丰富的移动 App 成了每个产品的标配。提供移动 Web 页面，可以使得用户更易获取产品信息，在微信上、微博中，搜索里点个链接，就可以立刻享用产品功能；而提供移动 App，则可以提供更好的产品体验，使用 native api 能构建更丰富的特色功能，提供更出众的性能表现。</p>
+<p>来想象一下这个场景，当别人发给你一个链接，是知乎问题「豌豆荚的员工工作方式是什么样的？」，你在手机浏览器上慢吞吞的加载好了，答案看得特别激动想点个赞。结果发现，还！要！登！录！我明明已经安装了知乎的 App 好吗！为啥不让我愉快的在知乎 App 上操作呐？</p>
+<p>这就是本 #黑科技# 的主题，有了移动 Web 页面，又提供了移动 App，如何能让两者更完美的结合在一起呢？当用户已经安装了 App 的前提下，访问移动端 Web 页面时，可以无缝的跳转到 App 中对应的位置去？</p>
+<center><p><img src="/images/zhihu_question_wandoulab.jpg" alt="wandoulabs"></p></center>
+<p>依然举上面那个栗子，知乎的同学其实已经有了解决方案，就是「打开应用」那个按钮，如果已经安装了知乎 App，点击后就会从浏览器跳转到应用中了。类似于这样的按钮，背后的技术方案是什么？有哪些局限性？有没有什么一招搞定的必杀技？这就是本文讨论的主要内容。</p>
+<h2 id="第一招拦截-http-跳转">第一招：拦截 Http 跳转</h2>
+<p>在 Android 中，最标准的方式，就是在应用的配置文件 <code>AndroidManifest.xml</code> 中，通过 <code>&lt;activity&gt;</code> 标签里的 <code>&lt;intent-filter&gt;</code> 来声明：“本应用可以更好的处理某些 url 对应的页面，浏览器你交给我吧”。套在例子上，声明形如：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;activity</span> <span class="na">android:name=</span><span class="s">”com.zhihu.android.QuestionActivity”</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;intent-filter&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;action</span> <span class="na">android:name=</span><span class="s">”android.intent.action.VIEW”</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;category</span> <span class="na">android:name=</span><span class="s">”android.intent.category.DEFAULT”</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;category</span> <span class="na">android:name=</span><span class="s">”android.intent.category.BROWSABLE”</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="c">&lt;!-- 关键所在，匹配相应域名和 url 模式 --&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;data</span> <span class="na">android:scheme=</span><span class="s">”http”</span> <span class="na">android:host=</span><span class="s">”www.zhihu.com”</span> 
+</span></span><span class="line"><span class="cl"><span class="na">android:pathPattern=</span><span class="s">”/question/.*”</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;/intent-filter&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/activity&gt;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>做了上述的声明之后，在 Chrome 里访问 豌豆荚的员工工作方式是什么样的？，便可以跳转到知乎 Android 客户端，并打开这个问题的页面。不过这个解决方案有挺多问题，最重要的一个原因是：“兼容性”。</p>
+<p>除了 Chrome，从豌豆荚上的下载量看，最热门的手机浏览器是这些：</p>
+<center><p><img src="/images/mobile_browser_share.jpg" alt="mobile browser"></p></center>
+<p>而以上浏览器，大都不遵守 Android 的协定，不支持通过匹配 url 跳转到更适合的应用中去。臆测其原因，大抵是国内浏览器都不愿将流量导给其他应用吧。</p>
+<h2 id="第二招自定义-scheme">第二招：自定义 Scheme</h2>
+<p>如此，那就另辟蹊径，既然 http 协议的 url 会被很多浏览器拦自行处理掉，那就不用 http 协议而采用自定义的 scheme 试试看。</p>
+<p>将 <code>AndroidManifest.xml</code> 中的声明修改如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;activity</span> <span class="na">android:name=</span><span class="s">”com.zhihu.android.QuestionActivity”</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;intent-filter&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;action</span> <span class="na">android:name=</span><span class="s">”android.intent.action.VIEW”</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;category</span> <span class="na">android:name=</span><span class="s">”android.intent.category.DEFAULT”</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;category</span> <span class="na">android:name=</span><span class="s">”android.intent.category.BROWSABLE”</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="c">&lt;!-- 关键所在，匹配相应的 scheme --&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;data</span> <span class="na">android:scheme=</span><span class="s">”zhihu”</span> <span class="na">android:host=</span><span class="s">”questions”</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;/intent-filter&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/activity&gt;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>把「打开应用」的跳转链接设置为形如 &ldquo;zhihu://questions/…&rdquo; 的 url，点击后就可以匹配跳转到应用对应的 activity 中去。当然，如果简单的使用 <code>&lt;a&gt;</code> 标签来做这件事情，若手机中未安装知乎客户端，点击后就会跳转到一个错误页面（地址是 zhihu://questions/…）。解决方案也简单，使用 <code>&lt;iframe&gt;</code> 即可，详情就不在此赘述。</p>
+<!-- more -->
+<h2 id="第三招chrome-intent">第三招：Chrome Intent</h2>
+<p>自定义的 scheme 可以搞定很多浏览器，但 Chrome 除外。原因是为了更有序的打通浏览器页面和本地应用，Chrome 25 后不再支持自定义的 scheme，而推出了 <a href="https://developer.chrome.com/multidevice/android/intents">Chrome Intent</a>，作为标准协议进行推广，其格式形如：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl">intent:
+</span></span><span class="line"><span class="cl">  //scan/
+</span></span><span class="line"><span class="cl">  #Intent; 
+</span></span><span class="line"><span class="cl">    package=com.google.zxing.client.android; 
+</span></span><span class="line"><span class="cl">    scheme=zxing; 
+</span></span><span class="line"><span class="cl">    end;
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Chrome Intent 首先将 scheme 统一为 ”intent“，大量信息放到了锚点 ”#“ 之后，称作 ”fragment“（此 fragment 非彼 fragment），它描述了由谁来接收这个 uri。fragment 中可以指定打开这个 uri 的包名，或者是 action、extra，等等。使用 Intent.parseUri 函数可以将这样的 uri 直接转成一个 intent 对象，反之调用 Intent.toUri 函数可将 intent 对象序列化如此格式的 uri。</p>
+<p>应用到知乎这个例子里，在 AndroidManifest.xml 中的声明与自定义 scheme 写法完全一致，只是在调用时，需要在跳转链接中写成如下格式：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl">intent:
+</span></span><span class="line"><span class="cl">  //questions/...
+</span></span><span class="line"><span class="cl">  #Intent; 
+</span></span><span class="line"><span class="cl">    package=com.zhihu.android;
+</span></span><span class="line"><span class="cl">    scheme=zhihu; 
+</span></span><span class="line"><span class="cl">    end; 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="必杀技内嵌-http-服务">必杀技：内嵌 Http 服务</h2>
+<p>至此，只要利用 UA 信息，合理使用自定义 scheme 和 Chrome Intent，就可以搞定市面上几乎全部的浏览器，这就完了吗？当然没有！</p>
+<p>随着以微信为代表的社交应用的不断发展，它内嵌的 WebView 已然成为一个轻型浏览器了，坐拥巨大的用户和内容分享量，微信等应用带来的页面访问量是不容忽视的。但这些应用的 WebView 通常是禁止外链的，不论是什么 scheme 在这里一律不好使，这就使得分享到微信的知乎问题，就是再点击「打开应用」都是无效的。</p>
+<p>有办法解决么？当然，是有的，”黑科技“ 粉墨登场的时刻到了。大家都知道，web 页面可以发起 ajax 请求用来与服务器交互，如果这个 ”服务器“ 不在云端，而是在本机呢？没错，解决方案就是在应用中绑定本地端口，启动一个 http 服务，来响应发送过来的请求，打开应用或者是做其他事情。</p>
+<p>如果，知乎应用在后台启动 http 服务，绑定一个端口，比如：12306 吧。那 web 页面可以发送如下的 ajax 请求来实现打开应用：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="line"><span class="cl"><span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">({</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">url</span><span class="o">:</span> <span class="s2">&#34;http://127.0.0.1:12306/open?intent=...&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"> <span class="p">}).</span><span class="nx">done</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// do what you want
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">});</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>当然，要做的足够细致，还需要实现类似于 ”http://127.0.0.1:12306/is_installed“ 这样的 api，如果知乎安装了，返回 200，如果服务未启动或者知乎未安装，自然是会返回 404，由此可以在 web 页面中判断是否安装了知乎应用，进而决定是否要显示「打开应用」的按钮。</p>
+<p>通常，必杀技都是有副作用的，如果需要准确的判断是否安装了知乎，就需要这个 http 服务始终存活，否则就没启动和没安装傻傻分不清楚了。至于如何使得 “一个已安装应用在各种情况下都保持后台运行”，则是另一个充满了黑科技的领域，待日后再聊聊这个话题。</p>
+<p>PS：启动后台 http 服务的代码，在豌豆荚 git 中保持 review 不通过的状态估计都得有一年了，因为豌豆荚 Android 应用 “用户不主动开启相关功能则不允许后台常驻” 的原则相悖。所以如果有天你在微信页面中突然打开了某个 “安全” 应用、“搜索” 应用，千万别觉得神奇，而是在看看本文，琢磨一下那是付出什么换来的。</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2014-09-16
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/2014/09/21/android-guide-app-component/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Android Guide App Component</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/2014/09/04/java-class-loaded-and-initialized/">
+            <span class="next-text nav-default">Java Class Loaded and Initialized</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

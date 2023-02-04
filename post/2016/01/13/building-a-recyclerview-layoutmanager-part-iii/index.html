@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Building a Recyclerview Layoutmanager Part Iii - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="In the previous post, we discussed adding proper support for data set changes and targeted scrolling. In this installment of the series, we will focus on properly supporting animations in your fancy new LayoutManager.In case you’ve forgotten, the code samples are on GitHub.
+The Problem With Free We talked about notifyDataSetChanged() the last time, but you may have noticed that changing the data in this way doesn’t animate the change**. RecyclerView includes a new API for making animated changes, which requires you to notify the adapter which positions in the adapter have changed, and what the action was:" /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/2016/01/13/building-a-recyclerview-layoutmanager-part-iii/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Building a Recyclerview Layoutmanager Part Iii" />
+<meta property="og:description" content="In the previous post, we discussed adding proper support for data set changes and targeted scrolling. In this installment of the series, we will focus on properly supporting animations in your fancy new LayoutManager.In case you’ve forgotten, the code samples are on GitHub.
+The Problem With Free We talked about notifyDataSetChanged() the last time, but you may have noticed that changing the data in this way doesn’t animate the change**. RecyclerView includes a new API for making animated changes, which requires you to notify the adapter which positions in the adapter have changed, and what the action was:" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/2016/01/13/building-a-recyclerview-layoutmanager-part-iii/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2016-01-13T00:00:00+00:00" />
+<meta property="article:modified_time" content="2016-01-13T00:00:00+00:00" />
+<meta itemprop="name" content="Building a Recyclerview Layoutmanager Part Iii">
+<meta itemprop="description" content="In the previous post, we discussed adding proper support for data set changes and targeted scrolling. In this installment of the series, we will focus on properly supporting animations in your fancy new LayoutManager.In case you’ve forgotten, the code samples are on GitHub.
+The Problem With Free We talked about notifyDataSetChanged() the last time, but you may have noticed that changing the data in this way doesn’t animate the change**. RecyclerView includes a new API for making animated changes, which requires you to notify the adapter which positions in the adapter have changed, and what the action was:"><meta itemprop="datePublished" content="2016-01-13T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2016-01-13T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2188">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Building a Recyclerview Layoutmanager Part Iii"/>
+<meta name="twitter:description" content="In the previous post, we discussed adding proper support for data set changes and targeted scrolling. In this installment of the series, we will focus on properly supporting animations in your fancy new LayoutManager.In case you’ve forgotten, the code samples are on GitHub.
+The Problem With Free We talked about notifyDataSetChanged() the last time, but you may have noticed that changing the data in this way doesn’t animate the change**. RecyclerView includes a new API for making animated changes, which requires you to notify the adapter which positions in the adapter have changed, and what the action was:"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Building a Recyclerview Layoutmanager Part Iii</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2016-01-13 </span>
+        <div class="post-category">
+            <a href="/categories/dev/"> dev </a>
+            <a href="/categories/android/"> android </a>
+            </div>
+          <span class="more-meta"> 约 2188 字 </span>
+          <span class="more-meta"> 预计阅读 11 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#the-problem-with-free">The Problem With Free</a></li>
+        <li><a href="#predictive-item-animations">Predictive Item Animations</a></li>
+        <li><a href="#what-should-i-do-during-pre-layout">What Should I Do During Pre-Layout?</a></li>
+        <li><a href="#changes-for-the-real-layout">Changes for the “Real” Layout</a></li>
+        <li><a href="#reacting-to-off-screen-changes">Reacting to Off-Screen Changes</a></li>
+        <li><a href="#more-to-come">More To Come…</a></li>
+        <li><a href="#reference">reference</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>In the previous post, we discussed adding proper support for data set changes and targeted scrolling. In this installment of the series, we will focus on properly supporting animations in your fancy new LayoutManager.In case you’ve forgotten, the code samples are <a href="https://github.com/devunwired/recyclerview-playground">on GitHub</a>.</p>
+<h2 id="the-problem-with-free">The Problem With Free</h2>
+<p>We talked about notifyDataSetChanged() the last time, but you may have noticed that changing the data in this way doesn’t animate the change**. RecyclerView includes a new API for making animated changes, which requires you to notify the adapter which positions in the adapter have changed, and what the action was:</p>
+<ul>
+<li><code>notifyItemInserted()</code> and <code>notifyItemRangeInserted()</code>: Insertion of new item(s) at the given position(s).</li>
+<li><code>notifyItemChanged()</code> and <code>notifyItemRangeChanged()</code>: Invalidate he item(s) at the given position(s), nothing structural has changed in the data set.</li>
+<li><code>notifyItemRemoved()</code> and <code>notifyItemRangeRemoved()</code>: Removal of the item(s) at the given position(s).</li>
+<li><code>notifyItemMoved()</code>: An item has relocated to a new position in the data set.</li>
+</ul>
+<p>By default, your LayoutManager will get “simple item animations” for free when these methods are used. These animations are simply based on whether each current view position is still present in the layout after a change. New views are faded in, removed views are faded out, and other views are moved to their new location. Here’s what our grid layout looks like with the free animations:</p>
+<center><img src="/images/building_recyclerview_layoutmanager_animation.gif" width="380" height="674" /></center>
+<!-- more -->
+<p>The problem here is that several items fade out that weren’t removed. This is because they are no longer visible inside the parent RecyclerView bounds. We would like the views to slide out of view towards where the user would expect them to go, but at this stage the framework only knows that our code didn’t lay them out again after the data set change took place. In addition, new views are fading in as if they were added. It would be better if these views slid into place from their expected locations as well.</p>
+<p>The framework needs our help–we have to add a bit more to the <code>LayoutManager</code>…</p>
+<h2 id="predictive-item-animations">Predictive Item Animations</h2>
+<p>The following animation represents what conceptually ought to happen when an item is removed:</p>
+<center><img src="/images/building_recyclerview_layoutmanager_remove_animation.gif" width="667" height="400"></center>
+<p>As we discussed in the first post of the series, <code>onLayoutChildren()</code> is typically only called once by the parent <code>RecyclerView</code> during the initial layout or when the data set size (i.e. item count) changes. The predictive item animations feature allows us to provide a more meaningful description of how the views should transition based on changes in the data. We need to start by indicating to the framework that our <code>LayoutManager</code> is able to provide this additional data:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">supportsPredictiveItemAnimations</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>With this one change, <code>onLayoutChildren()</code> will now be called twice for each batch of data set changes–first as a “pre-layout” phase, and again for the real layout.</p>
+<h2 id="what-should-i-do-during-pre-layout">What Should I Do During Pre-Layout?</h2>
+<p>During the pre-layout phase of <code>onLayoutChildren()</code>, you should run your layout logic to set up the initial conditions for the change animation. This means that you need to layout all the views that were currently visible before the change AND any additional views that you know will be visible after the animation runs (these are termed APPEARING views). These extra appearing views should be laid out in the off-screen positions where the user would expect them to be coming from. The framework will capture these positions and use them to animate the new views into place instead of doing a simple fade-in.We can check which layout phase we are in via <code>RecyclerView.State.isPreLayout()</code>.</p>
+<p>In the <code>FixedGridLayoutManager</code> example, we use pre-layout to determine how many visible views are being removed as a result of the data set change. Removed views are still returned from the <code>Recycler</code> in pre-layout, so you can lay them out in their original location and not have to worry about accounting for an empty space. To indicate future removal to you, <code>LayoutParams.isViewRemoved()</code> will return true for the given view. Our example counts the number of removed views so we have a rough idea of how much space will get filled by appearing views.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">onLayoutChildren</span><span class="o">(</span><span class="n">RecyclerView</span><span class="o">.</span><span class="na">Recycler</span> <span class="n">recycler</span><span class="o">,</span> <span class="n">RecyclerView</span><span class="o">.</span><span class="na">State</span> <span class="n">state</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="err">…</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">SparseIntArray</span> <span class="n">removedCache</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * During pre-layout, we need to take note of any views that are
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * being removed in order to handle predictive animations
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(</span><span class="n">state</span><span class="o">.</span><span class="na">isPreLayout</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">removedCache</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SparseIntArray</span><span class="o">(</span><span class="n">getChildCount</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">getChildCount</span><span class="o">();</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">final</span> <span class="n">View</span> <span class="n">view</span> <span class="o">=</span> <span class="n">getChildAt</span><span class="o">(</span><span class="n">i</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">LayoutParams</span> <span class="n">lp</span> <span class="o">=</span> <span class="o">(</span><span class="n">LayoutParams</span><span class="o">)</span> <span class="n">view</span><span class="o">.</span><span class="na">getLayoutParams</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">lp</span><span class="o">.</span><span class="na">isItemRemoved</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">//Track these view removals as visible
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="n">removedCache</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">lp</span><span class="o">.</span><span class="na">getViewPosition</span><span class="o">(),</span> <span class="n">REMOVE_VISIBLE</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="err">…</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="err">…</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//Fill the grid for the initial layout of views
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">fillGrid</span><span class="o">(</span><span class="n">DIRECTION_NONE</span><span class="o">,</span> <span class="n">childLeft</span><span class="o">,</span> <span class="n">childTop</span><span class="o">,</span> <span class="n">recycler</span><span class="o">,</span> <span class="n">state</span><span class="o">.</span><span class="na">isPreLayout</span><span class="o">(),</span> <span class="n">removedCache</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="err">…</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>TIP: During pre-layout, <code>RecyclerView</code> attempts to map the adapter positions of your views to their “old” locations (meaning before the data set change). When you ask for a view by position, expect that position to be the initial position of that item view. Beware of trying to transform them yourself between pre-layout and “real” layout.</p>
+<p>The final change in the example comes as a modification to fillGrid() in which we will attempt to lay out “N” additional views (per row) as appearing views, where N is the number of visible views being removed. These views will always be filled in from the right on a removal, so they are computed as the positions following the last visible column:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">private</span> <span class="kt">void</span> <span class="nf">fillGrid</span><span class="o">(</span><span class="kt">int</span> <span class="n">direction</span><span class="o">,</span> <span class="kt">int</span> <span class="n">emptyLeft</span><span class="o">,</span> <span class="kt">int</span> <span class="n">emptyTop</span><span class="o">,</span> <span class="n">RecyclerView</span><span class="o">.</span><span class="na">Recycler</span> <span class="n">recycler</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">boolean</span> <span class="n">preLayout</span><span class="o">,</span> <span class="n">SparseIntArray</span> <span class="n">removedPositions</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="err">…</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">getVisibleChildCount</span><span class="o">();</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">int</span> <span class="n">nextPosition</span> <span class="o">=</span> <span class="n">positionOfIndex</span><span class="o">(</span><span class="n">i</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="err">…</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(</span><span class="n">i</span> <span class="o">%</span> <span class="n">mVisibleColumnCount</span> <span class="o">==</span> <span class="o">(</span><span class="n">mVisibleColumnCount</span> <span class="o">-</span> <span class="mi">1</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">leftOffset</span> <span class="o">=</span> <span class="n">startLeftOffset</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">topOffset</span> <span class="o">+=</span> <span class="n">mDecoratedChildHeight</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="c1">//During pre-layout, on each column end, apply any additional appearing views
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="k">if</span> <span class="o">(</span><span class="n">preLayout</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">layoutAppearingViews</span><span class="o">(</span><span class="n">recycler</span><span class="o">,</span> <span class="n">view</span><span class="o">,</span> <span class="n">nextPosition</span><span class="o">,</span> <span class="n">removedPositions</span><span class="o">.</span><span class="na">size</span><span class="o">(),</span> <span class="err">…</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">leftOffset</span> <span class="o">+=</span> <span class="n">mDecoratedChildWidth</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="err">…</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">private</span> <span class="kt">void</span> <span class="nf">layoutAppearingViews</span><span class="o">(</span><span class="n">RecyclerView</span><span class="o">.</span><span class="na">Recycler</span> <span class="n">recycler</span><span class="o">,</span> <span class="n">View</span> <span class="n">referenceView</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">int</span> <span class="n">referencePosition</span><span class="o">,</span> <span class="kt">int</span> <span class="n">extraCount</span><span class="o">,</span> <span class="kt">int</span> <span class="n">offset</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//Nothing to do...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="o">(</span><span class="n">extraCount</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="o">)</span> <span class="k">return</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">extra</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span> <span class="n">extra</span> <span class="o">&lt;=</span> <span class="n">extraCount</span><span class="o">;</span> <span class="n">extra</span><span class="o">++)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//Grab the next position after the reference
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="kd">final</span> <span class="kt">int</span> <span class="n">extraPosition</span> <span class="o">=</span> <span class="n">referencePosition</span> <span class="o">+</span> <span class="n">extra</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(</span><span class="n">extraPosition</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">extraPosition</span> <span class="o">&gt;=</span> <span class="n">getItemCount</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">//Can&#39;t do anything with this
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="k">continue</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * Obtain additional position views that we expect to appear
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * as part of the animation.
+</span></span></span><span class="line"><span class="cl"><span class="cm">         */</span>
+</span></span><span class="line"><span class="cl">        <span class="n">View</span> <span class="n">appearing</span> <span class="o">=</span> <span class="n">recycler</span><span class="o">.</span><span class="na">getViewForPosition</span><span class="o">(</span><span class="n">extraPosition</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">addView</span><span class="o">(</span><span class="n">appearing</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">//Find layout delta from reference position
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="kd">final</span> <span class="kt">int</span> <span class="n">newRow</span> <span class="o">=</span> <span class="n">getGlobalRowOfPosition</span><span class="o">(</span><span class="n">extraPosition</span> <span class="o">+</span> <span class="n">offset</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">final</span> <span class="kt">int</span> <span class="n">rowDelta</span> <span class="o">=</span> <span class="n">newRow</span> <span class="o">-</span> <span class="n">getGlobalRowOfPosition</span><span class="o">(</span><span class="n">referencePosition</span> <span class="o">+</span> <span class="n">offset</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">final</span> <span class="kt">int</span> <span class="n">newCol</span> <span class="o">=</span> <span class="n">getGlobalColumnOfPosition</span><span class="o">(</span><span class="n">extraPosition</span> <span class="o">+</span> <span class="n">offset</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">final</span> <span class="kt">int</span> <span class="n">colDelta</span> <span class="o">=</span> <span class="n">newCol</span> <span class="o">-</span> <span class="n">getGlobalColumnOfPosition</span><span class="o">(</span><span class="n">referencePosition</span> <span class="o">+</span> <span class="n">offset</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">layoutTempChildView</span><span class="o">(</span><span class="n">appearing</span><span class="o">,</span> <span class="n">rowDelta</span><span class="o">,</span> <span class="n">colDelta</span><span class="o">,</span> <span class="n">referenceView</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Inside the <code>layoutAppearingViews()</code> helper, each additional appearing view is laid out at it’s “global” position (i.e. the row/column position it would occupy in the grid). This location is off-screen, but gives the framework the data it needs to produce a starting point for the animation to slide these views in.</p>
+<h2 id="changes-for-the-real-layout">Changes for the “Real” Layout</h2>
+<p>We’ve already discussed the basics of what to do during your layout in Part 1, but we’ll have to tweak the formula a bit with our animation support added. The one additional step will be to determine if we have any disappearing views. In our example, this is done by running a normal layout pass, and then determining if there are any views left in the Recycler’s scrap heap.NOTE: We can use the scrap heap in this way because our layout logic always calls <code>detachAndScrapAttachedViews()</code> before starting each layout pass. As discussed previously, this is the best practice to adhere to in your layouts.</p>
+<p>Views still in scrap that aren’t considered removed are disappearing views. We need to lay these views out in their off-screen positions so the animation system can slide them out of view (instead of just fading them out).</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">onLayoutChildren</span><span class="o">(</span><span class="n">RecyclerView</span><span class="o">.</span><span class="na">Recycler</span> <span class="n">recycler</span><span class="o">,</span> <span class="n">RecyclerView</span><span class="o">.</span><span class="na">State</span> <span class="n">state</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="err">…</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(!</span><span class="n">state</span><span class="o">.</span><span class="na">isPreLayout</span><span class="o">()</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">recycler</span><span class="o">.</span><span class="na">getScrapList</span><span class="o">().</span><span class="na">isEmpty</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">final</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">RecyclerView</span><span class="o">.</span><span class="na">ViewHolder</span><span class="o">&gt;</span> <span class="n">scrapList</span> <span class="o">=</span> <span class="n">recycler</span><span class="o">.</span><span class="na">getScrapList</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">final</span> <span class="n">HashSet</span><span class="o">&lt;</span><span class="n">View</span><span class="o">&gt;</span> <span class="n">disappearingViews</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashSet</span><span class="o">&lt;</span><span class="n">View</span><span class="o">&gt;(</span><span class="n">scrapList</span><span class="o">.</span><span class="na">size</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="o">(</span><span class="n">RecyclerView</span><span class="o">.</span><span class="na">ViewHolder</span> <span class="n">holder</span> <span class="o">:</span> <span class="n">scrapList</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">final</span> <span class="n">View</span> <span class="n">child</span> <span class="o">=</span> <span class="n">holder</span><span class="o">.</span><span class="na">itemView</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">final</span> <span class="n">LayoutParams</span> <span class="n">lp</span> <span class="o">=</span> <span class="o">(</span><span class="n">LayoutParams</span><span class="o">)</span> <span class="n">child</span><span class="o">.</span><span class="na">getLayoutParams</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(!</span><span class="n">lp</span><span class="o">.</span><span class="na">isItemRemoved</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">disappearingViews</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">child</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="o">(</span><span class="n">View</span> <span class="n">child</span> <span class="o">:</span> <span class="n">disappearingViews</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">layoutDisappearingView</span><span class="o">(</span><span class="n">child</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">private</span> <span class="kt">void</span> <span class="nf">layoutDisappearingView</span><span class="o">(</span><span class="n">View</span> <span class="n">disappearingChild</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * LayoutManager has a special method for attaching views that
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * will only be around long enough to animate.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="n">addDisappearingView</span><span class="o">(</span><span class="n">disappearingChild</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//Adjust each disappearing view to its proper place
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kd">final</span> <span class="n">LayoutParams</span> <span class="n">lp</span> <span class="o">=</span> <span class="o">(</span><span class="n">LayoutParams</span><span class="o">)</span> <span class="n">disappearingChild</span><span class="o">.</span><span class="na">getLayoutParams</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">final</span> <span class="kt">int</span> <span class="n">newRow</span> <span class="o">=</span> <span class="n">getGlobalRowOfPosition</span><span class="o">(</span><span class="n">lp</span><span class="o">.</span><span class="na">getViewPosition</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">final</span> <span class="kt">int</span> <span class="n">rowDelta</span> <span class="o">=</span> <span class="n">newRow</span> <span class="o">-</span> <span class="n">lp</span><span class="o">.</span><span class="na">row</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">final</span> <span class="kt">int</span> <span class="n">newCol</span> <span class="o">=</span> <span class="n">getGlobalColumnOfPosition</span><span class="o">(</span><span class="n">lp</span><span class="o">.</span><span class="na">getViewPosition</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">final</span> <span class="kt">int</span> <span class="n">colDelta</span> <span class="o">=</span> <span class="n">newCol</span> <span class="o">-</span> <span class="n">lp</span><span class="o">.</span><span class="na">column</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">layoutTempChildView</span><span class="o">(</span><span class="n">disappearingChild</span><span class="o">,</span> <span class="n">rowDelta</span><span class="o">,</span> <span class="n">colDelta</span><span class="o">,</span> <span class="n">disappearingChild</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>CAUTION: Laying out views (and, thus, adding them to the container) removes them from the scrap list. Be careful to note the views you need from scrap before you start making changes, or you will end up with concurrent modification issues on the collection.</p>
+<p>Similar to our code for the appearing views, <code>layoutDisappearingView()</code> places each remaining view at it’s “global” position as the final layout location. This gives the framework the information that it needs to slide these views out in the proper direction during the animation.</p>
+<p>The following image should help to visualize the <code>FixedGridLayoutManager</code> example:</p>
+<ul>
+<li>The black box represents the RecyclerView visible bounds.</li>
+<li>Red View: Item removed from the data set.</li>
+<li>Green Views (Appearing views): Not initially present, but laid out off-screen during pre-layout.</li>
+<li>Purple Views (Disappearing views): Initially placed in their original locations during pre-layout, then laid out off-screen during the “real” layout phase.</li>
+</ul>
+<center><img src="/images/building_recyclerview_layoutmanager_simple_animation.gif" width="667" height="400"></center>
+<h2 id="reacting-to-off-screen-changes">Reacting to Off-Screen Changes</h2>
+<p>You may have noticed that our ability to determine a removal change in the last section hinged on the visible views. What if the change occurs outside the visible bounds? Depending on your layout structure, a change like this may still require you to adjust the layout for a better animation experience.</p>
+<p>Luckily, the adapter posts these changes to your <code>LayoutManager</code> as well. You can override <code>onItemsRemoved()</code>, <code>onItemsMoved()</code>, <code>onItemsAdded()</code>, or <code>onItemsChanged()</code> to react to these events even if they occur in a view range that isn’t reflected in the current layout. These methods will give you the position and range of the change.</p>
+<p>When the removed range occurs outside the visible area, <code>onItemRemoved()</code> is called before pre-layout. This allows us to collect data about the change that we may need in order to best support any appearing view changes that might be caused by this event.</p>
+<p>In our example, we collect these removals in the same way as before, but mark them with a different type.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">onItemsRemoved</span><span class="o">(</span><span class="n">RecyclerView</span> <span class="n">recyclerView</span><span class="o">,</span> <span class="kt">int</span> <span class="n">positionStart</span><span class="o">,</span> <span class="kt">int</span> <span class="n">itemCount</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">mFirstChangedPosition</span> <span class="o">=</span> <span class="n">positionStart</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">mChangedPositionCount</span> <span class="o">=</span> <span class="n">itemCount</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">onLayoutChildren</span><span class="o">(</span><span class="n">RecyclerView</span><span class="o">.</span><span class="na">Recycler</span> <span class="n">recycler</span><span class="o">,</span> <span class="n">RecyclerView</span><span class="o">.</span><span class="na">State</span> <span class="n">state</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="err">…</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">SparseIntArray</span> <span class="n">removedCache</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * During pre-layout, we need to take note of any views that are
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * being removed in order to handle predictive animations
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(</span><span class="n">state</span><span class="o">.</span><span class="na">isPreLayout</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="err">…</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">//Track view removals that happened out of bounds (i.e. off-screen)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">if</span> <span class="o">(</span><span class="n">removedCache</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">mChangedPositionCount</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">mFirstChangedPosition</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="o">(</span><span class="n">mFirstChangedPosition</span> <span class="o">+</span> <span class="n">mChangedPositionCount</span><span class="o">);</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">removedCache</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">i</span><span class="o">,</span> <span class="n">REMOVE_INVISIBLE</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="err">…</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//Fill the grid for the initial layout of views
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">fillGrid</span><span class="o">(</span><span class="n">DIRECTION_NONE</span><span class="o">,</span> <span class="n">childLeft</span><span class="o">,</span> <span class="n">childTop</span><span class="o">,</span> <span class="n">recycler</span><span class="o">,</span> <span class="n">state</span><span class="o">.</span><span class="na">isPreLayout</span><span class="o">(),</span> <span class="n">removedCache</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="err">…</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>TIP: This method is sill called when the removed items are visible. In that case, however, it is called after pre-layout. This is why our example still gathers data from the visible removed views when they are present.</p>
+<p>With all this in place, we can run the sample application again. We can see the disappearing items on the left sliding off to rejoin the end of their previous rows. The new appearing items on the right slide properly into place alongside the existing grid. Now, the only view fading out in our new animation is the view that was actually removed!</p>
+<center><img src="/images/building_recyclerview_layoutmanager_predictive_removal_animation.gif" width="379" height="677"></center>
+<h2 id="more-to-come">More To Come…</h2>
+<p>This was supposed to be the end of this series, I swear! However, there were some interesting issues that came up in building the animations that are specific to the <code>FixedGridLayoutManager</code> use case, and not necessarily all custom implementations. So in the next (and final…I promise this time) post, I’ll address what those challenges were.</p>
+<p>The framework will attempt to animate views if your adapter uses stable IDs, which provides enough data to guess which views are removed/added/etc.</p>
+<h2 id="reference">reference</h2>
+<ul>
+<li><a href="http://wiresareobsolete.com/2015/02/recyclerview-layoutmanager-3/">Building a RecyclerView LayoutManager – Part 3</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2016-01-13
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/2016/01/15/building-a-recyclerview-layoutmanager-part-iv/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Building a Recyclerview Layoutmanager Part Iv</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/2016/01/11/building-a-recyclerview-layoutmanager-part-ii/">
+            <span class="next-text nav-default">Building a Recyclerview Layoutmanager Part Ii</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

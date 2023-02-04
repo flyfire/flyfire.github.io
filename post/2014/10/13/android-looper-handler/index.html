@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Android Looper Handler - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="What can you do with Loopers and Handlers? Basically, they implement a common concurrency pattern that I call the Pipeline Thread. Here’s how it works: The Pipeline Thread holds a queue of tasks which are just some units of work that can be executed or processed. Other threads can safely push new tasks into the Pipeline Thread’s queue" /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/2014/10/13/android-looper-handler/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Android Looper Handler" />
+<meta property="og:description" content="What can you do with Loopers and Handlers? Basically, they implement a common concurrency pattern that I call the Pipeline Thread. Here’s how it works: The Pipeline Thread holds a queue of tasks which are just some units of work that can be executed or processed. Other threads can safely push new tasks into the Pipeline Thread’s queue" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/2014/10/13/android-looper-handler/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2014-10-13T00:00:00+00:00" />
+<meta property="article:modified_time" content="2014-10-13T00:00:00+00:00" />
+<meta itemprop="name" content="Android Looper Handler">
+<meta itemprop="description" content="What can you do with Loopers and Handlers? Basically, they implement a common concurrency pattern that I call the Pipeline Thread. Here’s how it works: The Pipeline Thread holds a queue of tasks which are just some units of work that can be executed or processed. Other threads can safely push new tasks into the Pipeline Thread’s queue"><meta itemprop="datePublished" content="2014-10-13T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2014-10-13T00:00:00+00:00" />
+<meta itemprop="wordCount" content="3730">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Android Looper Handler"/>
+<meta name="twitter:description" content="What can you do with Loopers and Handlers? Basically, they implement a common concurrency pattern that I call the Pipeline Thread. Here’s how it works: The Pipeline Thread holds a queue of tasks which are just some units of work that can be executed or processed. Other threads can safely push new tasks into the Pipeline Thread’s queue"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Android Looper Handler</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2014-10-13 </span>
+        <div class="post-category">
+            <a href="/categories/dev/"> dev </a>
+            <a href="/categories/android/"> android </a>
+            </div>
+          <span class="more-meta"> 约 3730 字 </span>
+          <span class="more-meta"> 预计阅读 8 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>What can you do with <code>Loopers</code> and <code>Handlers</code>? Basically, they implement a common concurrency pattern that I call the <code>Pipeline Thread</code>. Here’s how it works:</p>
+<ul>
+<li>The Pipeline Thread holds a queue of tasks which are just some units of work that can be executed or processed.</li>
+<li>Other threads can safely push new tasks into the Pipeline Thread’s queue at any time.</li>
+<li>The Pipeline Thread processes the queued tasks one after another. If there are no tasks queued, it blocks until a task appears in the queue.</li>
+<li>Sometimes tasks can called messages and other names.</li>
+</ul>
+<!-- more -->
+<p>我们能用<code>Loopers</code>和<code>Handlers</code>来干什么？这两个类实现了一种通用的并发模型，我把它叫做：Pipeline 线程。它是这样工作的：</p>
+<ul>
+<li>Pipeline 线程持有一个任务队列，这些任务就是一些可以执行的工作单元</li>
+<li>其他线程可以自由的将任务加到Pipeline线程的任务队列中去</li>
+<li>Pipeline线程就按次序一个一个执行任务，如果任务队列中没有任务了，它就会自动阻塞直到有任务到来</li>
+<li>有些时候，任务可以叫做消息（messages）或者其他名字</li>
+</ul>
+<p><code>Looper</code> is a class that turns a thread into a <code>Pipeline Thread</code> and <code>Handler</code> gives you a mechanism to push tasks into it from any other threads.The <code>Looper</code> is named so because it implements the loop – takes the next task, executes it, then takes the next one and so on. The <code>Handler</code> is called a handler because someone could not invent a better name.</p>
+<p>Looper类可以将一个线程转换成Pipeline线程，而Handler提供了一种机制，你可以通过它将任务添加到Pipeline线程中。Looper之所以这么命名是因为它实现了循环——取一个task执行，然后再取下一个task执行，如此循环；Handler如此命名是因为他们无法想出一个更好的名字了~</p>
+<p>Here’s what you should put into a Thread&rsquo;s <code>run()</code> method to turn it into a Pipeline Thread and to create a <code>Handler</code> so that other threads can assign tasks to it:</p>
+<p>下面就是你需要添加到Thread类的run方法中的代码来创建一个你自己的Pipeline线程，并创建一个<code>Handler</code>以便其他线程可以将任务分发到此Pipeline线程中。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// preparing a looper on current thread
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// the current thread is being detected implicitly
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">Looper</span><span class="o">.</span><span class="na">prepare</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl">    <span class="c1">// now, the handler will automatically bind to the
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// Looper that is attached to the current thread
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// You don&#39;t need to specify the Looper explicitly
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">handler</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Handler</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">     
+</span></span><span class="line"><span class="cl">    <span class="c1">// After the following line the thread will start
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// running the message loop and will not normally
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// exit the loop unless a problem happens or you
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// quit() the looper (see below)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">Looper</span><span class="o">.</span><span class="na">loop</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Throwable</span> <span class="n">t</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Log</span><span class="o">.</span><span class="na">e</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&#34;halted due to an error&#34;</span><span class="o">,</span> <span class="n">t</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span> 
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>After that, you can just pass the handler to any other thread. It has a thread-safe interface that includes many operations, but the most straightforward ones are <code>postMessage()</code> and its relatives.</p>
+<p>然后，你只要将这个handler对象传到其他任何线程中去，它有一个线程安全的接口，包括了很多操作，但是最主要的操作就是postMessage()以及相关的方法了。</p>
+<p>For example, imagine another thread has a reference to the handler that was created in our Pipeline Thread. Here’s how that other thread can schedule an operation to be executed in the Pipeline Thread:</p>
+<p>想象一下，一个线程A持有了handler对象的引用，此handler是在Pipeline线程中创建的，下面代码就可以让这个线程A在Pipeline线程中执行操作了：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">handler</span><span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="k">new</span> <span class="n">Runnable</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// this will be done in the Pipeline Thread
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">});</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>By the way, the UI thread has a <code>Looper</code> created for it implicitly, so you can just create a <code>Handler</code> in activity&rsquo;s <code>onCreate()</code> and it will work fine:</p>
+<p>UI线程拥有一个Looper（可以通过<code>Looper.getMainLooper()</code>方法获取，判断一个线程是否为主线程可以使用<code>Looper.getLooper() == Looper.getMainLooper()</code>来判断）。所以，你可以在<code>Activity</code>的<code>onCreate()</code>方法中直接新建一个handler对象：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">(</span><span class="n">savedInstanceState</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">setContentView</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">main</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">     
+</span></span><span class="line"><span class="cl">    <span class="c1">// Create the Handler. It will implicitly bind to the Looper
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// that is internally created for this thread (since it is the UI thread)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">handler</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Handler</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>什么时候使用多线程:</p>
+<ul>
+<li>耗时操作使用多线程, 耗时操作放在UI线程中会导致用户的操作无法得到响应.</li>
+<li>阻塞操作使用多线程, 理由同上.</li>
+<li>多核CPU的设备使用多线程, 可以有效提高CPU的利用率.</li>
+<li>并行操作使用多线程.</li>
+</ul>
+<p>android中的多线程模型主要涉及的类有:Looper, Handler, MessageQueue, Message等.</p>
+<p>Looper类用来创建消息队列. 每个线程最多只能有一个消息队列, android中UI线程默认具有消息队列, 但非UI线程在默认情况下是不具备消息队列的. 如果需要在非UI线程中开启消息队列, 需要调用<code>Looper.prepare()</code>方法, 在该方法的执行过程中会创建一个<code>Looper</code>对象, 而<code>Looper</code>的构造函数中会创建一个<code>MessageQueue</code> instance(Looper的构造函数是私有的, 在Looper类之外无法创建其对象).  此后再为该线程绑定一个Handler instance, 然后调用Looper.loop()方法, 就可以不断的从消息队列中取出消息和处理消息了. <code>Looper.myLooper()</code>方法可以得到线程的Looper对象, 如果为null, 说明此时该线程尚未开启消息队列.</p>
+<p>Handler类用于处理消息. 该类具有四个构造函数:</p>
+<ul>
+<li><code>public Handler()</code>. 创建好的<code>Handler</code> instance将绑定在代码所在的线程的消息队列上, 因此一定要确定该线程开启了消息队列, 否则程序将发生错误. 使用这个构造函数创建<code>Handler</code> instance, 一般来说, 我们需要重写<code>Hanler</code>类的<code>handleMessage()</code>方法, 以便在之后的消息处理时调用.</li>
+<li><code>public Handler(Callback callback)</code>. <code>Callback</code>是<code>Handler</code>内部定义的一个接口, 因此想要使用这个构造函数创建<code>Handler</code>对象, 需要自定义一个类实现<code>Callback</code>接口, 并重写接口中定义的<code>handleMessage()</code>方法. 这个构造函数其实与无参的构造函数类似, 也要确保代码所在的线程开启了消息队列. 不同的是在之后处理消息时, 将调用<code>callback</code>的<code>handleMessage()</code>方法, 而不是<code>Handler</code>对象的<code>handleMssage()</code>方法.</li>
+<li><code>public Handler(Looper looper)</code>. 这个构造函数表示创建一个<code>Handler</code> instance, 并将其绑定在looper所在的线程上. 此时looper不能为null. 此时一般也需要重写<code>Hanler</code>类的<code>handleMessage()</code>方法</li>
+<li><code>public Handler(Looper looper, Callback callback)</code>. 可以结合2和3理解.</li>
+</ul>
+<p><code>MessageQueue</code>类用于表示消息队列. 队列中的每一个Message都有一个when字段, 这个字段用来决定Message应该何时出对处理. 消息队列中的每一个Message根据when字段的大小由小到大排列, 排在最前面的消息会首先得到处理, 因此可以说消息队列并不是一个严格的先进先出的队列.</p>
+<p><code>Message</code>类用于表示消息. <code>Message</code>对象可以通过arg1, arg2, obj字段和<code>setData()</code>携带数据, 此外还具有很多字段. when字段决定Message应该何时处理, target字段用来表示将由哪个Handler对象处理这个消息, next字段表示在消息队列中排在这个Message之后的下一个Message, callback字段如果不为null表示这个Message包装了一个runnable对象, what字段表示code, 即这个消息具体是什么类型的消息. 每个what都在其handler的namespace中, 我们只需要确保将由同一个handler处理的消息的what属性不重复就可以.</p>
+<p>将消息压入消息队列: <code>Message</code>对象的<code>target</code>字段关联了哪个线程的消息队列, 这个消息就会被压入哪个线程的消息队列中.</p>
+<ul>
+<li>调用<code>Handler</code>类中以<code>send</code>开头的方法可以将<code>Message</code>对象压入消息队列中, 调用Handler类中以post开头的方法可以将一个runnable对象包装在一个Message对象中, 然后再压入消息队列, 此时入队的Message其callback字段不为null, 值就是这个runnable对象. 调用<code>Handler</code>对象的这些方法入队的<code>Message</code>, 其target属性会被赋值为这个handler对象.</li>
+<li>调用<code>Message</code>对象的<code>sendToTarget()</code>方法可以将其本身压入与其target字段(即handler对象)所关联的消息队列中.</li>
+</ul>
+<p>将未来得及处理的消息从消息队列中删除:调用Handler对象中以remove开头的方法就可以.</p>
+<p>从消息队列中取出消息并处理消息: 所有在消息队列中的消息, 都具有target字段. 消息是在target所关联的线程上被取出和处理的.</p>
+<ul>
+<li>如果取出的<code>Message</code>对象的callback字段不为null, 那么就调用<code>callback</code>字段的<code>run()</code>方法(callback字段的类型是runnable). 注意此时并不开启一个新的线程运行run()方法, 而是直接在handler对象(即<code>Message</code>的target字段)所关联的线程上运行.</li>
+<li>如果取出的Message对象的callback字段为null, 且<code>Handler</code>对象中的callback字段也为null, 那么这个消息将由<code>Handler</code>对象的<code>handleMessage(msg)</code>方法处理. 注意Message对象的callback字段是Runnable类型的而Handler对象的callback字段是Callback类型的, Handler对象的callback字段是在创建Handler instance的时候指定的, 如果没有指定则这个字段为null, 详见Handler类的四个构造方法.</li>
+<li>如果取出的<code>Message</code>对象的callback字段为null, 且Handler对象中的callback字段不为null, 那么这个消息将由<code>Handler</code>对象中的callback字段的handleMessage方法处理.</li>
+</ul>
+<p>线程间通信: 有了以上的叙述, 线程间的通信也就好理解了. 假如一个handler关联了A线程上的消息队列, 那么我们可以在B线程上调用handler的相关方法向A线程上的消息队列压入一个Message, 这个Message将在A线程上得到处理.</p>
+<p>REF:<a href="http://mindtherobot.com/blog/159/android-guts-intro-to-loopers-and-handlers/">Android Guts: Intro to Loopers and Handlers</a></p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2014-10-13
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/2014/10/14/java-thread-tutorial/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Java Thread Tutorial</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/2014/10/13/android-main-thread/">
+            <span class="next-text nav-default">Android Main Thread</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

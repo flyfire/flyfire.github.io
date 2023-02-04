@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>c on Solarex&#39;s Blog</title>
+    <link>https://flyfire.github.io/categories/c/</link>
+    <description>Recent content in c on Solarex&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Mon, 01 Sep 2014 00:00:00 +0000</lastBuildDate><atom:link href="https://flyfire.github.io/categories/c/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>What Can We Learn From Hello World</title>
+      <link>https://flyfire.github.io/post/2014/09/01/what-can-we-learn-from-hello-world/</link>
+      <pubDate>Mon, 01 Sep 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2014/09/01/what-can-we-learn-from-hello-world/</guid>
+      <description>C version C版本的hello,world深入详解之前上学的时候在SlideShare上看到过，记得当时大呼过瘾，许多C深入理解的知识基本上都被罗列</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Singleton Pattern - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="本文主要讲解单例模式的各种实现，以及对反射和反序列化攻击的防御。 单例模式的实现主要注意以下几点： 私有构造器 线程安全 延迟加载 序列化和反序列化安" /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/2019/08/12/singleton-pattern/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Singleton Pattern" />
+<meta property="og:description" content="本文主要讲解单例模式的各种实现，以及对反射和反序列化攻击的防御。 单例模式的实现主要注意以下几点： 私有构造器 线程安全 延迟加载 序列化和反序列化安" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/2019/08/12/singleton-pattern/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2019-08-12T00:00:00+00:00" />
+<meta property="article:modified_time" content="2019-08-12T00:00:00+00:00" />
+<meta itemprop="name" content="Singleton Pattern">
+<meta itemprop="description" content="本文主要讲解单例模式的各种实现，以及对反射和反序列化攻击的防御。 单例模式的实现主要注意以下几点： 私有构造器 线程安全 延迟加载 序列化和反序列化安"><meta itemprop="datePublished" content="2019-08-12T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2019-08-12T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1745">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Singleton Pattern"/>
+<meta name="twitter:description" content="本文主要讲解单例模式的各种实现，以及对反射和反序列化攻击的防御。 单例模式的实现主要注意以下几点： 私有构造器 线程安全 延迟加载 序列化和反序列化安"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Singleton Pattern</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2019-08-12 </span>
+        <div class="post-category">
+            <a href="/categories/dev/"> dev </a>
+            <a href="/categories/java/"> java </a>
+            </div>
+          <span class="more-meta"> 约 1745 字 </span>
+          <span class="more-meta"> 预计阅读 4 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#饿汉式">饿汉式</a></li>
+            <li><a href="#懒汉式">懒汉式</a></li>
+            <li><a href="#双重检查锁">双重检查锁</a></li>
+            <li><a href="#静态内部类">静态内部类</a></li>
+            <li><a href="#enum实现单例">Enum实现单例</a></li>
+            <li><a href="#kotlin简单单例">Kotlin简单单例</a></li>
+            <li><a href="#kotlin带参数的单例">Kotlin带参数的单例</a></li>
+            <li><a href="#reference">reference</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>本文主要讲解单例模式的各种实现，以及对反射和反序列化攻击的防御。</p>
+<!-- more -->
+<p>单例模式的实现主要注意以下几点：</p>
+<ul>
+<li>私有构造器</li>
+<li>线程安全</li>
+<li>延迟加载</li>
+<li>序列化和反序列化安全</li>
+<li>反射攻击</li>
+</ul>
+<p>下面依次看各种实现：</p>
+<h3 id="饿汉式">饿汉式</h3>
+<p>饿汉式顾名思义就是在类加载的时候直接实例化单例。由于是在类加载的时候进行，所以可能拖慢启动速度，而且由于是static变量，生命周期比较长，比较占用内存，特别是如果实例化了而又没有用到的话就白白浪费了内存。</p>
+<h4 id="对反序列化的防御">对反序列化的防御</h4>
+<p><code>ObjectInputStream</code>的<code>readObject</code>方法时会判断如果一个类实现了<code>Serializable</code>接口并且定义了<code>readResolve</code>方法的话会调用<code>readResolve</code>方法来进行反序列化，因此可以在<code>readResolve</code>方法里面进行处理。</p>
+<h4 id="对反射的防御">对反射的防御</h4>
+<p>由于实例在类加载的时候已经实例化，因此可以在构造函数中对实例进行判断，如果不为<code>null</code>直接抛出<code>RuntimeException</code>来阻止反射创建实例。</p>
+<p>具体代码可见<a href="https://github.com/flyfire/DesignPatternsLearning/blob/master/src/main/java/com/solarexsoft/designpatterns/pattern/creational/singleton/HungrySingleton.java">HungrySingleton.java</a></p>
+<h3 id="懒汉式">懒汉式</h3>
+<p>顾名思义就是在用到的时候再进行实例化，同时使用static synchronized方法来保证线程安全。但是这种实现方式每次进<code>getInstance</code>方法都要获取锁，实际上只有实例化的时候需要获取锁，其他时候直接返回就好了，对这种方案的优化就是下面的双重检查锁方案，现在我们暂时先看这种方案。</p>
+<h4 id="对反序列化的防御-1">对反序列化的防御</h4>
+<p>同样，在<code>readResolve</code>方法中进行处理。</p>
+<h4 id="对反射的防御-1">对反射的防御</h4>
+<p>由于实例只有在调用<code>getInstance</code>方法之后才进行实例化，因此无法进行防御。</p>
+<p>具体代码见<a href="https://github.com/flyfire/DesignPatternsLearning/blob/master/src/main/java/com/solarexsoft/designpatterns/pattern/creational/singleton/LazySingleton.java">LazySingleton.java</a></p>
+<h3 id="双重检查锁">双重检查锁</h3>
+<p>如上所说，双重检查锁是为了解决加锁过重问题而产生的方案。这种方案有个问题，就是调用new来实例化一个对象并不是原子操作，其中初始化对象这步和将实例指向分配的内存地址这步可能会重排序，在某种情况下，可能出现其他线程使用一个未完全初始化的对象的问题。解决这个问题有两种方案，一是禁止重排序，通过在变量时加上volatile修饰符来解决，二是允许重排序，但是这种重排序不能对外界线程可见。双重检查锁使用的是volatile修饰变量来解决这种问题，使用第二种方案来解决问题的方式是我们下面要讲的静态内部类方式。</p>
+<h4 id="对反序列化的防御-2">对反序列化的防御</h4>
+<p>同样，在<code>readResolve</code>方法中进行处理。</p>
+<h4 id="对反射的防御-2">对反射的防御</h4>
+<p>和懒汉式一样，无法防御。</p>
+<p>具体代码见<a href="https://github.com/flyfire/DesignPatternsLearning/blob/master/src/main/java/com/solarexsoft/designpatterns/pattern/creational/singleton/LazyDoubleCheckSingleton.java">LazyDoubleCheckSingleton.java</a></p>
+<h3 id="静态内部类">静态内部类</h3>
+<p>这种方式被推荐是因为使用了Class对象的初始化锁来保证指令重排序对外界线程不可见，实现方式很优雅。</p>
+<h4 id="对反序列化的防御-3">对反序列化的防御</h4>
+<p>在<code>readResolve</code>方法中处理即可。</p>
+<h4 id="对反射的防御-3">对反射的防御</h4>
+<p>和饿汉式一样，也是在类加载时初始化实例，因此可以在构造函数中进行判断并抛出异常。</p>
+<p>具体代码见<a href="https://github.com/flyfire/DesignPatternsLearning/blob/master/src/main/java/com/solarexsoft/designpatterns/pattern/creational/singleton/StaticInnerClassSingleton.java">StaticInnerClassSingleton.java</a></p>
+<h3 id="enum实现单例">Enum实现单例</h3>
+<p>EffectiveJava中告诉我们可以使用Enum来实现单例，并且这种方式实现的单例天然具有防御反序列化和反射攻击的优势。下面我们看他是如何实现的。</p>
+<h4 id="对反序列化的防御-4">对反序列化的防御</h4>
+<p><code>ObjectInputStream</code>方法中<code>readEnum</code>直接调用了<code>Enum.valueOf</code>方法来进行Enum的反序列化，因此得到的是同样的实例。</p>
+<h4 id="对反射的防御-4">对反射的防御</h4>
+<p><code>Constructor</code>的<code>newInstance</code>方法会对要反射类的<code>modifiers</code>进行判断，如果是<code>Enum</code>会直接抛出<code>IllegalArgumentException</code>异常。</p>
+<p>具体代码见<a href="https://github.com/flyfire/DesignPatternsLearning/blob/master/src/main/java/com/solarexsoft/designpatterns/pattern/creational/singleton/EnumSingleton.java">EnumSingleton.java</a></p>
+<p>从<a href="https://github.com/flyfire/DesignPatternsLearning/blob/master/src/main/java/com/solarexsoft/designpatterns/pattern/creational/singleton/EnumSingleton.jad">反编译后的代码</a>来看，Enum实现单例和饿汉式类似，都是在类加载静态初始化时初始化了实例对象。</p>
+<h3 id="kotlin简单单例">Kotlin简单单例</h3>
+<p>kotlin实现单例很简单，声明为<code>object</code>即可。具体代码可见<a href="https://github.com/flyfire/DesignPatternsLearning/blob/master/src/main/java/com/solarexsoft/designpatterns/pattern/creational/singleton/KotlinSimpleSingleton.kt">KotlinSimpleSingleton.kt</a>。反编译代码可以看到，实际实现方式和饿汉式类似。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Solarex</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Solarex</span> <span class="n">INSTANCE</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">static</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">Solarex</span> <span class="n">var0</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Solarex</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="n">INSTANCE</span> <span class="o">=</span> <span class="n">var0</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="kotlin带参数的单例">Kotlin带参数的单例</h3>
+<p>一般构造单例对象的时候需要注入一些对象参数，参考<a href="https://medium.com/@BladeCoder/kotlin-singletons-with-argument-194ef06edd9e">这篇文章</a>实现了一下带参数的kotlin单例。具体代码可见<a href="https://github.com/flyfire/DesignPatternsLearning/blob/master/src/main/java/com/solarexsoft/designpatterns/pattern/creational/singleton/KotlinSingletonWithArguments.kt">KotlinSingletonWithArguments.kt</a>。其实实现仍是双重检查+volatile。</p>
+<h3 id="reference">reference</h3>
+<ul>
+<li>
+<p><a href="https://github.com/flyfire/DesignPatternsLearning/tree/master/src/main/java/com/solarexsoft/designpatterns/pattern/creational/singleton">Singleton</a></p>
+</li>
+<li>
+<p><a href="https://medium.com/@BladeCoder/kotlin-singletons-with-argument-194ef06edd9e">Kotlin singletons with argument</a></p>
+</li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2019-08-12
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/2019/09/18/android-studio-proxy/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Android Studio Proxy</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/2019/08/10/lock-free-multithreading-with-atomic-operations/">
+            <span class="next-text nav-default">Lock Free Multithreading With Atomic Operations</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

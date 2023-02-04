@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>guides on Solarex&#39;s Blog</title>
+    <link>https://flyfire.github.io/categories/guides/</link>
+    <description>Recent content in guides on Solarex&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Sun, 21 Sep 2014 00:00:00 +0000</lastBuildDate><atom:link href="https://flyfire.github.io/categories/guides/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Android Guide App Component</title>
+      <link>https://flyfire.github.io/post/2014/09/21/android-guide-app-component/</link>
+      <pubDate>Sun, 21 Sep 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/2014/09/21/android-guide-app-component/</guid>
+      <description>TL,DR; Once installed on a device, each Android application lives in its own security sandbox: The Android operating system is a multi-user Linux system in which each application is a different user. By default, the system assigns each application a unique Linux user ID (the ID is used only by the system and is unknown to the application). The system sets permissions for all the files in an application so</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Mac Dev Setup - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="System preferences In Apple Icon &amp;gt; System Preferences: Trackpad &amp;gt; Tap to click Keyboard &amp;gt; Key Repeat &amp;gt; Fast (all the way to the right) Keyboard &amp;gt; Delay Until Repeat &amp;gt; Short (all the way to the right) Dock &amp;gt; Automatically hide and show the Dock Homebrew install command line tools xcode-select --install,xcode-select -p /Library/Developer/CommandLineTools to check if command line tools is installed install homebrew ruby -e &amp;quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)&amp;quot;" /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/2015/05/05/mac-dev-setup/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Mac Dev Setup" />
+<meta property="og:description" content="System preferences In Apple Icon &gt; System Preferences: Trackpad &gt; Tap to click Keyboard &gt; Key Repeat &gt; Fast (all the way to the right) Keyboard &gt; Delay Until Repeat &gt; Short (all the way to the right) Dock &gt; Automatically hide and show the Dock Homebrew install command line tools xcode-select --install,xcode-select -p /Library/Developer/CommandLineTools to check if command line tools is installed install homebrew ruby -e &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)&quot;" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/2015/05/05/mac-dev-setup/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2015-05-05T00:00:00+00:00" />
+<meta property="article:modified_time" content="2015-05-05T00:00:00+00:00" />
+<meta itemprop="name" content="Mac Dev Setup">
+<meta itemprop="description" content="System preferences In Apple Icon &gt; System Preferences: Trackpad &gt; Tap to click Keyboard &gt; Key Repeat &gt; Fast (all the way to the right) Keyboard &gt; Delay Until Repeat &gt; Short (all the way to the right) Dock &gt; Automatically hide and show the Dock Homebrew install command line tools xcode-select --install,xcode-select -p /Library/Developer/CommandLineTools to check if command line tools is installed install homebrew ruby -e &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)&quot;"><meta itemprop="datePublished" content="2015-05-05T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2015-05-05T00:00:00+00:00" />
+<meta itemprop="wordCount" content="653">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Mac Dev Setup"/>
+<meta name="twitter:description" content="System preferences In Apple Icon &gt; System Preferences: Trackpad &gt; Tap to click Keyboard &gt; Key Repeat &gt; Fast (all the way to the right) Keyboard &gt; Delay Until Repeat &gt; Short (all the way to the right) Dock &gt; Automatically hide and show the Dock Homebrew install command line tools xcode-select --install,xcode-select -p /Library/Developer/CommandLineTools to check if command line tools is installed install homebrew ruby -e &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)&quot;"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Mac Dev Setup</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2015-05-05 </span>
+        <div class="post-category">
+            <a href="/categories/dev/"> dev </a>
+            <a href="/categories/tools/"> tools </a>
+            </div>
+          <span class="more-meta"> 约 653 字 </span>
+          <span class="more-meta"> 预计阅读 2 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p><center><img src="/images/apple_mac_logo.jpg" width=225 height=225/></center></p>
+<h2 id="system-preferences">System preferences</h2>
+<p>In Apple Icon &gt; System Preferences:</p>
+<ul>
+<li>Trackpad &gt; Tap to click</li>
+<li>Keyboard &gt; Key Repeat &gt; Fast (all the way to the right)</li>
+<li>Keyboard &gt; Delay Until Repeat &gt; Short (all the way to the right)</li>
+<li>Dock &gt; Automatically hide and show the Dock</li>
+</ul>
+<!-- more -->
+<h2 id="homebrew">Homebrew</h2>
+<ul>
+<li>
+<p>install command line tools <code>xcode-select --install</code>,<code>xcode-select -p /Library/Developer/CommandLineTools</code> to check if command line tools is installed</p>
+</li>
+<li>
+<p>install homebrew <code>ruby -e &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)&quot;</code> from <a href="http://brew.sh/">brew.sh</a></p>
+</li>
+<li>
+<p><code>brew doctor</code>,<code>brew update</code>,<code>brew list</code>,<code>brew search wget</code>,<code>brew install wget</code>,<code>brew outdated</code>,<code>brew upgrade</code>,<code>brew upgrade wget</code>,<code>brew uninstall wget --force</code>,<code>brew info wget</code>,<code>brew deps wget</code>,<code>brew edit wget</code>,<code>brew list --versions</code>,<code>brew cleanup</code></p>
+</li>
+<li>
+<p><code>brew install caskroom/cask/brew-cask</code> from <a href="https://brew.sh/index_zh-cn">brew.sh</a></p>
+</li>
+<li>
+<p><code>brew cask search thunder</code>,<code>brew cask info thunder</code>,<code>brew cask edit thunder</code>,<code>brew cask uninstall thunder</code></p>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ brew list
+</span></span><span class="line"><span class="cl">ant	  automake   coreutils	gcc49  gnu-sed	     libksba   libyaml	pkg-config  tig
+</span></span><span class="line"><span class="cl">apktool   brew-cask  dex2jar	git    isl011	     libmpc08  mpfr2	readline    tree
+</span></span><span class="line"><span class="cl">autoconf  cloog018   findutils	gmp4   libgpg-error  libtool   openssl	rename	    wget
+</span></span><span class="line"><span class="cl">houruhou at MacPro in ~
+</span></span><span class="line"><span class="cl">$ brew cask list
+</span></span><span class="line"><span class="cl">android-file-transfer	  dash			    go2shell		      neteasemusic		sublime-text
+</span></span><span class="line"><span class="cl">android-studio		  diffmerge		    google-chrome	      pycharm			vlc
+</span></span><span class="line"><span class="cl">appcleaner		  flux			    iterm2		      qq
+</span></span><span class="line"><span class="cl">bilibili		  foxmail		    jd-gui		      skim
+</span></span><span class="line"><span class="cl">ccleaner		  gitbook-editor	    macdown		      sogouinput
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>Sublime Text</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;font_face&#34;</span><span class="p">:</span> <span class="s2">&#34;Consolas&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;font_size&#34;</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;rulers&#34;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="mi">79</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;highlight_line&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;bold_folder_labels&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;highlight_modified_tabs&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;tab_size&#34;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;translate_tabs_to_spaces&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;word_wrap&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;indent_to_bracket&#34;</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>Go2Shell <code>open -a go2shell --args config</code> no longer needed</li>
+</ul>
+<h2 id="python">Python</h2>
+<ul>
+<li><code>brew install python --with-brew-openssl</code>,<code>brew install python3 --with-brewed-openssl</code></li>
+<li><code>sudo easy_install pip</code></li>
+<li>pip.conf</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ cat ~/.pip/pip.conf
+</span></span><span class="line"><span class="cl"><span class="p">;</span> http://www.pypi-mirrors.org/
+</span></span><span class="line"><span class="cl"><span class="o">[</span>global<span class="o">]</span>
+</span></span><span class="line"><span class="cl">use-mirrors<span class="o">=</span><span class="nb">true</span>
+</span></span><span class="line"><span class="cl"><span class="p">;</span> <span class="nv">mirrors</span><span class="o">=</span>http://pypi.douban.com
+</span></span><span class="line"><span class="cl">index-url<span class="o">=</span>http://pypi.douban.com/simple
+</span></span><span class="line"><span class="cl">trusted-host<span class="o">=</span>pypi.douban.com
+</span></span><span class="line"><span class="cl"><span class="p">;</span> ln -s pip.conf ~/.pip/pip.conf
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li><code>sudo pip install virtualenv virtualenvwrapper</code></li>
+<li>virtualenv setup</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#virtualenv</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># virtualenvwrapper</span>
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">VIRTUALENVWRAPPER_PYTHON</span><span class="o">=</span>/usr/bin/python
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">WORKON_HOME</span><span class="o">=</span>/Users/houruhou/Workspace/Solarex/PythonWorkspace
+</span></span><span class="line"><span class="cl"><span class="o">[</span> -f /usr/local/bin/virtualenvwrapper.sh <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="nb">source</span> /usr/local/bin/virtualenvwrapper.sh
+</span></span><span class="line"><span class="cl"><span class="o">[</span> -f /etc/bash_completion.d/virtualenvwrapper <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="nb">source</span> /etc/bash_completion.d/virtualenvwrapper
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">PIP_VIRTUALENV_BASE</span><span class="o">=</span><span class="nv">$WORKON_HOME</span>
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">PIP_RESPECT_VIRTUALENV</span><span class="o">=</span><span class="nb">true</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li><code>mkvirtualenv --no-site-packages test</code></li>
+</ul>
+<h2 id="java">Java</h2>
++ ``brew cask install java``
++ ``brew tap caskroom/versions``,``brew cask install java6``
++ ``/usr/libexec/java_home -V``查看安装了哪些jdk
++ ``JAVA_HOME=`/usr/libexec/java_home -v 1.6``
++ open eclipse prompt to install java
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">/Library/Java/JavaVirtualMachines/jdk1.7.0_45.jdk/Contents/Info.plist
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">diff
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">&lt;key&gt;JVMCapabilities&lt;/key&gt;
+</span></span><span class="line"><span class="cl">    &lt;array&gt;
+</span></span><span class="line"><span class="cl">&lt;string&gt;CommandLine&lt;/string&gt;
+</span></span><span class="line"><span class="cl">&lt;/array&gt;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">&lt;key&gt;JVMCapabilities&lt;/key&gt;
+</span></span><span class="line"><span class="cl">&lt;array&gt;
+</span></span><span class="line"><span class="cl">    &lt;string&gt;JNI&lt;/string&gt;
+</span></span><span class="line"><span class="cl">    &lt;string&gt;BundledApp&lt;/string&gt;
+</span></span><span class="line"><span class="cl">    &lt;string&gt;WebStart&lt;/string&gt;
+</span></span><span class="line"><span class="cl">    &lt;string&gt;Applets&lt;/string&gt;
+</span></span><span class="line"><span class="cl">    &lt;string&gt;CommandLine&lt;/string&gt;
+</span></span><span class="line"><span class="cl">&lt;/array&gt;
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li><code>eclipse.ini</code></li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">--launcher.XXMaxPermSize
+</span></span><span class="line"><span class="cl">2048m
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">-vmargs
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">-Xms512m
+</span></span><span class="line"><span class="cl">-Xmx850m
+</span></span><span class="line"><span class="cl">-XX:PermSize<span class="o">=</span>512m
+</span></span><span class="line"><span class="cl">-XX:MaxPermSize<span class="o">=</span>1024m
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="command-line">command line</h2>
+<ul>
+<li><code>defaults write com.apple.finder AppleShowAllFiles -boolean true ; killall Finder</code> 显示隐藏文件，<code>defaults write com.apple.finder AppleShowAllFiles -boolean false ; killall Finder</code>，不显示隐藏文件</li>
+<li><code>defaults write com.apple.dock ResetLaunchPad -bool true; killall Dock</code>新的应用被安装后，经常会跑到 Launchpad 的第一屏，所以它们的位置跟安装的顺序有关系，而我更希望它们可以按照某种更加稳定的顺序排列，比如按照系统默认的顺序，在默认顺序中，Launchpad 第一屏只有 Apple 自家应用。</li>
+<li><code>defaults write com.apple.screencapture location ~/Pictures/ScreenShots;killall SystemUIServer</code>,change default screen capture folder</li>
+<li><code>sudo scutil --set HostName MacPro</code>修改hostname</li>
+<li><code>defaults write com.apple.finder _FXShowPosixPathInTitle -bool TRUE;killall Finder</code>finder显示路径，<code>defaults delete com.apple.finder _FXShowPosixPathInTitle;killall Finder</code>恢复默认不显示</li>
+</ul>
+<h2 id="reference">reference</h2>
+<ul>
+<li><a href="https://github.com/nicolashery/mac-dev-setup">mac-dev-setup</a></li>
+<li><a href="https://github.com/pubyun/macdev">mac-dev</a></li>
+<li><a href="https://aaaaaashu.gitbooks.io/mac-dev-setup/content/SystemPreferences/index.html">setup-mac-dev-zh_cn</a>,<a href="http://sourabhbajaj.com/mac-setup/">setup-mac-dev</a></li>
+<li><a href="https://github.com/solarex/macconfigurations">mac-configurations</a></li>
+<li><a href="https://support.apple.com/en-us/HT201236">Mac keyboard shortcuts</a></li>
+<li><a href="https://support.apple.com/en-us/HT204434">Mac keyboard shortcuts for accessibility features</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2015-05-05
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/2015/05/05/android-custom-view/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Android Custom View</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/2015/03/22/using-gnu-command-line-tools-on-mac-os-x/">
+            <span class="next-text nav-default">Using GNU Command Line Tools on Mac Os X</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

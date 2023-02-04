@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Make an Android Custom View Publish and Open Source - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="Today I’m going to create an android custom view to implement circular SeekBar like the mockup below, make it as a library, open source at GitHub, and publish it to JCenter. In this post, I will cover several fundamental concepts of android custom view, write a helpful README on GitHub, and how to publish your library.
+Before you start… Try to understand the requirement or design specification, take a look at this widget first, the user can touch the indicator icon through this arc to set the current progress level." /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/2016/05/28/make-an-android-custom-view-publish-and-open-source/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Make an Android Custom View Publish and Open Source" />
+<meta property="og:description" content="Today I’m going to create an android custom view to implement circular SeekBar like the mockup below, make it as a library, open source at GitHub, and publish it to JCenter. In this post, I will cover several fundamental concepts of android custom view, write a helpful README on GitHub, and how to publish your library.
+Before you start… Try to understand the requirement or design specification, take a look at this widget first, the user can touch the indicator icon through this arc to set the current progress level." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/2016/05/28/make-an-android-custom-view-publish-and-open-source/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2016-05-28T00:00:00+00:00" />
+<meta property="article:modified_time" content="2016-05-28T00:00:00+00:00" />
+<meta itemprop="name" content="Make an Android Custom View Publish and Open Source">
+<meta itemprop="description" content="Today I’m going to create an android custom view to implement circular SeekBar like the mockup below, make it as a library, open source at GitHub, and publish it to JCenter. In this post, I will cover several fundamental concepts of android custom view, write a helpful README on GitHub, and how to publish your library.
+Before you start… Try to understand the requirement or design specification, take a look at this widget first, the user can touch the indicator icon through this arc to set the current progress level."><meta itemprop="datePublished" content="2016-05-28T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2016-05-28T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2235">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Make an Android Custom View Publish and Open Source"/>
+<meta name="twitter:description" content="Today I’m going to create an android custom view to implement circular SeekBar like the mockup below, make it as a library, open source at GitHub, and publish it to JCenter. In this post, I will cover several fundamental concepts of android custom view, write a helpful README on GitHub, and how to publish your library.
+Before you start… Try to understand the requirement or design specification, take a look at this widget first, the user can touch the indicator icon through this arc to set the current progress level."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Make an Android Custom View Publish and Open Source</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2016-05-28 </span>
+        <div class="post-category">
+            <a href="/categories/android/"> android </a>
+            <a href="/categories/dev/"> dev </a>
+            </div>
+          <span class="more-meta"> 约 2235 字 </span>
+          <span class="more-meta"> 预计阅读 11 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#before-you-start">Before you start…</a></li>
+        <li><a href="#get-started">Get started:</a></li>
+        <li><a href="#1-attribute">1. Attribute:</a></li>
+        <li><a href="#2-size">2. Size:</a></li>
+        <li><a href="#3-drawing">3. Drawing:</a></li>
+        <li><a href="#4-touching">4. Touching:</a></li>
+        <li><a href="#final-demo">Final demo</a></li>
+        <li><a href="#open-source-at-github">Open source at GitHub:</a>
+          <ul>
+            <li><a href="#1-provide-a-screenshot-and-short-description">1. Provide a screenshot and short description:</a></li>
+            <li><a href="#give-easy-installationusage-instruction">Give easy installation/usage instruction</a></li>
+          </ul>
+        </li>
+        <li><a href="#publish-your-library">Publish your library:</a>
+          <ul>
+            <li><a href="#1-sign-up-or-sign-in-at-jfrog-bintray">1. Sign-up or sign-in at JFrog Bintray.</a></li>
+            <li><a href="#2-go-to-profile-page-to-create-a-repository-package-and-version">2. Go to profile page to create a repository, package, and version:</a></li>
+            <li><a href="#3-generate-and-upload-the-aar-files">3. Generate and upload the aar files:</a></li>
+            <li><a href="#4-add-to-jcenter">4. Add to JCenter:</a></li>
+            <li><a href="#5-project-is-accepted-and-test-if-everything-is-all-right">5. Project is accepted and test if everything is all right:</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>Today I’m going to create an android custom view to implement circular <code>SeekBar</code> like the mockup below, make it as a library, open source at GitHub, and publish it to JCenter. In this post, I will cover several fundamental concepts of android custom view, write a helpful README on GitHub, and how to publish your library.</p>
+<center><img src="/images/custom_view_seekbar.png"/></center>
+<h2 id="before-you-start">Before you start…</h2>
+<p>Try to understand the requirement or design specification, take a look at this widget first, the user can touch the indicator icon through this arc to set the current progress level. The indicator icon will stop dragging when exceeding max or min progress. It works like an extension of circular <code>SeekBar</code> with customized appearances and motion event.</p>
+<!-- more -->
+<h2 id="get-started">Get started:</h2>
+<p>All the android view widgets are based on <code>View</code>, to implement custom view, you will start a subclass of <code>View</code> and override several lifecycle callback methods of view, so you need to understand the view lifecycle at first. The following diagram shows some important methods to override:</p>
+<center><img src="/images/custom_view_lifecycle.png"/></center>
+<p>To get started, the first thing we have to do is to create a class that extends <code>View</code>, and provide two default constructors which allows us to create the view programmatically (1st constructor) or in XML layout (2nd constructor). The <code>SwagPoint(Context context, AttributeSet attrs)</code> constructor is more important here because it is used when Android inflates the view from XML layout file, otherwise you will get exception.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SwagPoints</span> <span class="kd">extends</span> <span class="n">View</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// used in view creation programmatically
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="kd">public</span> <span class="nf">SwagPoints</span><span class="o">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="kd">super</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// used in XML layout file
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="kd">public</span> <span class="nf">SwagPoints</span><span class="o">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">,</span> <span class="n">AttributeSet</span> <span class="n">attrs</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="kd">super</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">attrs</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Then, there are several things we have to control or modify in our custom view:</p>
+<ul>
+<li>
+<p><strong>Attributes</strong>: What things are customizable in your view? Determine custom attributes that allow developer to change its appearance and behavior in XML layout file according to their design.</p>
+</li>
+<li>
+<p><strong>Size</strong>: Determine the dimensions of the view and every components in this custom view on the screen.</p>
+</li>
+<li>
+<p><strong>Drawing</strong>: Determine how the view and components to render on the screen which contains the shape, location, appearance.</p>
+</li>
+<li>
+<p><strong>Touch</strong>: Determine the way the user can interact with the view by touching.</p>
+</li>
+</ul>
+<h2 id="1-attribute">1. Attribute:</h2>
+<p>Here we provide several customizable attributes for developer: the initial progress <code>points</code>, the range of progress <code>max/min</code>, the interval when user change the progress <code>step</code>, the color and size of progress/arc/text. To define custom attributes, we create <code>res/values/attrs.xml</code> file and define custom attributes for your view in a <code>&lt;declare-styleable&gt;</code> resource element as below.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;resources&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;declare-styleable</span> <span class="na">name=</span><span class="s">&#34;SwagPoints&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;attr</span> <span class="na">name=</span><span class="s">&#34;points&#34;</span> <span class="na">format=</span><span class="s">&#34;integer&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;attr</span> <span class="na">name=</span><span class="s">&#34;max&#34;</span> <span class="na">format=</span><span class="s">&#34;integer&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;attr</span> <span class="na">name=</span><span class="s">&#34;min&#34;</span> <span class="na">format=</span><span class="s">&#34;integer&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;attr</span> <span class="na">name=</span><span class="s">&#34;step&#34;</span> <span class="na">format=</span><span class="s">&#34;integer&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;attr</span> <span class="na">name=</span><span class="s">&#34;indicatorIcon&#34;</span> <span class="na">format=</span><span class="s">&#34;reference&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;attr</span> <span class="na">name=</span><span class="s">&#34;progressWidth&#34;</span> <span class="na">format=</span><span class="s">&#34;dimension&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;attr</span> <span class="na">name=</span><span class="s">&#34;progressColor&#34;</span> <span class="na">format=</span><span class="s">&#34;color&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;attr</span> <span class="na">name=</span><span class="s">&#34;arcWidth&#34;</span> <span class="na">format=</span><span class="s">&#34;dimension&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;attr</span> <span class="na">name=</span><span class="s">&#34;arcColor&#34;</span> <span class="na">format=</span><span class="s">&#34;color&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;attr</span> <span class="na">name=</span><span class="s">&#34;textSize&#34;</span> <span class="na">format=</span><span class="s">&#34;dimension&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;attr</span> <span class="na">name=</span><span class="s">&#34;textColor&#34;</span> <span class="na">format=</span><span class="s">&#34;color&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;attr</span> <span class="na">name=</span><span class="s">&#34;clockwise&#34;</span> <span class="na">format=</span><span class="s">&#34;boolean&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;attr</span> <span class="na">name=</span><span class="s">&#34;enabled&#34;</span> <span class="na">format=</span><span class="s">&#34;boolean&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/declare-styleable&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/resources&gt;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>After adding <code>res/values/attrs.xml</code> file, to use <code>TypedArray</code> to retrieve attribute value in class and define instance variables (the following variable with <code>m</code> as prefix name) to store. Here we add a <code>init()</code> method to put <code>init()</code> inside the constructor after <code>super()</code> method to do this job:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">private</span> <span class="kt">void</span> <span class="nf">init</span><span class="o">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">,</span> <span class="n">AttributeSet</span> <span class="n">attrs</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kt">float</span> <span class="n">density</span> <span class="o">=</span> <span class="n">getResources</span><span class="o">().</span><span class="na">getDisplayMetrics</span><span class="o">().</span><span class="na">density</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// Defaults, may need to link this into theme settings
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="kt">int</span> <span class="n">arcColor</span> <span class="o">=</span> <span class="n">ContextCompat</span><span class="o">.</span><span class="na">getColor</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">color</span><span class="o">.</span><span class="na">color_arc</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">progressColor</span> <span class="o">=</span> <span class="n">ContextCompat</span><span class="o">.</span><span class="na">getColor</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">color</span><span class="o">.</span><span class="na">color_progress</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">textColor</span> <span class="o">=</span> <span class="n">ContextCompat</span><span class="o">.</span><span class="na">getColor</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">color</span><span class="o">.</span><span class="na">color_text</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mProgressWidth</span> <span class="o">=</span> <span class="o">(</span><span class="kt">int</span><span class="o">)</span> <span class="o">(</span><span class="n">mProgressWidth</span> <span class="o">*</span> <span class="n">density</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mArcWidth</span> <span class="o">=</span> <span class="o">(</span><span class="kt">int</span><span class="o">)</span> <span class="o">(</span><span class="n">mArcWidth</span> <span class="o">*</span> <span class="n">density</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mTextSize</span> <span class="o">=</span> <span class="o">(</span><span class="kt">int</span><span class="o">)</span> <span class="o">(</span><span class="n">mTextSize</span> <span class="o">*</span> <span class="n">density</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">mIndicatorIcon</span> <span class="o">=</span> <span class="n">ContextCompat</span><span class="o">.</span><span class="na">getDrawable</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">drawable</span><span class="o">.</span><span class="na">indicator</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="o">(</span><span class="n">attrs</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="c1">// Attribute initialization
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="kd">final</span> <span class="n">TypedArray</span> <span class="n">a</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">obtainStyledAttributes</span><span class="o">(</span><span class="n">attrs</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">				<span class="n">R</span><span class="o">.</span><span class="na">styleable</span><span class="o">.</span><span class="na">SwagPoints</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="n">Drawable</span> <span class="n">indicatorIcon</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="na">getDrawable</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">styleable</span><span class="o">.</span><span class="na">SwagPoints_indicatorIcon</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="o">(</span><span class="n">indicatorIcon</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">			<span class="n">mIndicatorIcon</span> <span class="o">=</span> <span class="n">indicatorIcon</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="kt">int</span> <span class="n">indicatorIconHalfWidth</span> <span class="o">=</span> <span class="n">mIndicatorIcon</span><span class="o">.</span><span class="na">getIntrinsicWidth</span><span class="o">()</span> <span class="o">/</span> <span class="mi">2</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">		<span class="kt">int</span> <span class="n">indicatorIconHalfHeight</span> <span class="o">=</span> <span class="n">mIndicatorIcon</span><span class="o">.</span><span class="na">getIntrinsicHeight</span><span class="o">()</span> <span class="o">/</span> <span class="mi">2</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">mIndicatorIcon</span><span class="o">.</span><span class="na">setBounds</span><span class="o">(-</span><span class="n">indicatorIconHalfWidth</span><span class="o">,</span> <span class="o">-</span><span class="n">indicatorIconHalfHeight</span><span class="o">,</span> <span class="n">indicatorIconHalfWidth</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">				<span class="n">indicatorIconHalfHeight</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="n">mPoints</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="na">getInteger</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">styleable</span><span class="o">.</span><span class="na">SwagPoints_points</span><span class="o">,</span> <span class="n">mPoints</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">mMin</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="na">getInteger</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">styleable</span><span class="o">.</span><span class="na">SwagPoints_min</span><span class="o">,</span> <span class="n">mMin</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">mMax</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="na">getInteger</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">styleable</span><span class="o">.</span><span class="na">SwagPoints_max</span><span class="o">,</span> <span class="n">mMax</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">mStep</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="na">getInteger</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">styleable</span><span class="o">.</span><span class="na">SwagPoints_step</span><span class="o">,</span> <span class="n">mStep</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="n">mProgressWidth</span> <span class="o">=</span> <span class="o">(</span><span class="kt">int</span><span class="o">)</span> <span class="n">a</span><span class="o">.</span><span class="na">getDimension</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">styleable</span><span class="o">.</span><span class="na">SwagPoints_progressWidth</span><span class="o">,</span> <span class="n">mProgressWidth</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">progressColor</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="na">getColor</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">styleable</span><span class="o">.</span><span class="na">SwagPoints_progressColor</span><span class="o">,</span> <span class="n">progressColor</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="n">mArcWidth</span> <span class="o">=</span> <span class="o">(</span><span class="kt">int</span><span class="o">)</span> <span class="n">a</span><span class="o">.</span><span class="na">getDimension</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">styleable</span><span class="o">.</span><span class="na">SwagPoints_arcWidth</span><span class="o">,</span> <span class="n">mArcWidth</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">arcColor</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="na">getColor</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">styleable</span><span class="o">.</span><span class="na">SwagPoints_arcColor</span><span class="o">,</span> <span class="n">arcColor</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="n">mTextSize</span> <span class="o">=</span> <span class="o">(</span><span class="kt">int</span><span class="o">)</span> <span class="n">a</span><span class="o">.</span><span class="na">getDimension</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">styleable</span><span class="o">.</span><span class="na">SwagPoints_textSize</span><span class="o">,</span> <span class="n">mTextSize</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">mTextColor</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="na">getColor</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">styleable</span><span class="o">.</span><span class="na">SwagPoints_textColor</span><span class="o">,</span> <span class="n">mTextColor</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="n">mClockwise</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="na">getBoolean</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">styleable</span><span class="o">.</span><span class="na">SwagPoints_clockwise</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">				<span class="n">mClockwise</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">mEnabled</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="na">getBoolean</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">styleable</span><span class="o">.</span><span class="na">SwagPoints_enabled</span><span class="o">,</span> <span class="n">mEnabled</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">a</span><span class="o">.</span><span class="na">recycle</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="2-size">2. Size:</h2>
+<p>In order to control the view dimension, we have to override <code>View.onMeasure()</code> method and calculate the size of each components. Here we have to define the arc radius according to the width/height of our view.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onMeasure</span><span class="o">(</span><span class="kt">int</span> <span class="n">widthMeasureSpec</span><span class="o">,</span> <span class="kt">int</span> <span class="n">heightMeasureSpec</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kd">final</span> <span class="kt">int</span> <span class="n">width</span> <span class="o">=</span> <span class="n">getDefaultSize</span><span class="o">(</span><span class="n">getSuggestedMinimumWidth</span><span class="o">(),</span> <span class="n">widthMeasureSpec</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">final</span> <span class="kt">int</span> <span class="n">height</span> <span class="o">=</span> <span class="n">getDefaultSize</span><span class="o">(</span><span class="n">getSuggestedMinimumHeight</span><span class="o">(),</span> <span class="n">heightMeasureSpec</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">final</span> <span class="kt">int</span> <span class="n">min</span> <span class="o">=</span> <span class="n">Math</span><span class="o">.</span><span class="na">min</span><span class="o">(</span><span class="n">width</span><span class="o">,</span> <span class="n">height</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">mTranslateX</span> <span class="o">=</span> <span class="o">(</span><span class="kt">int</span><span class="o">)</span> <span class="o">(</span><span class="n">width</span> <span class="o">*</span> <span class="mf">0.5f</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mTranslateY</span> <span class="o">=</span> <span class="o">(</span><span class="kt">int</span><span class="o">)</span> <span class="o">(</span><span class="n">height</span> <span class="o">*</span> <span class="mf">0.5f</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">arcDiameter</span> <span class="o">=</span> <span class="n">min</span> <span class="o">-</span> <span class="n">getPaddingLeft</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mArcRadius</span> <span class="o">=</span> <span class="n">arcDiameter</span> <span class="o">/</span> <span class="mi">2</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">float</span> <span class="n">top</span> <span class="o">=</span> <span class="n">height</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="o">(</span><span class="n">arcDiameter</span> <span class="o">/</span> <span class="mi">2</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">float</span> <span class="n">left</span> <span class="o">=</span> <span class="n">width</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="o">(</span><span class="n">arcDiameter</span> <span class="o">/</span> <span class="mi">2</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mArcRect</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">left</span><span class="o">,</span> <span class="n">top</span><span class="o">,</span> <span class="n">left</span> <span class="o">+</span> <span class="n">arcDiameter</span><span class="o">,</span> <span class="n">top</span> <span class="o">+</span> <span class="n">arcDiameter</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">updateIndicatorIconPosition</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">super</span><span class="o">.</span><span class="na">onMeasure</span><span class="o">(</span><span class="n">widthMeasureSpec</span><span class="o">,</span> <span class="n">heightMeasureSpec</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="3-drawing">3. Drawing:</h2>
+<p>Give you a pen and a paper, you can draw what you want. To draw the view, you have to override the <code>onDraw(Canvas canvas)</code> method.
+Before that, we have to know what to draw and how to draw. Android provides two classes to do this job:</p>
+<ul>
+<li>
+<p>What to draw, handled by <code>Canvas</code> which is provided as parameter in <code>onDraw()</code> method.</p>
+</li>
+<li>
+<p>How to draw, handled by <code>Paint</code>.</p>
+</li>
+</ul>
+<p>Before you use <code>Canvas</code> to draw anything, it’s necessary to create <code>Paint</code> objects. For performance optimization, creating the <code>Paint</code> objects ahead is quite important, because the <code>onDraw()</code> method is called when redrawn is needed at anytime, we won’t create the <code>Paint</code> objects inside the <code>onDraw()</code> method, we should avoid any allocation in <code>onDraw()</code> method. Here we define these objects (one for arc, another for progress and the other for text) as instance variables and initialize at <code>init()</code> method:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">private</span> <span class="kt">void</span> <span class="nf">init</span><span class="o">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">,</span> <span class="n">AttributeSet</span> <span class="n">attrs</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// ...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	
+</span></span><span class="line"><span class="cl">	<span class="n">mArcPaint</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Paint</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mArcPaint</span><span class="o">.</span><span class="na">setColor</span><span class="o">(</span><span class="n">arcColor</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mArcPaint</span><span class="o">.</span><span class="na">setAntiAlias</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mArcPaint</span><span class="o">.</span><span class="na">setStyle</span><span class="o">(</span><span class="n">Paint</span><span class="o">.</span><span class="na">Style</span><span class="o">.</span><span class="na">STROKE</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mArcPaint</span><span class="o">.</span><span class="na">setStrokeWidth</span><span class="o">(</span><span class="n">mArcWidth</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">mProgressPaint</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Paint</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mProgressPaint</span><span class="o">.</span><span class="na">setColor</span><span class="o">(</span><span class="n">progressColor</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mProgressPaint</span><span class="o">.</span><span class="na">setAntiAlias</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mProgressPaint</span><span class="o">.</span><span class="na">setStyle</span><span class="o">(</span><span class="n">Paint</span><span class="o">.</span><span class="na">Style</span><span class="o">.</span><span class="na">STROKE</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mProgressPaint</span><span class="o">.</span><span class="na">setStrokeWidth</span><span class="o">(</span><span class="n">mProgressWidth</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">mTextPaint</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Paint</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mTextPaint</span><span class="o">.</span><span class="na">setColor</span><span class="o">(</span><span class="n">textColor</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mTextPaint</span><span class="o">.</span><span class="na">setAntiAlias</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mTextPaint</span><span class="o">.</span><span class="na">setStyle</span><span class="o">(</span><span class="n">Paint</span><span class="o">.</span><span class="na">Style</span><span class="o">.</span><span class="na">FILL</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mTextPaint</span><span class="o">.</span><span class="na">setTextSize</span><span class="o">(</span><span class="n">mTextSize</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Once we have <code>Paint</code> objects defined, we can start to implement the <code>onDraw(Canvas canvas)</code> method, here we’re going to draw the text to display current progress number, the arc and current progress:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onDraw</span><span class="o">(</span><span class="n">Canvas</span> <span class="n">canvas</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="o">(!</span><span class="n">mClockwise</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">canvas</span><span class="o">.</span><span class="na">scale</span><span class="o">(-</span><span class="mi">1</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="n">mArcRect</span><span class="o">.</span><span class="na">centerX</span><span class="o">(),</span> <span class="n">mArcRect</span><span class="o">.</span><span class="na">centerY</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// draw the text
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">String</span> <span class="n">textPoint</span> <span class="o">=</span> <span class="n">String</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="n">mPoints</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mTextPaint</span><span class="o">.</span><span class="na">getTextBounds</span><span class="o">(</span><span class="n">textPoint</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">textPoint</span><span class="o">.</span><span class="na">length</span><span class="o">(),</span> <span class="n">mTextRect</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// center the text
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="kt">int</span> <span class="n">xPos</span> <span class="o">=</span> <span class="n">canvas</span><span class="o">.</span><span class="na">getWidth</span><span class="o">()</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">mTextRect</span><span class="o">.</span><span class="na">width</span><span class="o">()</span> <span class="o">/</span> <span class="mi">2</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">yPos</span> <span class="o">=</span> <span class="o">(</span><span class="kt">int</span><span class="o">)((</span><span class="n">mArcRect</span><span class="o">.</span><span class="na">centerY</span><span class="o">())</span> <span class="o">-</span> <span class="o">((</span><span class="n">mTextPaint</span><span class="o">.</span><span class="na">descent</span><span class="o">()</span> <span class="o">+</span> <span class="n">mTextPaint</span><span class="o">.</span><span class="na">ascent</span><span class="o">())</span> <span class="o">/</span> <span class="mi">2</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">	<span class="n">canvas</span><span class="o">.</span><span class="na">drawText</span><span class="o">(</span><span class="n">String</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="n">mPoints</span><span class="o">),</span> <span class="n">xPos</span><span class="o">,</span> <span class="n">yPos</span><span class="o">,</span> <span class="n">mTextPaint</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// draw the arc and progress
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">canvas</span><span class="o">.</span><span class="na">drawArc</span><span class="o">(</span><span class="n">mArcRect</span><span class="o">,</span> <span class="n">ANGLE_OFFSET</span><span class="o">,</span> <span class="mi">360</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="n">mArcPaint</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">canvas</span><span class="o">.</span><span class="na">drawArc</span><span class="o">(</span><span class="n">mArcRect</span><span class="o">,</span> <span class="n">ANGLE_OFFSET</span><span class="o">,</span> <span class="n">mProgressSweep</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="n">mProgressPaint</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="o">(</span><span class="n">mEnabled</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="c1">// draw the indicator icon
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="n">canvas</span><span class="o">.</span><span class="na">translate</span><span class="o">(</span><span class="n">mTranslateX</span> <span class="o">-</span> <span class="n">mIndicatorIconX</span><span class="o">,</span> <span class="n">mTranslateY</span> <span class="o">-</span> <span class="n">mIndicatorIconY</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">mIndicatorIcon</span><span class="o">.</span><span class="na">draw</span><span class="o">(</span><span class="n">canvas</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>After overriding <code>onDraw()</code> method, there is one more important method about drawing to introduce: <code>invalidate()</code>, this method is used when any redrawing is needed, we won’t call <code>onDraw()</code> directly, we just call this method instead, you can use this method anywhere inside your custom view, however, for performance optimization, make sure it’s called as infrequently as possible.</p>
+<h2 id="4-touching">4. Touching:</h2>
+<p>When the user touch the screen, Android calls the <code>onTouchEvent()</code> method, so we override <code>View.onTouchEvent()</code> to handle the user input gestures:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">onTouchEvent</span><span class="o">(</span><span class="n">MotionEvent</span> <span class="n">event</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="o">(</span><span class="n">mEnabled</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">this</span><span class="o">.</span><span class="na">getParent</span><span class="o">().</span><span class="na">requestDisallowInterceptTouchEvent</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="k">switch</span> <span class="o">(</span><span class="n">event</span><span class="o">.</span><span class="na">getAction</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">			<span class="k">case</span> <span class="n">MotionEvent</span><span class="o">.</span><span class="na">ACTION_DOWN</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">				<span class="k">if</span> <span class="o">(</span><span class="n">mOnSwagPointsChangeListener</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">					<span class="n">mOnSwagPointsChangeListener</span><span class="o">.</span><span class="na">onStartTrackingTouch</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">				<span class="n">updateOnTouch</span><span class="o">(</span><span class="n">event</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">				<span class="k">break</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">			<span class="k">case</span> <span class="n">MotionEvent</span><span class="o">.</span><span class="na">ACTION_MOVE</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">				<span class="n">updateOnTouch</span><span class="o">(</span><span class="n">event</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">				<span class="k">break</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">			<span class="k">case</span> <span class="n">MotionEvent</span><span class="o">.</span><span class="na">ACTION_UP</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">				<span class="k">if</span> <span class="o">(</span><span class="n">mOnSwagPointsChangeListener</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">					<span class="n">mOnSwagPointsChangeListener</span><span class="o">.</span><span class="na">onStopTrackingTouch</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">				<span class="n">setPressed</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">				<span class="k">this</span><span class="o">.</span><span class="na">getParent</span><span class="o">().</span><span class="na">requestDisallowInterceptTouchEvent</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">				<span class="k">break</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">			<span class="k">case</span> <span class="n">MotionEvent</span><span class="o">.</span><span class="na">ACTION_CANCEL</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">				<span class="k">if</span> <span class="o">(</span><span class="n">mOnSwagPointsChangeListener</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">					<span class="n">mOnSwagPointsChangeListener</span><span class="o">.</span><span class="na">onStopTrackingTouch</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">				<span class="n">setPressed</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">				<span class="k">this</span><span class="o">.</span><span class="na">getParent</span><span class="o">().</span><span class="na">requestDisallowInterceptTouchEvent</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">				<span class="k">break</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">		<span class="o">}</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>There are several things we have to control when user touches the indicator or other place of view:</p>
+<ul>
+<li>
+<p>Update the indicator icon position and progress text.</p>
+</li>
+<li>
+<p>Draw the current progress on the arc.</p>
+</li>
+<li>
+<p>Stop when reaching max or min.</p>
+</li>
+</ul>
+<p>To know the indicator icon position and the current progress to draw, we have to convert the touch coordinate on the screen to the angle of arc.</p>
+<p>In our custom view, we consider the center of arc as origin <code>(0, 0)</code>, and use trigonometric functions to transform the touch coordinate into the angle of the arc in degree <code>(0, 360)</code>, and map to the current progress value of given range <code>(min, max)</code>.</p>
+<center><img src="/images/custom_view_touch.png"/></center>
+<p>Here we have a method to convert from touch coordinate to the arc angle:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">private</span> <span class="kt">double</span> <span class="nf">convertTouchEventPointToAngle</span><span class="o">(</span><span class="kt">float</span> <span class="n">xPos</span><span class="o">,</span> <span class="kt">float</span> <span class="n">yPos</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// transform touch coordinate into component coordinate
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="kt">float</span> <span class="n">x</span> <span class="o">=</span> <span class="n">xPos</span> <span class="o">-</span> <span class="n">mTranslateX</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">float</span> <span class="n">y</span> <span class="o">=</span> <span class="n">yPos</span> <span class="o">-</span> <span class="n">mTranslateY</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">x</span> <span class="o">=</span> <span class="o">(</span><span class="n">mClockwise</span><span class="o">)</span> <span class="o">?</span> <span class="n">x</span> <span class="o">:</span> <span class="o">-</span><span class="n">x</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">double</span> <span class="n">angle</span> <span class="o">=</span> <span class="n">Math</span><span class="o">.</span><span class="na">toDegrees</span><span class="o">(</span><span class="n">Math</span><span class="o">.</span><span class="na">atan2</span><span class="o">(</span><span class="n">y</span><span class="o">,</span> <span class="n">x</span><span class="o">)</span> <span class="o">+</span> <span class="o">(</span><span class="n">Math</span><span class="o">.</span><span class="na">PI</span> <span class="o">/</span> <span class="mi">2</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">	<span class="n">angle</span> <span class="o">=</span> <span class="o">(</span><span class="n">angle</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">?</span> <span class="o">(</span><span class="n">angle</span> <span class="o">+</span> <span class="mi">360</span><span class="o">)</span> <span class="o">:</span> <span class="n">angle</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="n">angle</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="final-demo">Final demo</h2>
+<center><img src="/images/custom_view_final_demo.gif"/></center>
+<h2 id="open-source-at-github">Open source at GitHub:</h2>
+<p>So you just finish a android custom view project, great! Let’s put on GitHub to get more developers to use you project. However, before you share your GitHub link to others, just make sure you have a nice document first. When developers are looking at you project, there are some points they care about:</p>
+<ul>
+<li>
+<p>Does this project fit my requirement or solve my problem?</p>
+</li>
+<li>
+<p>If the answer is YES, how can I get starting right now?</p>
+</li>
+</ul>
+<p>A nice document is like a salesman for you project. The README plays this important role to give the first impression to the developers who are looking at your project, so providing a well-documented README is necessary and gives you more chance to promote you project.</p>
+<p>Knowing how to write a REAME is equivalently important to write a clean code or design a great architecture.</p>
+<h3 id="1-provide-a-screenshot-and-short-description">1. Provide a screenshot and short description:</h3>
+<p>A picture is worth a thousand words, especially in a UI widget project, make sure that you provide a photo, GIF or video with a short description to demonstrate how your UI looks like or works. (If you are familiar with some design software, i.e. Sketch or PhotoShop, try to use them to help you make a great cover with the screenshot for your project)</p>
+<center><img src="/images/custom_view_screensot.png"/></center>
+<h3 id="give-easy-installationusage-instruction">Give easy installation/usage instruction</h3>
+<p>Before using you project, developer have to install it first, make sure to give a clean and easy installation instruction to get started. After installing you project successfully, just give some example code snippet to show what your project does, and how the developers can customize what they want, maybe just give a list of customizable attributes or provide an APK to install or sample module to run.</p>
+<h2 id="publish-your-library">Publish your library:</h2>
+<p>After finish pushing your project to GitHub, there is the last step to get done: publish it so that developers can just add dependency</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">dependencies <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    ...
+</span></span><span class="line"><span class="cl">    compile <span class="s1">&#39;com.dualcores.swagpoints:swagpoints:1.0.0&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>to use you project. Here we go:</p>
+<h3 id="1-sign-up-or-sign-in-at-jfrog-bintray">1. Sign-up or sign-in at JFrog Bintray.</h3>
+<h3 id="2-go-to-profile-page-to-create-a-repository-package-and-version">2. Go to profile page to create a repository, package, and version:</h3>
+<p>The repository is the place to host your several projects. You can choose any repository name whatever you want, it doesn’t matter for other developers.</p>
+<center><img src="/images/custom_view_frog_new_repo.png"/></center>
+<p>Inside the new repository, you can create a package, that is place to host your project. Your project also can import from GitHub.</p>
+<center><img src="/images/custom_view_frog_import_github.png"/></center>
+<p>For each package, you can create several versions, again, you can choose whatever name you want, not restricted to the traditional version number major.minor.patch rule.</p>
+<center><img src="/images/custom_view_frog_create_new_version.png"/></center>
+<h3 id="3-generate-and-upload-the-aar-files">3. Generate and upload the aar files:</h3>
+<p>We use gradle to do this job, here I use this library to help <a href="https://github.com/blundell/release-android-library">https://github.com/blundell/release-android-library</a>.
+Open you library module gradle file, add the following code snippet to buttom of module build.gradle file:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">// or use the remote copy to keep update with latest changes
+</span></span><span class="line"><span class="cl">apply from: <span class="s1">&#39;https://raw.githubusercontent.com/blundell/release-android-library/master/android-release-aar.gradle&#39;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>and JCenter configuration:</p>
+<center><img src="/images/custom_view_frog_build_gradle.png"/></center>
+<p>then, sync your project and open your terminal, go to your project root path, execute the command:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">./gradlew clean build generateRelease
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>If success, you will see the result in you terminal and you can upload the zip file from <code>PROJECT_ROOT/library/build/release/1.0.0/</code>:</p>
+<center><img src="/images/custom_view_frog_generate_aar.png"/></center>
+<h3 id="4-add-to-jcenter">4. Add to JCenter:</h3>
+<p>Go back to your project page in bintray, there will be a Add to JCenter button in right-hand column, just click it to fill out a message and wait to be accepted. It takes hours or several days to be accepted, just be patient. This step is required so that to make your project downloadable and discoverable by gradle dependencies.</p>
+<center><img src="/images/custom_view_frog_add_jcenter.png"/></center>
+<h3 id="5-project-is-accepted-and-test-if-everything-is-all-right">5. Project is accepted and test if everything is all right:</h3>
+<p>You will receive an email to inform you that your Add to JCenter request is accepted.Once it is accepted, test if gradle dependency works well by adding the dependency to sample module and sync. If it builds successfully, congratulation!!!! You’ve done. Good job~</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">compile <span class="s1">&#39;com.dualcores.swagpoints:swagpoints:1.0.0&#39;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2016-05-28
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/2016/09/13/aspectj-dictionary/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Aspectj Dictionary</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/2016/03/14/mobile-apps-offline-support/">
+            <span class="next-text nav-default">Mobile Apps Offline Support</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

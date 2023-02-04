@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Android Loader - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="Android Loader Life before Loaders Understanding the LoaderManager Implementing Loaders Android Loader This post gives a brief introduction to Loaders and the LoaderManager. The first section describes how data was loaded prior to the release of Android 3.0, pointing out out some of the flaws of the pre-Honeycomb APIs. The second section defines the purpose of each class and summarizes their powerful ability in asynchronously loading data.
+Life before Loaders Before Android 3." /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/2014/10/24/android-loader/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Android Loader" />
+<meta property="og:description" content="Android Loader Life before Loaders Understanding the LoaderManager Implementing Loaders Android Loader This post gives a brief introduction to Loaders and the LoaderManager. The first section describes how data was loaded prior to the release of Android 3.0, pointing out out some of the flaws of the pre-Honeycomb APIs. The second section defines the purpose of each class and summarizes their powerful ability in asynchronously loading data.
+Life before Loaders Before Android 3." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/2014/10/24/android-loader/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2014-10-24T00:00:00+00:00" />
+<meta property="article:modified_time" content="2014-10-24T00:00:00+00:00" />
+<meta itemprop="name" content="Android Loader">
+<meta itemprop="description" content="Android Loader Life before Loaders Understanding the LoaderManager Implementing Loaders Android Loader This post gives a brief introduction to Loaders and the LoaderManager. The first section describes how data was loaded prior to the release of Android 3.0, pointing out out some of the flaws of the pre-Honeycomb APIs. The second section defines the purpose of each class and summarizes their powerful ability in asynchronously loading data.
+Life before Loaders Before Android 3."><meta itemprop="datePublished" content="2014-10-24T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2014-10-24T00:00:00+00:00" />
+<meta itemprop="wordCount" content="4504">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Android Loader"/>
+<meta name="twitter:description" content="Android Loader Life before Loaders Understanding the LoaderManager Implementing Loaders Android Loader This post gives a brief introduction to Loaders and the LoaderManager. The first section describes how data was loaded prior to the release of Android 3.0, pointing out out some of the flaws of the pre-Honeycomb APIs. The second section defines the purpose of each class and summarizes their powerful ability in asynchronously loading data.
+Life before Loaders Before Android 3."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Android Loader</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2014-10-24 </span>
+        <div class="post-category">
+            <a href="/categories/dev/"> dev </a>
+            <a href="/categories/android/"> android </a>
+            </div>
+          <span class="more-meta"> 约 4504 字 </span>
+          <span class="more-meta"> 预计阅读 22 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li>
+          <ul>
+            <li></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p><center><img src="/images/android_logo.jpg"/></center></p>
+<ul>
+<li><a href="#overview">Android Loader</a>
+<ul>
+<li><a href="#before">Life before Loaders</a></li>
+<li><a href="#loadermanager">Understanding the LoaderManager</a></li>
+<li><a href="#implementing">Implementing Loaders</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="overview">Android Loader</h2>
+<p>This post gives a brief introduction to Loaders and the LoaderManager. The first section describes how data was loaded prior to the release of Android 3.0, pointing out out some of the flaws of the pre-Honeycomb APIs. The second section defines the purpose of each class and summarizes their powerful ability in asynchronously loading data.</p>
+<!-- more -->
+<h3 id="before">Life before Loaders</h3>
+Before Android 3.0, many Android applications lacked in responsiveness. UI interactions glitched, transitions between activities lagged, and ANR (Application Not Responding) dialogs rendered apps totally useless. This lack of responsiveness stemmed mostly from the fact that developers were performing queries on the UI thread—a very poor choice for lengthy operations like loading data.
+<p>While the <a href="http://developer.android.com/guide/practices/responsiveness.html">documentation</a> has always stressed the importance of instant feedback, the pre-Honeycomb APIs simply did not encourage this behavior. Before Loaders, cursors were primarily managed and queried for with two (now deprecated) Activity methods:</p>
+<ul>
+<li>
+<p><code>public void startManagingCursor(Cursor)</code>:Tells the activity to take care of managing the cursor&rsquo;s lifecycle based on the activity&rsquo;s lifecycle. The cursor will automatically be deactivated (<code>deactivate()</code>) when the activity is stopped, and will automatically be closed (<code>close()</code>) when the activity is destroyed. When the activity is stopped and then later restarted, the Cursor is re-queried (<code>requery()</code>) for the most up-to-date data.</p>
+</li>
+<li>
+<p><code>public Cursor managedQuery(Uri, String, String, String, String)</code>:A wrapper around the <code>ContentResolver's query()</code> method. In addition to performing the query, it begins management of the cursor (that is, <code>startManagingCursor(cursor)</code> is called before it is returned).</p>
+</li>
+</ul>
+<p>While convenient, these methods were deeply flawed in that they performed queries on the UI thread. What&rsquo;s more, the &ldquo;managed cursors&rdquo; did not retain their data across Activity configuration changes. The need to <code>requery()</code> the cursor&rsquo;s data in these situations was unnecessary, inefficient, and made orientation changes clunky and sluggish as a result.</p>
+<h4 id="the-problem-with-managed-cursors">The Problem with &ldquo;Managed Cursors&rdquo;</h4>
+<p>Let&rsquo;s illustrate the problem with &ldquo;managed cursors&rdquo; through a simple code sample. Given below is a ListActivity that loads data using the pre-Honeycomb APIs. The activity makes a query to the ContentProvider and begins management of the returned cursor. The results are then bound to a SimpleCursorAdapter, and are displayed on the screen in a ListView. The code has been condensed for simplicity.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SampleListActivity</span> <span class="kd">extends</span> <span class="n">ListActivity</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span><span class="o">[]</span> <span class="n">PROJECTION</span> <span class="o">=</span> <span class="k">new</span> <span class="n">String</span><span class="o">[]</span> <span class="o">{</span><span class="s">&#34;_id&#34;</span><span class="o">,</span> <span class="s">&#34;text_column&#34;</span><span class="o">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">(</span><span class="n">savedInstanceState</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// Performs a &#34;managed query&#34; to the ContentProvider. The Activity 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// will handle closing and requerying the cursor.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">//
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// WARNING!! This query (and any subsequent re-queries) will be
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// performed on the UI Thread!!
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">Cursor</span> <span class="n">cursor</span> <span class="o">=</span> <span class="n">managedQuery</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">        <span class="n">CONTENT_URI</span><span class="o">,</span>  <span class="c1">// The Uri constant in your ContentProvider class
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">PROJECTION</span><span class="o">,</span>   <span class="c1">// The columns to return for each data row
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="kc">null</span><span class="o">,</span>         <span class="c1">// No where clause
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="kc">null</span><span class="o">,</span>         <span class="c1">// No where clause
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="kc">null</span><span class="o">);</span>        <span class="c1">// No sort order
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">    <span class="n">String</span><span class="o">[]</span> <span class="n">dataColumns</span> <span class="o">=</span> <span class="o">{</span> <span class="s">&#34;text_column&#34;</span> <span class="o">};</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span><span class="o">[]</span> <span class="n">viewIDs</span> <span class="o">=</span> <span class="o">{</span> <span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">text_view</span> <span class="o">};</span>
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl">    <span class="c1">// Create the backing adapter for the ListView.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">//
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// WARNING!! While not readily obvious, using this constructor will 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// tell the CursorAdapter to register a ContentObserver that will
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// monitor the underlying data source. As part of the monitoring
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// process, the ContentObserver will call requery() on the cursor 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// each time the data is updated. Since Cursor#requery() is performed 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// on the UI thread, this constructor should be avoided at all costs!
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">SimpleCursorAdapter</span> <span class="n">adapter</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SimpleCursorAdapter</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">,</span>                <span class="c1">// The Activity context
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">list_item</span><span class="o">,</span>  <span class="c1">// Points to the XML for a list item
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">cursor</span><span class="o">,</span>              <span class="c1">// Cursor that contains the data to display
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">dataColumns</span><span class="o">,</span>         <span class="c1">// Bind the data in column &#34;text_column&#34;...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">viewIDs</span><span class="o">);</span>            <span class="c1">// ...to the TextView with id &#34;R.id.text_view&#34;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Sets the ListView&#39;s adapter to be the cursor adapter that was 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// just created.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">setListAdapter</span><span class="o">(</span><span class="n">adapter</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>There are three problems with the code above. If you have understood this post so far, the first two shouldn&rsquo;t be difficult to spot:</p>
+<ul>
+<li>managedQuery performs a query on the main UI thread. This leads to unresponsive apps and should no longer be used.</li>
+<li>As seen in the <a href="http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/1.5_r4/android/app/Activity.java#Activity.managedQuery%28android.net.Uri%2Cjava.lang.String%5B%5D%2Cjava.lang.String%2Cjava.lang.String%29">Activity.java</a>, the call to <code>managedQuery</code> begins management of the returned cursor with a call to <code>startManagingCursor(cursor)</code>. Having the activity manage the cursor seems convenient at first, as we no longer need to worry about deactivating/closing the cursor ourselves. However, this signals the activity to call <code>requery()</code> on the cursor each time the activity returns from a stopped state, and therefore puts the UI thread at risk. This cost significantly outweighs the convenience of having the activity deactivate/close the cursor for us.</li>
+<li>The <code>SimpleCursorAdapter</code> constructor (line 32) is deprecated and should not be used. The problem with this constructor is that it will have the <code>SimpleCursorAdapter</code> auto-requery its data when changes are made. More specifically, the <code>CursorAdapter</code> will register a <code>ContentObserver</code> that monitors the underlying data source for changes, calling <code>requery()</code> on its bound cursor each time the data is modified. The standard constructor should be used instead (if you intend on loading the adapter&rsquo;s data with a CursorLoader, make sure you pass 0 as the last argument). Don&rsquo;t worry if you couldn&rsquo;t spot this one&hellip; it&rsquo;s a very subtle bug.</li>
+</ul>
+<p>With the first Android tablet about to be released, something had to be done to encourage UI-friendly development. The larger, 7-10&quot; Honeycomb tablets called for more complicated, interactive, multi-paned layouts. Further, the introduction of the Fragment meant that applications were about to become more dynamic and event-driven. A simple, single-threaded approach to loading data could no longer be encouraged. Thus, the Loader and the LoaderManager were born.</p>
+<p>Prior to Honeycomb, it was difficult to manage cursors, synchronize correctly with the UI thread, and ensure all queries occurred on a background thread. Android 3.0 introduced the Loader and LoaderManager classes to help simplify the process. Both classes are available for use in the Android Support Library, which supports all Android platforms back to Android 1.6.</p>
+<p>The new Loader API is a huge step forward, and significantly improves the user experience. Loaders ensure that all cursor operations are done asynchronously, thus eliminating the possibility of blocking the UI thread. Further, when managed by the LoaderManager, Loaders retain their existing cursor data across the activity instance (for example, when it is restarted due to a configuration change), thus saving the cursor from unnecessary, potentially expensive re-queries. As an added bonus, Loaders are intelligent enough to monitor the underlying data source for updates, re-querying automatically when the data is changed.</p>
+<p>Since the introduction of Loaders in Honeycomb and Compatibility Library, Android applications have changed for the better. Making use of the now deprecated startManagingCursor and managedQuery methods are extremely discouraged; not only do they slow down your app, but they can potentially bring it to a screeching halt. Loaders, on the other hand, significantly speed up the user experience by offloading the work to a separate background thread.</p>
+<h3 id="loadermanager">Understanding the LoaderManager</h3>
+<p>For now, you should think of Loaders as simple, self-contained objects that (1) load data on a separate thread, and (2) monitor the underlying data source for updates, re-querying when changes are detected. This is more than enough to get you through the contents of this post.</p>
+<h4 id="what-is-the-loadermanager">What is the LoaderManager?</h4>
+<p>Simply stated, the <code>LoaderManager</code> is responsible for managing one or more Loaders associated with an <code>Activity</code> or <code>Fragment</code>. Each Activity and each Fragment has exactly one LoaderManager instance that is in charge of starting, stopping, retaining, restarting, and destroying its Loaders. These events are sometimes initiated directly by the client, by calling <code>initLoader()</code>, <code>restartLoader()</code>, or <code>destroyLoader()</code>. Just as often, however, these events are triggered by major Activity/Fragment lifecycle events. For example, when an Activity is destroyed, the Activity instructs its LoaderManager to destroy and close its Loaders (as well as any resources associated with them, such as a Cursor).</p>
+<p>The <code>LoaderManager</code> does not know how data is loaded, nor does it need to. Rather, the <code>LoaderManager</code> instructs its <code>Loaders</code> when to start/stop/reset their load, retaining their state across configuration changes and providing a simple interface for delivering results back to the client. In this way, the <code>LoaderManager</code> is a much more intelligent and generic implementation of the now-deprecated <code>startManagingCursor</code> method. While both manage data across the twists and turns of the Activity lifecycle, the <code>LoaderManager</code> is far superior for several reasons:</p>
+<ul>
+<li>
+<p><code>startManagingCursor</code> manages Cursors, whereas the <code>LoaderManager</code> manages <code>Loader&lt;D&gt;</code> objects. The advantage here is that <code>Loader&lt;D&gt;</code> is generic, where D is the container object that holds the loaded data. In other words, the data source doesn&rsquo;t have to be a <code>Cursor</code>; it could be a <code>List</code>, a <code>JSONArray</code>&hellip; anything. The <code>LoaderManager</code> is independent of the container object that holds the data and is much more flexible as a result.</p>
+</li>
+<li>
+<p>Calling <code>startManagingCursor</code> will make the <code>Activity</code> call <code>requery()</code> on the managed cursor. As mentioned in the previous post, <code>requery()</code> is a potentially expensive operation that is performed on the main UI thread. Subclasses of the <code>Loader&lt;D&gt;</code> class, on the other hand, are expected to load their data asynchronously, so using the <code>LoaderManager</code> will never block the UI thread.</p>
+</li>
+<li>
+<p><code>startManagingCursor</code> does not retain the Cursor&rsquo;s state across configuration changes. Instead, each time the Activity is destroyed due to a configuration change (a simple orientation change, for example), the <code>Cursor</code> is destroyed and must be requeried. The <code>LoaderManager</code> is much more intelligent in that it retains its Loaders&rsquo; state across configuration changes, and thus doesn&rsquo;t need to requery its data.</p>
+</li>
+<li>
+<p>The <code>LoaderManager</code> provides seamless monitoring of data! Whenever the Loader&rsquo;s data source is modified, the <code>LoaderManager</code> will receive a new asynchronous load from the corresponding Loader, and will return the updated data to the client. (Note: the LoaderManager will only be notified of these changes if the Loader is implemented correctly. ).</p>
+</li>
+</ul>
+<p>If you feel overwhelmed by the details above, I wouldn&rsquo;t stress over it. The most important thing to take away from this is that the <code>LoaderManager</code> makes your life easy. It initializes, manages, and destroys Loaders for you, reducing both coding complexity and subtle lifecycle-related bugs in your Activitys and Fragments. Further, interacting with the <code>LoaderManager</code> involves implementing three simple callback methods. We discuss the <code>LoaderManager.LoaderCallbacks&lt;D&gt;</code> in the next section.</p>
+<h4 id="implementing-the-loadermanagerloadercallbacksd-interface">Implementing the LoaderManager.LoaderCallbacks<D> Interface</h4>
+<p>The <code>LoaderManager.LoaderCallbacks&lt;D&gt;</code> interface is a simple contract that the <code>LoaderManager</code> uses to report data back to the client. Each <code>Loader</code> gets its own callback object that the <code>LoaderManager</code> will interact with. This callback object fills in the gaps of the abstract <code>LoaderManager</code> implementation, telling it how to instantiate the <code>Loader (onCreateLoader)</code> and providing instructions when its load is complete/reset (<code>onLoadFinished</code> and <code>onLoadReset</code>, respectively). Most often you will implement the callbacks as part of the component itself, by having your Activity or Fragment implement the <code>LoaderManager.LoaderCallbacks&lt;D&gt;</code> interface:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SampleActivity</span> <span class="kd">extends</span> <span class="n">Activity</span> <span class="kd">implements</span> <span class="n">LoaderManager</span><span class="o">.</span><span class="na">LoaderCallbacks</span><span class="o">&lt;</span><span class="n">D</span><span class="o">&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="n">Loader</span><span class="o">&lt;</span><span class="n">D</span><span class="o">&gt;</span> <span class="nf">onCreateLoader</span><span class="o">(</span><span class="kt">int</span> <span class="n">id</span><span class="o">,</span> <span class="n">Bundle</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span> <span class="o">...</span> <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onLoadFinished</span><span class="o">(</span><span class="n">Loader</span><span class="o">&lt;</span><span class="n">D</span><span class="o">&gt;</span> <span class="n">loader</span><span class="o">,</span> <span class="n">D</span> <span class="n">data</span><span class="o">)</span> <span class="o">{</span> <span class="o">...</span> <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onLoaderReset</span><span class="o">(</span><span class="n">Loader</span><span class="o">&lt;</span><span class="n">D</span><span class="o">&gt;</span> <span class="n">loader</span><span class="o">)</span> <span class="o">{</span> <span class="o">...</span> <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="cm">/* ... */</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Once instantiated, the client passes the callbacks object (&ldquo;this&rdquo;, in this case) as the third argument to the <code>LoaderManager</code>&rsquo;s <code>initLoader</code> method, and will be bound to the <code>Loader</code> as soon as it is created.</p>
+<p>Overall, implementing the callbacks is straightforward. Each callback method serves a specific purpose that makes interacting with the <code>LoaderManager</code> easy:</p>
+<ul>
+<li>
+<p><code>onCreateLoader</code> is a factory method that simply returns a new <code>Loader</code>. The <code>LoaderManager</code> will call this method when it first creates the <code>Loader</code>.</p>
+</li>
+<li>
+<p><code>onLoadFinished</code> is called automatically when a <code>Loader</code> has finished its load. This method is typically where the client will update the application&rsquo;s UI with the loaded data. The client may (and should) assume that new data will be returned to this method each time new data is made available. Remember that it is the Loader&rsquo;s job to monitor the data source and to perform the actual asynchronous loads. The <code>LoaderManager</code> will receive these loads once they have completed, and then pass the result to the callback object&rsquo;s <code>onLoadFinished</code> method for the client (i.e. the Activity/Fragment) to use.</p>
+</li>
+<li>
+<p>Lastly, <code>onLoadReset</code> is called when the Loader&rsquo;s data is about to be reset. This method gives you the opportunity to remove any references to old data that may no longer be available.</p>
+</li>
+</ul>
+<h4 id="transitioning-from-managed-cursors-to-the-loadermanager">Transitioning from Managed Cursors to the LoaderManager</h4>
+<p>The code below is similar in behavior to the sample in my previous section. The difference, of course, is that it has been updated to use the <code>LoaderManager</code>. The <code>CursorLoader</code> ensures that all queries are performed asynchronously, thus guaranteeing that we won&rsquo;t block the UI thread. Further, the <code>LoaderManager</code> manages the <code>CursorLoader</code> across the <code>Activity</code> lifecycle, retaining its data on configuration changes and directing each new data load to the callback&rsquo;s <code>onLoadFinished</code> method, where the Activity is finally free to make use of the queried <code>Cursor</code>.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SampleListActivity</span> <span class="kd">extends</span> <span class="n">ListActivity</span> <span class="kd">implements</span>
+</span></span><span class="line"><span class="cl">    <span class="n">LoaderManager</span><span class="o">.</span><span class="na">LoaderCallbacks</span><span class="o">&lt;</span><span class="n">Cursor</span><span class="o">&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span><span class="o">[]</span> <span class="n">PROJECTION</span> <span class="o">=</span> <span class="k">new</span> <span class="n">String</span><span class="o">[]</span> <span class="o">{</span> <span class="s">&#34;_id&#34;</span><span class="o">,</span> <span class="s">&#34;text_column&#34;</span> <span class="o">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// The loader&#39;s unique id. Loader ids are specific to the Activity or
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// Fragment in which they reside.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">LOADER_ID</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// The callbacks through which we will interact with the LoaderManager.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kd">private</span> <span class="n">LoaderManager</span><span class="o">.</span><span class="na">LoaderCallbacks</span><span class="o">&lt;</span><span class="n">Cursor</span><span class="o">&gt;</span> <span class="n">mCallbacks</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// The adapter that binds our data to the ListView
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kd">private</span> <span class="n">SimpleCursorAdapter</span> <span class="n">mAdapter</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">(</span><span class="n">savedInstanceState</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">String</span><span class="o">[]</span> <span class="n">dataColumns</span> <span class="o">=</span> <span class="o">{</span> <span class="s">&#34;text_column&#34;</span> <span class="o">};</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span><span class="o">[]</span> <span class="n">viewIDs</span> <span class="o">=</span> <span class="o">{</span> <span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">text_view</span> <span class="o">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// Initialize the adapter. Note that we pass a &#39;null&#39; Cursor as the
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// third argument. We will pass the adapter a Cursor only when the
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// data has finished loading for the first time (i.e. when the
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// LoaderManager delivers the data to onLoadFinished). Also note
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// that we have passed the &#39;0&#39; flag as the last argument. This
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// prevents the adapter from registering a ContentObserver for the
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// Cursor (the CursorLoader will do this for us!).
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">mAdapter</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SimpleCursorAdapter</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">list_item</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">        <span class="kc">null</span><span class="o">,</span> <span class="n">dataColumns</span><span class="o">,</span> <span class="n">viewIDs</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// Associate the (now empty) adapter with the ListView.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">setListAdapter</span><span class="o">(</span><span class="n">mAdapter</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// The Activity (which implements the LoaderCallbacks&lt;Cursor&gt;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// interface) is the callbacks object through which we will interact
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// with the LoaderManager. The LoaderManager uses this object to
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// instantiate the Loader and to notify the client when data is made
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// available/unavailable.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">mCallbacks</span> <span class="o">=</span> <span class="k">this</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// Initialize the Loader with id &#39;1&#39; and callbacks &#39;mCallbacks&#39;.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// If the loader doesn&#39;t already exist, one is created. Otherwise,
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// the already created Loader is reused. In either case, the
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// LoaderManager will manage the Loader across the Activity/Fragment
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// lifecycle, will receive any new loads once they have completed,
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// and will report this new data back to the &#39;mCallbacks&#39; object.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">LoaderManager</span> <span class="n">lm</span> <span class="o">=</span> <span class="n">getLoaderManager</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">lm</span><span class="o">.</span><span class="na">initLoader</span><span class="o">(</span><span class="n">LOADER_ID</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="n">mCallbacks</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="n">Loader</span><span class="o">&lt;</span><span class="n">Cursor</span><span class="o">&gt;</span> <span class="nf">onCreateLoader</span><span class="o">(</span><span class="kt">int</span> <span class="n">id</span><span class="o">,</span> <span class="n">Bundle</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Create a new CursorLoader with the following query parameters.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">return</span> <span class="k">new</span> <span class="n">CursorLoader</span><span class="o">(</span><span class="n">SampleListActivity</span><span class="o">.</span><span class="na">this</span><span class="o">,</span> <span class="n">CONTENT_URI</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">PROJECTION</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onLoadFinished</span><span class="o">(</span><span class="n">Loader</span><span class="o">&lt;</span><span class="n">Cursor</span><span class="o">&gt;</span> <span class="n">loader</span><span class="o">,</span> <span class="n">Cursor</span> <span class="n">cursor</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// A switch-case is useful when dealing with multiple Loaders/IDs
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">switch</span> <span class="o">(</span><span class="n">loader</span><span class="o">.</span><span class="na">getId</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">case</span> <span class="n">LOADER_ID</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// The asynchronous load is complete and the data
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="c1">// is now available for use. Only now can we associate
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="c1">// the queried Cursor with the SimpleCursorAdapter.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">mAdapter</span><span class="o">.</span><span class="na">swapCursor</span><span class="o">(</span><span class="n">cursor</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">break</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// The listview now displays the queried data.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onLoaderReset</span><span class="o">(</span><span class="n">Loader</span><span class="o">&lt;</span><span class="n">Cursor</span><span class="o">&gt;</span> <span class="n">loader</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// For whatever reason, the Loader&#39;s data is now unavailable.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// Remove any references to the old data by replacing it with
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// a null Cursor.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">mAdapter</span><span class="o">.</span><span class="na">swapCursor</span><span class="o">(</span><span class="kc">null</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>As its name suggests, the <code>LoaderManager</code> is responsible for managing Loaders across the Activity/Fragment lifecycle. The <code>LoaderManager</code> is simple and its implementation usually requires very little code.</p>
+<h3 id="implementing">Implementing Loaders</h3>
+<p>This section introduces the <code>Loader&lt;D&gt;</code> class as well as custom <code>Loader</code> implementations.</p>
+<h4 id="loader-basics">Loader Basics</h4>
+<p><code>Loaders</code> are responsible for performing queries on a separate thread, monitoring the data source for changes, and delivering new results to a registered listener (usually the <code>LoaderManager</code>) when changes are detected. These characteristics make <code>Loaders</code> a powerful addition to the Android SDK for several reasons:</p>
+<ul>
+<li>
+<p>They encapsulate the actual loading of data. The <code>Activity/Fragment</code> no longer needs to know how to load data. Instead, the <code>Activity/Fragment</code> delegates the task to the <code>Loader</code>, which carries out the request behind the scenes and has its results delivered back to the <code>Activity/Fragment</code>.</p>
+</li>
+<li>
+<p>They abstract out the idea of threads from the client. The Activity/Fragment does not need to worry about offloading queries to a separate thread, as the <code>Loader</code> will do this automatically. This reduces code complexity and eliminates potential thread-related bugs.</p>
+</li>
+<li>
+<p>They are entirely event-driven. <code>Loaders</code> monitor the underlying data source and automatically perform new loads for up-to-date results when changes are detected. This makes working with Loaders easy, as the client can simply trust that the Loader will auto-update its data on its own. All the Activity/Fragment has to do is initialize the <code>Loader</code> and respond to any results that might be delivered. Everything in between is done by the Loader.</p>
+</li>
+</ul>
+<p>Loaders are a somewhat advanced topic and may take some time getting used to. We begin by analyzing its four defining characteristics in the next section.</p>
+<h4 id="what-makes-up-a-loader">What Makes Up a Loader?</h4>
+<p>There are four characteristics which ultimately determine a Loader’s behavior:</p>
+<ul>
+<li>
+<p>A task to perform the asynchronous load. To ensure that loads are done on a separate thread, subclasses should extend <code>AsyncTaskLoader&lt;D&gt;</code> as opposed to the <code>Loader&lt;D&gt;</code> class. <code>AsyncTaskLoader&lt;D&gt;</code> is an abstract Loader which provides an <code>AsyncTask</code> to do its work. When subclassed, implementing the asynchronous task is as simple as implementing the abstract <code>loadInBackground()</code> method, which is called on a worker thread to perform the data load.</p>
+</li>
+<li>
+<p>A registered listener to receive the Loader&rsquo;s results when it completes a load. For each of its <code>Loaders</code>, the <code>LoaderManager</code> registers an <code>OnLoadCompleteListener&lt;D&gt;</code> which will forward the Loader’s delivered results to the client with a call to <code>onLoadFinished(Loader&lt;D&gt; loader, D result)</code>. Loaders should deliver results to these registered listeners with a call to <code>Loader#deliverResult(D result)</code>.You don&rsquo;t need to worry about registering a listener for your Loader unless you plan on using it without the <code>LoaderManager</code>. The <code>LoaderManager</code> will act as this &ldquo;listener&rdquo; and will forward any results that the Loader delivers to the <code>LoaderCallbacks#onLoadFinished</code> method.</p>
+</li>
+<li>
+<p>One of three distinct states. Any given Loader will either be in a started, stopped, or reset state:</p>
+<ul>
+<li><code>Loaders</code> in a started state execute loads and may deliver their results to the listener at any time. Started Loaders should monitor for changes and perform new loads when changes are detected. Once started, the Loader will remain in a started state until it is either stopped or reset. This is the only state in which <code>onLoadFinished</code> will ever be called.</li>
+<li><code>Loaders</code> in a stopped state continue to monitor for changes but should not deliver results to the client. From a stopped state, the <code>Loader</code> may either be started or reset.</li>
+<li><code>Loaders</code> in a reset state should not execute new loads, should not deliver new results, and should not monitor for changes. When a loader enters a reset state, it should invalidate and free any data associated with it for garbage collection (likewise, the client should make sure they remove any references to this data, since it will no longer be available). More often than not, reset Loaders will never be called again; however, in some cases they may be started, so they should be able to start running properly again if necessary.</li>
+</ul>
+</li>
+<li>
+<p>An observer to receive notifications when the data source has changed. <code>Loaders</code> should implement an observer of some sort (i.e. a <code>ContentObserver</code>, a <code>BroadcastReceiver</code>, etc.) to monitor the underlying data source for changes. When a change is detected, the observer should call <code>Loader#onContentChanged()</code>, which will either (a) force a new load if the Loader is in a started state or, (b) raise a flag indicating that a change has been made so that if the <code>Loader</code> is ever started again, it will know that it should reload its data.</p>
+</li>
+</ul>
+<p>By now you should have a basic understanding of how Loaders work. If not, I suggest you let it sink in for a bit and come back later to read through once more (reading the <a href="http://developer.android.com/reference/android/content/Loader.html">documentation</a> never hurts either!). That being said, let’s get our hands dirty with the actual code!</p>
+<h4 id="implementing-the-loader">Implementing the Loader</h4>
+<p>As I stated earlier, there is a lot that you must keep in mind when implementing your own custom Loaders. Subclasses must implement <code>loadInBackground()</code> and should override <code>onStartLoading()</code>, <code>onStopLoading()</code>, <code>onReset()</code>, <code>onCanceled()</code>, and <code>deliverResult(D results)</code> to achieve a fully functioning <code>Loader</code>. Overriding these methods is very important as the <code>LoaderManager</code> will call them regularly depending on the state of the Activity/Fragment lifecycle. For example, when an Activity is first started, the Activity instructs the <code>LoaderManager</code> to start each of its <code>Loaders</code> in <code>Activity#onStart()</code>. If a <code>Loader</code> is not already started, the <code>LoaderManager</code> calls <code>startLoading()</code>, which puts the <code>Loader</code> in a started state and immediately calls the <code>Loader’s</code> <code>onStartLoading()</code> method. In other words, a lot of work that the <code>LoaderManager</code> does behind the scenes relies on the Loader being correctly implemented, so don’t take the task of implementing these methods lightly!</p>
+<p>The code below serves as a template of what a <code>Loader</code> implementation typically looks like. The <code>SampleLoader</code> queries a list of <code>SampleItem</code> objects and delivers a <code>List&lt;SampleItem&gt;</code> to the client:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span><span class="lnt">133
+</span><span class="lnt">134
+</span><span class="lnt">135
+</span><span class="lnt">136
+</span><span class="lnt">137
+</span><span class="lnt">138
+</span><span class="lnt">139
+</span><span class="lnt">140
+</span><span class="lnt">141
+</span><span class="lnt">142
+</span><span class="lnt">143
+</span><span class="lnt">144
+</span><span class="lnt">145
+</span><span class="lnt">146
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SampleLoader</span> <span class="kd">extends</span> <span class="n">AsyncTaskLoader</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">SampleItem</span><span class="o">&gt;&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// We hold a reference to the Loader’s data here.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">SampleItem</span><span class="o">&gt;</span> <span class="n">mData</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="nf">SampleLoader</span><span class="o">(</span><span class="n">Context</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Loaders may be used across multiple Activitys (assuming they aren&#39;t
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// bound to the LoaderManager), so NEVER hold a reference to the context
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// directly. Doing so will cause you to leak an entire Activity&#39;s context.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// The superclass constructor will store a reference to the Application
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// Context instead, and can be retrieved with a call to getContext().
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kd">super</span><span class="o">(</span><span class="n">ctx</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="cm">/****************************************************/</span>
+</span></span><span class="line"><span class="cl">  <span class="cm">/** (1) A task that performs the asynchronous load **/</span>
+</span></span><span class="line"><span class="cl">  <span class="cm">/****************************************************/</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">SampleItem</span><span class="o">&gt;</span> <span class="nf">loadInBackground</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// This method is called on a background thread and should generate a
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// new set of data to be delivered back to the client.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">List</span><span class="o">&lt;</span><span class="n">SampleItem</span><span class="o">&gt;</span> <span class="n">data</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">SampleItem</span><span class="o">&gt;();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// TODO: Perform the query here and add the results to &#39;data&#39;.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">data</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="cm">/********************************************************/</span>
+</span></span><span class="line"><span class="cl">  <span class="cm">/** (2) Deliver the results to the registered listener **/</span>
+</span></span><span class="line"><span class="cl">  <span class="cm">/********************************************************/</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">deliverResult</span><span class="o">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">SampleItem</span><span class="o">&gt;</span> <span class="n">data</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(</span><span class="n">isReset</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// The Loader has been reset; ignore the result and invalidate the data.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="n">releaseResources</span><span class="o">(</span><span class="n">data</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// Hold a reference to the old data so it doesn&#39;t get garbage collected.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// We must protect it until the new data has been delivered.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">List</span><span class="o">&lt;</span><span class="n">SampleItem</span><span class="o">&gt;</span> <span class="n">oldData</span> <span class="o">=</span> <span class="n">mData</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">mData</span> <span class="o">=</span> <span class="n">data</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(</span><span class="n">isStarted</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// If the Loader is in a started state, deliver the results to the
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="c1">// client. The superclass method does this for us.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="kd">super</span><span class="o">.</span><span class="na">deliverResult</span><span class="o">(</span><span class="n">data</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// Invalidate the old data as we don&#39;t need it any more.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="o">(</span><span class="n">oldData</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">oldData</span> <span class="o">!=</span> <span class="n">data</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">releaseResources</span><span class="o">(</span><span class="n">oldData</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="cm">/*********************************************************/</span>
+</span></span><span class="line"><span class="cl">  <span class="cm">/** (3) Implement the Loader’s state-dependent behavior **/</span>
+</span></span><span class="line"><span class="cl">  <span class="cm">/*********************************************************/</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onStartLoading</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(</span><span class="n">mData</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// Deliver any previously loaded data immediately.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="n">deliverResult</span><span class="o">(</span><span class="n">mData</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// Begin monitoring the underlying data source.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="o">(</span><span class="n">mObserver</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">mObserver</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SampleObserver</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// TODO: register the observer
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(</span><span class="n">takeContentChanged</span><span class="o">()</span> <span class="o">||</span> <span class="n">mData</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// When the observer detects a change, it should call onContentChanged()
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="c1">// on the Loader, which will cause the next call to takeContentChanged()
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="c1">// to return true. If this is ever the case (or if the current data is
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="c1">// null), we force a new load.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="n">forceLoad</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onStopLoading</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// The Loader is in a stopped state, so we should attempt to cancel the 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// current load (if there is one).
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">cancelLoad</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// Note that we leave the observer as is. Loaders in a stopped state
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// should still monitor the data source for changes so that the Loader
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// will know to force a new load if it is ever started again.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onReset</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Ensure the loader has been stopped.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">onStopLoading</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// At this point we can release the resources associated with &#39;mData&#39;.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="o">(</span><span class="n">mData</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">releaseResources</span><span class="o">(</span><span class="n">mData</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">mData</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// The Loader is being reset, so we should stop monitoring for changes.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="o">(</span><span class="n">mObserver</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// TODO: unregister the observer
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="n">mObserver</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onCanceled</span><span class="o">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">SampleItem</span><span class="o">&gt;</span> <span class="n">data</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Attempt to cancel the current asynchronous load.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kd">super</span><span class="o">.</span><span class="na">onCanceled</span><span class="o">(</span><span class="n">data</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// The load has been canceled, so we should release the resources
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// associated with &#39;data&#39;.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">releaseResources</span><span class="o">(</span><span class="n">data</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">private</span> <span class="kt">void</span> <span class="nf">releaseResources</span><span class="o">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">SampleItem</span><span class="o">&gt;</span> <span class="n">data</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// For a simple List, there is nothing to do. For something like a Cursor, we 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// would close it in this method. All resources associated with the Loader
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// should be released here.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="cm">/*********************************************************************/</span>
+</span></span><span class="line"><span class="cl">  <span class="cm">/** (4) Observer which receives notifications when the data changes **/</span>
+</span></span><span class="line"><span class="cl">  <span class="cm">/*********************************************************************/</span>
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl">  <span class="c1">// NOTE: Implementing an observer is outside the scope of this post (this example
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// uses a made-up &#34;SampleObserver&#34; to illustrate when/where the observer should 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// be initialized). 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  
+</span></span><span class="line"><span class="cl">  <span class="c1">// The observer could be anything so long as it is able to detect content changes
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// and report them to the loader with a call to onContentChanged(). For example,
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// if you were writing a Loader which loads a list of all installed applications
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// on the device, the observer could be a BroadcastReceiver that listens for the
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// ACTION_PACKAGE_ADDED intent, and calls onContentChanged() on the particular 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// Loader whenever the receiver detects that a new application has been installed.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// Please don’t hesitate to leave a comment if you still find this confusing! :)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kd">private</span> <span class="n">SampleObserver</span> <span class="n">mObserver</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>REF:</p>
+<ul>
+<li><a href="http://www.androiddesignpatterns.com/2012/07/loaders-and-loadermanager-background.html">Life Before Loaders</a></li>
+<li><a href="http://www.androiddesignpatterns.com/2012/07/understanding-loadermanager.html">Understanding the LoaderManager</a></li>
+<li><a href="http://www.androiddesignpatterns.com/2012/08/implementing-loaders.html">Implementing the Loaders</a></li>
+<li><a href="http://www.androiddesignpatterns.com/2012/09/tutorial-loader-loadermanager.html">Tutorial:AppListLoader</a>,<a href="https://github.com/alexjlockwood/AppListLoader">AppListLoader</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2014-10-24
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/2014/10/24/android-contentprovider/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Android Contentprovider</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/2014/10/19/android-asynctask-pitfalls/">
+            <span class="next-text nav-default">Android Asynctask Pitfalls</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

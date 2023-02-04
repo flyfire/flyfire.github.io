@@ -1,0 +1,1643 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Android Contentprovider - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="Android ContentProvider Content Provider Basics Using Content Providers Writing your own Content Provider Better Performance with ContentProviderOperation Android ContentProvider This is a tutorial covering Android&amp;rsquo;s ContentProvider.
+ContentProvider Basics What are content providers? Content providers are Android’s central mechanism that enables you to access data of other applications – mostly information stored in databases or flat files. As such content providers are one of Android’s central component types to support the modular approach common to Android." /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/2014/10/24/android-contentprovider/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Android Contentprovider" />
+<meta property="og:description" content="Android ContentProvider Content Provider Basics Using Content Providers Writing your own Content Provider Better Performance with ContentProviderOperation Android ContentProvider This is a tutorial covering Android&rsquo;s ContentProvider.
+ContentProvider Basics What are content providers? Content providers are Android’s central mechanism that enables you to access data of other applications – mostly information stored in databases or flat files. As such content providers are one of Android’s central component types to support the modular approach common to Android." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/2014/10/24/android-contentprovider/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2014-10-24T00:00:00+00:00" />
+<meta property="article:modified_time" content="2014-10-24T00:00:00+00:00" />
+<meta itemprop="name" content="Android Contentprovider">
+<meta itemprop="description" content="Android ContentProvider Content Provider Basics Using Content Providers Writing your own Content Provider Better Performance with ContentProviderOperation Android ContentProvider This is a tutorial covering Android&rsquo;s ContentProvider.
+ContentProvider Basics What are content providers? Content providers are Android’s central mechanism that enables you to access data of other applications – mostly information stored in databases or flat files. As such content providers are one of Android’s central component types to support the modular approach common to Android."><meta itemprop="datePublished" content="2014-10-24T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2014-10-24T00:00:00+00:00" />
+<meta itemprop="wordCount" content="6764">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Android Contentprovider"/>
+<meta name="twitter:description" content="Android ContentProvider Content Provider Basics Using Content Providers Writing your own Content Provider Better Performance with ContentProviderOperation Android ContentProvider This is a tutorial covering Android&rsquo;s ContentProvider.
+ContentProvider Basics What are content providers? Content providers are Android’s central mechanism that enables you to access data of other applications – mostly information stored in databases or flat files. As such content providers are one of Android’s central component types to support the modular approach common to Android."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Android Contentprovider</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2014-10-24 </span>
+        <div class="post-category">
+            <a href="/categories/dev/"> dev </a>
+            <a href="/categories/android/"> android </a>
+            </div>
+          <span class="more-meta"> 约 6764 字 </span>
+          <span class="more-meta"> 预计阅读 32 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li>
+          <ul>
+            <li></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <center><p><img src="/images/android_logo.jpg"/></p></center>
+<ul>
+<li><a href="#overview">Android ContentProvider</a>
+<ul>
+<li><a href="#basics">Content Provider Basics</a></li>
+<li><a href="#using">Using Content Providers</a></li>
+<li><a href="#writing">Writing your own Content Provider</a></li>
+<li><a href="#performance">Better Performance with ContentProviderOperation</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="overview">Android ContentProvider</h2>
+<p>This is a tutorial covering Android&rsquo;s ContentProvider.</p>
+<!-- more -->
+<h3 id="basics">ContentProvider Basics</h3>
+<h4 id="what-are-content-providers">What are content providers?</h4>
+<p>Content providers are Android’s central mechanism that enables you to access data of other applications – mostly information stored in databases or flat files. As such content providers are one of Android’s central component types to support the modular approach common to Android. Without content providers accessing data of other apps would be a mess.</p>
+<p>Content providers support the four basic operations, normally called CRUD-operations. CRUD is the acronym for <code>create</code>, <code>read</code>, <code>update</code> and <code>delete</code>. With content providers those objects simply represent data – most often a record (tuple) of a database – but they could also be a photo on your SD-card or a video on the web.Android provides some standard content providers to access contacts, media files, preferences and so on.</p>
+<h4 id="content-uris">Content URIs</h4>
+<p>The most important concept to understand when dealing with content providers is the content URI. Whenever you want to access data from a content provider you have to specify a URI. URIs for content providers look like this:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">content://authority/optionalPath/optionalId
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>They contain four parts: The scheme to use, an authority, an optional path and an optional id.</p>
+<ul>
+<li>The scheme for content providers is always “content”. The colon and double-slash “://” are a fixed part of the URI-RFC and separate the scheme from the authority.</li>
+<li>The next part is the authority for the content provider. Authorities have to be unique for every content provider. Thus the naming conventions should follow the Java package name rules. That is you should use the reversed domain name of your organization plus a qualifier for each and every content provider you publish. The Android documentation recommends to use the fully qualified class name of your ContentProvider-subclass.</li>
+<li>The third part, the optional path, is used to distinguish the kinds of data your content provider offers. The content provider for Android’s mediastore, for example, distinguishes between audio files, video files and images using different paths for each of these types of media. This way a content provider can support different types of data that are nevertheless related. For totally unrelated data though you should use different content providers – and thus different authorities.</li>
+<li>The last element is the optional id, which – if present – must be numeric. The id is used whenever you want to access a single record (e.g. a specific video file).</li>
+</ul>
+<p>There are two types of URIs: <code>directory-based</code> and <code>id-based</code> URIs. If no id is specified a URI is automatically a directory-based URI.</p>
+<ul>
+<li>You use <code>directory-based</code> URIs to access multiple elements of the same type (e.g. all songs of a band). All CRUD-operations are possible with directory-based URIs.</li>
+<li>You use <code>id-based</code> URIs if you want to access a specific element. You cannot create objects using an id-based URI – but reading, updating and deleting is possible.</li>
+</ul>
+<p>The path of content URIs can contain additional information to limit the scope. The <code>MediaStore</code> content provider for example distinguishes between audio and other types. In addition to this it offers URIs that limit its operations to albums only or others to genres only. Content providers normally have constants for the URIs they support.</p>
+<h4 id="content-types">Content Types</h4>
+<p>Besides URIs another important concept to understand is the use of content types. Content types also have a standardized format which was first defined in RFC 1049 and refined in RFC 2045.</p>
+<p>A content type consist of a media type and a subtype divided by a slash. A typical example is “image/png”. The media type “image” describes the content as an image file which is further specified to be of the Portable Network Graphic variety by the subtype “png”.</p>
+<p>As with URIs there is also a standard for content types in Android. Table below lists the only two media types that Android accepts for content providers. As you can see, those two media types match the two types of URIs mentioned above.</p>
+<table>
+<caption><center>The media types used for content providers</center></caption>
+<tr>
+<th>Type</th>
+<th>Usage</th>
+<th>Constant</th>
+</tr>
+<tr>
+<td>vnd.android.cursor.item</td>
+<td>Used for single records</td>
+<td>ContentResolver.CURSOR_ITEM_BASE_TYPE</td>
+</tr>
+<tr>
+<td>vnd.android.cursor.dir</td>
+<td>Used for multiple records</td>
+<td>ContentResolver.CURSOR_DIR_BASE_TYPE</td>
+</tr>
+</table>
+<p>The subtype on the other hand is used for content provider specific details and should differ for all types your content provider supports. The naming convention for subtypes is vnd.yourcompanyname.contenttype. Most content providers support multiple subtypes. In the case of a media player for example you might have subtypes for genre, band, titles, musicians and so on.</p>
+<h4 id="which-standard-content-providers-are-available">Which standard Content Providers are available?</h4>
+<p>A number of content providers are part of Android’s API. All these standard providers are defined in the package <code>android.provider</code>. The following table lists the standard providers and what they are used for.</p>
+<table>
+<caption>The standard content providers of Android</caption>
+<tr>
+<th>Provider</th>
+<th>Since&nbsp;&nbsp;&nbsp;&nbsp;</th>
+<th>Usage</th>
+</tr>
+<tr>
+<td>Browser</td>
+<td>SDK 1</td>
+<td>Manages your web-searches, bookmarks and browsing-history.</td>
+</tr>
+<tr>
+<td>CalendarContract</td>
+<td>SDK 14</td>
+<td>Manages the calendars on the user&#8217;s device.</td>
+</tr>
+<tr>
+<td>CallLog</td>
+<td>SDK 1</td>
+<td>Keeps track of your call history.</td>
+</tr>
+<tr>
+<td>Contacts</td>
+<td>SDK 1</td>
+<td>The old and deprecated content provider for managing contacts. You should only use this provider if you need to support an SDK prior to SDK 5!</td>
+</tr>
+<tr>
+<td>ContactsContract</td>
+<td>SDK 5</td>
+<td>Deals with all aspects of contact management. Supersedes the Contacts-content provider.</td>
+</tr>
+<tr>
+<td>MediaStore</td>
+<td>SDK 1</td>
+<td>The content provider responsible for all your media files like music, video and pictures.</td>
+</tr>
+<tr>
+<td>Settings</td>
+<td>SDK 1</td>
+<td>Manages all global settings of your device.</td>
+</tr>
+<tr>
+<td>UserDictionary</td>
+<td>SDK 3</td>
+<td>Keeps track of words you add to the default dictionary.</td>
+</tr>
+</table>
+<p>Please make use of the standard providers whenever you need data they provide. For example there are apps that ignore the UserDictionary (e.g. Swype). So the user might end up adding the same words in multiple apps – which is pretty annoying. Something like this will not help your rating in Android’s Market.</p>
+<p>Of course you should always keep in mind that not all of the standard providers might be present on certain devices. E.g. a tablet might have no CallLog. Thus you should always test for availability. <strong>One way to do so is querying a content provider and checking if the returned cursor is null</strong>. That’s the return value when the provider doesn’t exist. The other CRUD-methods though throw an exception in case you pass in an unknown URI.</p>
+<h3 id="using">Using ContentProviders</h3>
+<h4 id="contentresolver">ContentResolver</h4>
+<p>Whenever you want to use another content provider you first have to access a <code>ContentResolver</code> object. This object is responsible for finding the correct content provider.</p>
+<p>The <code>ContentResolver</code> decides which provider to use based on the authority part of the URI. <strong>A content provider must provide its authority within the manifest file.</strong> From these entries Android creates a mapping between the authorities and the corresponding ContentProvider implementations to use.</p>
+<p>You always interact with the <code>ContentResolver</code> and never with <code>ContentProvider</code> objects themselves. This supports loose coupling and also guarantees the correct lifecycle of the content provider.</p>
+<p>You can get the <code>ContentResolver</code> object by calling <code>getContentResolver()</code> on the <code>Context</code> object. The <code>Context</code> object should always be available since the Activity and Service classes inherit from Context and the other components also provide easy access to it.</p>
+<p>Since you only use the class <code>ContentResolver</code> it has to provide all necessary CRUD-methods. Any arguments provided to the methods of the <code>ContentResolver</code> are passed on to the respective methods of the <code>ContentProvider</code> subclass.</p>
+<table>
+<caption>The CRUD methods of the ContentResolver object</caption>
+<tr>
+<th>Method</th>
+<th>Usage</th>
+</tr>
+<tr>
+<td>delete</td>
+<td>Deletes the object(s) for the URI provided. The URI can be item- or directory-based</td>
+</tr>
+<tr>
+<td>insert</td>
+<td>Inserts one object. The URI must be directory-based</td>
+</tr>
+<tr>
+<td>query</td>
+<td>Queries for all objects that fit the URI. The URI can be item- or directory-based</td>
+</tr>
+<tr>
+<td>update</td>
+<td>Updates one or all object(s). The URI can be item- or directory-based</td>
+</tr>
+</table>
+<p>There are also two methods for applying multiple CRUD operations at once as shown in the next table.</p>
+<table>
+<caption>ContentResolver methods for dealing with multiple content provider operations</caption>
+<tr>
+<th>Method</th>
+<th>Usage</th>
+</tr>
+<tr>
+<td>applyBatch</td>
+<td>Allows you to execute a list of <code>ContentProviderOperation</code> objects. Each <code>ContentProviderOperation</code> object can take its own URI and type of operation</td>
+</tr>
+<tr>
+<td>bulkInsert</td>
+<td>Allows you to insert an array of <code>ContentValues</code> for a directory-based URI. You can only specify one URI for all objects you want to add</td>
+</tr>
+</table>
+<h4 id="querying-for-data">Querying for data</h4>
+<p>Querying data is probably the operation you will use most often. That’s true for your own providers but also for standard providers which offer some very valuable information.</p>
+<table>
+<caption>The arguments of the query method</caption>
+<tr>
+<th>Type</th>
+<th>Name</th>
+<th>Usage</th>
+</tr>
+<tr>
+<td>URI</td>
+<td>uri</td>
+<td>The URI of the object(s) to access. This is the only argument that must not be null</td>
+</tr>
+<tr>
+<td>String[]</td>
+<td>projection</td>
+<td>This String array indicates which columns/attributes of the objects you want to access</td>
+</tr>
+<tr>
+<td>String</td>
+<td>selection</td>
+<td>With this argument you can determine which records to return</td>
+</tr>
+<tr>
+<td>String[]</td>
+<td>selectionArgs</td>
+<td>The binding parameters to the previous selection argument</td>
+</tr>
+<tr>
+<td>String</td>
+<td>sortOrder</td>
+<td>If the result should be ordered you must use this argument to determine the sort order</td>
+</tr>
+</table>
+<p>The return value of the query method is a <code>Cursor</code> object. The cursor is used to navigate between the rows of the result and to read the columns of the current row. Cursors are important resources that have to be closed whenever you have no more use for them – otherwise you keep valuable resources from being released.</p>
+<p>The following code snippet shows how to make use of this provider. I use the <code>CONTENT_URI</code> of <code>UserDictionary.Words</code> to access the dictionary. For this example I am only interested in the IDs of the words and the words itself.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">ContentResolver</span> <span class="n">resolver</span> <span class="o">=</span> <span class="n">getContentResolver</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="n">String</span><span class="o">[]</span> <span class="n">projection</span> <span class="o">=</span> <span class="k">new</span> <span class="n">String</span><span class="o">[]{</span><span class="n">BaseColumns</span><span class="o">.</span><span class="na">_ID</span><span class="o">,</span> <span class="n">UserDictionary</span><span class="o">.</span><span class="na">Words</span><span class="o">.</span><span class="na">WORD</span><span class="o">};</span>
+</span></span><span class="line"><span class="cl"><span class="n">Cursor</span> <span class="n">cursor</span> <span class="o">=</span> 
+</span></span><span class="line"><span class="cl">      <span class="n">resolver</span><span class="o">.</span><span class="na">query</span><span class="o">(</span><span class="n">UserDictionary</span><span class="o">.</span><span class="na">Words</span><span class="o">.</span><span class="na">CONTENT_URI</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">            <span class="n">projection</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">            <span class="kc">null</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">            <span class="kc">null</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">            <span class="kc">null</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="o">(</span><span class="n">cursor</span><span class="o">.</span><span class="na">moveToFirst</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">   <span class="k">do</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="kt">long</span> <span class="n">id</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="na">getLong</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">String</span> <span class="n">word</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// do something meaningful
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>   <span class="o">}</span> <span class="k">while</span> <span class="o">(</span><span class="n">cursor</span><span class="o">.</span><span class="na">moveToNext</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="inserting-new-records">Inserting new records</h4>
+<p>Very often your app needs to insert data. For the built-in content providers of Android this could be because you want to add events to the Calendar provider, people to the Contacts provider, words to the UserDictionary provider and so on.</p>
+<p>The correct content URI for inserts can only be a <code>directory-based</code> URI because only these represent a collection of related items.</p>
+<p>The values to insert are specified using a <code>ContentValues</code> object.This object is not much more than a collection of key/value pairs. Of course, the keys of your ContentValues object must match columns/attributes of the objects you want to update – otherwise you will get an exception. For all columns of the new object for which no key/value-pair is provided the default value is used – which most often is null.</p>
+<table>
+<caption>The arguments of the insert method</caption>
+<tr>
+<th>Type</th>
+<th>Name</th>
+<th>Usage</th>
+</tr>
+<tr>
+<td>URI</td>
+<td>uri</td>
+<td>The directory-based URI to which to add the object. This argument must not be null</td>
+</tr>
+<tr>
+<td>ContentValues</td>
+<td>values</td>
+<td>The values for the object to add. This argument also must not be null</td>
+</tr>
+</table>
+<p>The following code snippet shows you how to add data using a content provider:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">ContentValues</span> <span class="n">values</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ContentValues</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="n">values</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">Words</span><span class="o">.</span><span class="na">WORD</span><span class="o">,</span> <span class="s">&#34;Beeblebrox&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">resolver</span><span class="o">.</span><span class="na">insert</span><span class="o">(</span><span class="n">UserDictionary</span><span class="o">.</span><span class="na">Words</span><span class="o">.</span><span class="na">CONTENT_URI</span><span class="o">,</span> <span class="n">values</span><span class="o">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>If you want to add multiple records to the same URI you can use the <code>bulkInsert()</code> method. This method differs from the normal <code>insert()</code> method only in that it takes an array of <code>ContentValue</code> objects instead of just one <code>ContentValues</code> object. So for each record you want to add, there must be an entry within the <code>ContentValues</code> array. If you want to add to different URIs though – or if you want to mix insert, update and delete operations, you should use <code>applyBatch()</code>.</p>
+<h4 id="updating-data">Updating data</h4>
+<p>To update records you basically provide the URI, a <code>ContentValues</code> object and optionally also a where-clause and arguments for this where-clause.</p>
+<table>
+<caption>The arguments of the update method</caption>
+<tr>
+<th>Type</th>
+<th>Name</th>
+<th>Usage</th>
+</tr>
+<tr>
+<td>URI</td>
+<td>uri</td>
+<td>The URI of the object(s) to access. This argument must not be null</td>
+</tr>
+<tr>
+<td>ContentValues</td>
+<td>values</td>
+<td>The values to substitute the current data with. This argument also must not be null</td>
+</tr>
+<tr>
+<td>String</td>
+<td>selection</td>
+<td>With this argument you can determine which records to update</td>
+</tr>
+<tr>
+<td>String[]</td>
+<td>selectionArgs</td>
+<td>The binding parameters to the previous selection argument</td>
+</tr>
+</table>
+<p>In the next snippet I am going to change the word I’ve just added in the previous section.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">values</span><span class="o">.</span><span class="na">clear</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="n">values</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">Words</span><span class="o">.</span><span class="na">WORD</span><span class="o">,</span> <span class="s">&#34;Zaphod&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">Uri</span> <span class="n">uri</span> <span class="o">=</span> <span class="n">ContentUris</span><span class="o">.</span><span class="na">withAppendedId</span><span class="o">(</span><span class="n">Words</span><span class="o">.</span><span class="na">CONTENT_URI</span><span class="o">,</span> <span class="n">id</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="kt">long</span> <span class="n">noUpdated</span> <span class="o">=</span> <span class="n">resolver</span><span class="o">.</span><span class="na">update</span><span class="o">(</span><span class="n">uri</span><span class="o">,</span> <span class="n">values</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Here we use a ContentValues object again. The keys of your ContentValues object must of course match columns/attributes of the objects you want to update – otherwise you would get an exception. The update method changes only those columns for which keys are present in the ContentValues object.</p>
+<p>Note the call to <code>ContentUris.withAppendedId()</code>. This is a helper method to create an <code>id-based</code> URI from a directory-based one. You use it all the time since content providers only provide constants for directory-based URIs. So whenever you want to access a specific object you should use this method.</p>
+<p>Since I changed only one record, a URI with an appended ID is sufficient. But if you want to update multiple values, you should use the normal URI and a selection clause. You will see an example for the latter when I show you how to delete entries.</p>
+<p>There is also the call to <code>values.clear()</code>. This resets the ContentValues object and thus recycles the object. This way you are reducing costly garbage collector operations.</p>
+<h4 id="deleting-data">Deleting data</h4>
+<p>The next snippet shows how to delete records. It finally deletes the word. In this code sample you can see how to use the selection and selectionArgs arguments. The array of the selectionArgs argument is used to substitute all question marks found in the selection argument.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kt">long</span> <span class="n">noDeleted</span> <span class="o">=</span> <span class="n">resolver</span><span class="o">.</span><span class="na">delete</span>
+</span></span><span class="line"><span class="cl">      <span class="o">(</span><span class="n">Words</span><span class="o">.</span><span class="na">CONTENT_URI</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">      <span class="n">Words</span><span class="o">.</span><span class="na">WORD</span> <span class="o">+</span> <span class="s">&#34; = ? &#34;</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">      <span class="k">new</span> <span class="n">String</span><span class="o">[]{</span><span class="s">&#34;Zaphod&#34;</span><span class="o">});</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The delete method takes the same arguments as the update method with the exception being the values argument. Since the record is deleted anyway, substitute values are not needed.</p>
+<table>
+<caption>The arguments of the delete method</caption>
+<tr>
+<th>Type</th>
+<th>Name</th>
+<th>Usage</th>
+</tr>
+<tr>
+<td>URI</td>
+<td>uri</td>
+<td>The URI of the object(s) to access. This is the only argument which must not be null</td>
+</tr>
+<tr>
+<td>String</td>
+<td>selection</td>
+<td>With this argument you can determine which records to delete</td>
+</tr>
+<tr>
+<td>String[]</td>
+<td>selectionArgs</td>
+<td>The binding parameters to the previous selection argument</td>
+</tr>
+</table>
+<h3 id="writing">Writing your own ContentProvider</h3>
+<p>Implementing a content provider involves always the following steps:</p>
+<ul>
+<li>Create a class that extends <code>ContentProvider</code></li>
+<li>Create a contract class</li>
+<li>Create the <code>UriMatcher</code> definition</li>
+<li>Implement the <code>onCreate()</code> method</li>
+<li>Implement the <code>getType()</code> method</li>
+<li>Implement the CRUD methods</li>
+<li>Add the content provider to your <code>AndroidManifest.xml</code></li>
+</ul>
+<h4 id="create-a-class-that-extends-contentprovider">Create a class that extends ContentProvider</h4>
+<p>You start by sub-classing ContentProvider. Since ContentProvider is an abstract class you have to implement the six abstract methods. These methods are explained in detail later on, for now simply use the stubs created by the IDE of your choice.</p>
+<table>
+<caption>The abstract methods you have to implement</caption>
+<tr>
+<th>Method</th>
+<th>Usage</th>
+</tr>
+<tr>
+<td>onCreate()</td>
+<td>Prepares the content provider</td>
+</tr>
+<tr>
+<td>getType(Uri)</td>
+<td>Returns the MIME type for this URI</td>
+</tr>
+<tr>
+<td>delete(Uri uri, String selection, String[] selectionArgs)</td>
+<td>Deletes records</td>
+</tr>
+<tr>
+<td>insert(Uri uri, ContentValues values)</td>
+<td>Adds records</td>
+</tr>
+<tr>
+<td>query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder)</td>
+<td>Return records based on selection criteria</td>
+</tr>
+<tr>
+<td>update(Uri uri, ContentValues values, String selection, String[] selectionArgs)</td>
+<td>Modifies data</td>
+</tr>
+</table>
+<h4 id="create-a-contract-class">Create a contract class</h4>
+<p>Up to now your code is still missing most of the functionality. But before implementing the CRUD methods you should think about your role as a provider. Content providers by its very definition provide data to clients. Those clients need to know how to access your data. And you should treat your URIs and authority like an API. You basically enter into a contract with your client. And your public API should reflect this.</p>
+<p>Thus the official Android documentation recommends to create a contract class. This class defines all publicly available elements, like the authority, the content URIs of your tables, the columns, the content types and also any intents your app offers in addition to your provider.</p>
+<p>This class is your public API. What you define here is what clients can use. It’s also the abstraction you provide. You can do behind the scenes whatever you like. The client won’t notice. You can change the data structure without problems – if your contract class remains unchanged.</p>
+<p>The downside is: You shouldn’t change the contract in any way that might break existing clients. It’s a contract after all :-)</p>
+<p>If you really think you must get rid of something you provided earlier on, use analytics to find out when a deprecated feature isn’t used anymore.</p>
+<p>So here is what a typical contract class looks like:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">LentItemsContract</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * The authority of the lentitems provider.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">AUTHORITY</span> <span class="o">=</span> 
+</span></span><span class="line"><span class="cl">	      <span class="s">&#34;de.openminds.samples.cpsample.lentitems&#34;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * The content URI for the top-level 
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * lentitems authority.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Uri</span> <span class="n">CONTENT_URI</span> <span class="o">=</span> 
+</span></span><span class="line"><span class="cl">	      <span class="n">Uri</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="s">&#34;content://&#34;</span> <span class="o">+</span> <span class="n">AUTHORITY</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * Constants for the Items table 
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * of the lentitems provider.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Items</span> 
+</span></span><span class="line"><span class="cl">	      <span class="kd">implements</span> <span class="n">CommonColumns</span> <span class="o">{</span> <span class="o">...</span> <span class="o">}</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * Constants for the Photos table of the 
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * lentitems provider. For each item there 
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * is exactly one photo. You can 
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * safely call insert with the an already 
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * existing ITEMS_ID. You won&#39;t get constraint 
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * violations. The content provider takes care 
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * of this.&lt;br&gt; 
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * Note: The _ID of the new record in this case
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * differs from the _ID of the old record.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Photos</span> 
+</span></span><span class="line"><span class="cl">	      <span class="kd">implements</span> <span class="n">BaseColumns</span> <span class="o">{</span> <span class="o">...</span> <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * Constants for a joined view of Items and 
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * Photos. The _id of this joined view is 
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * the _id of the Items table.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">ItemEntities</span> 
+</span></span><span class="line"><span class="cl">	      <span class="kd">implements</span> <span class="n">CommonColumns</span> <span class="o">{</span> <span class="o">...}</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * This interface defines common columns 
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * found in multiple tables.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kd">static</span> <span class="kd">interface</span> <span class="nc">CommonColumns</span> 
+</span></span><span class="line"><span class="cl">	      <span class="kd">extends</span> <span class="n">BaseColumns</span> <span class="o">{</span> <span class="o">...</span> <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>You can see the exported tables Photos, Items and ItemEntities which are separate inner classes of the contract class. There is also the authority of the provider and the root content URI. If your app also exports activities accessible via intents you should document those here as well. And you should document any permissions your provider uses.</p>
+<p>One thing in the above snippet is noteworthy: The inner class ItemEntities represents a virtual table that doesn’t exist in the database. In this case I simply use joins in the query method but you could also use views within the database to back up virtual tables. Clients cannot join tables of content providers, thus you should consider offering plausible joins yourself.</p>
+<p>The following snippet shows what to do within the inner classes of your contract class:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * Constants for the Items table 
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * of the lentitems provider.
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Items</span> 
+</span></span><span class="line"><span class="cl">      <span class="kd">implements</span> <span class="n">CommonColumns</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * The content URI for this table. 
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Uri</span> <span class="n">CONTENT_URI</span> <span class="o">=</span>
+</span></span><span class="line"><span class="cl">	      <span class="n">Uri</span><span class="o">.</span><span class="na">withAppendedPath</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">	            <span class="n">LentItemsContract</span><span class="o">.</span><span class="na">CONTENT_URI</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">	            <span class="s">&#34;items&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * The mime type of a directory of items.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">CONTENT_TYPE</span> <span class="o">=</span> 
+</span></span><span class="line"><span class="cl">	      <span class="n">ContentResolver</span><span class="o">.</span><span class="na">CURSOR_DIR_BASE_TYPE</span> <span class="o">+</span> 
+</span></span><span class="line"><span class="cl">	      <span class="s">&#34;/vnd.de.openminds.lentitems_items&#34;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * The mime type of a single item.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">CONTENT_ITEM_TYPE</span> <span class="o">=</span> 
+</span></span><span class="line"><span class="cl">	      <span class="n">ContentResolver</span><span class="o">.</span><span class="na">CURSOR_ITEM_BASE_TYPE</span> <span class="o">+</span> 
+</span></span><span class="line"><span class="cl">	      <span class="s">&#34;/vnd.de.openminds.lentitems_items&#34;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * A projection of all columns 
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * in the items table.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span><span class="o">[]</span> <span class="n">PROJECTION_ALL</span> <span class="o">=</span>
+</span></span><span class="line"><span class="cl">	      <span class="o">{</span><span class="n">_ID</span><span class="o">,</span> <span class="n">NAME</span><span class="o">,</span> <span class="n">BORROWER</span><span class="o">};</span>
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * The default sort order for 
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * queries containing NAME fields.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">SORT_ORDER_DEFAULT</span> <span class="o">=</span> 
+</span></span><span class="line"><span class="cl">	      <span class="n">NAME</span> <span class="o">+</span> <span class="s">&#34; ASC&#34;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>As you can see the inner classes are the place for any column definitions, the content URIs and the content types of the respective tables.</p>
+<h4 id="create-the-urimatcher-definitions">Create the UriMatcher definitions</h4>
+<p>To deal with multiple URIs Android provides the helper class UriMatcher. This class eases the parsing of URIs. In the next code sample you can see that you initialize the UriMatcher by adding a set of paths with correspondig int values. Whenever you ask if a URI matches, the UriMatcher returns the corresponding int value to indicate which one matches. It is common practise to use constants for these int values. The code sample shows how to add id based paths as well as dir based paths.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// helper constants for use with the UriMatcher
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">ITEM_LIST</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">ITEM_ID</span> <span class="o">=</span> <span class="mi">2</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">PHOTO_LIST</span> <span class="o">=</span> <span class="mi">5</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">PHOTO_ID</span> <span class="o">=</span> <span class="mi">6</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">ENTITY_LIST</span> <span class="o">=</span> <span class="mi">10</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">ENTITY_ID</span> <span class="o">=</span> <span class="mi">11</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">UriMatcher</span> <span class="n">URI_MATCHER</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// prepare the UriMatcher
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">static</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">URI_MATCHER</span> <span class="o">=</span> <span class="k">new</span> <span class="n">UriMatcher</span><span class="o">(</span><span class="n">UriMatcher</span><span class="o">.</span><span class="na">NO_MATCH</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">URI_MATCHER</span><span class="o">.</span><span class="na">addURI</span><span class="o">(</span><span class="n">LentItemsContract</span><span class="o">.</span><span class="na">AUTHORITY</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">	      <span class="s">&#34;items&#34;</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">	      <span class="n">ITEM_LIST</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">URI_MATCHER</span><span class="o">.</span><span class="na">addURI</span><span class="o">(</span><span class="n">LentItemsContract</span><span class="o">.</span><span class="na">AUTHORITY</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">	      <span class="s">&#34;items/#&#34;</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">	      <span class="n">ITEM_ID</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">URI_MATCHER</span><span class="o">.</span><span class="na">addURI</span><span class="o">(</span><span class="n">LentItemsContract</span><span class="o">.</span><span class="na">AUTHORITY</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">	      <span class="s">&#34;photos&#34;</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">	      <span class="n">PHOTO_LIST</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">URI_MATCHER</span><span class="o">.</span><span class="na">addURI</span><span class="o">(</span><span class="n">LentItemsContract</span><span class="o">.</span><span class="na">AUTHORITY</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">	      <span class="s">&#34;photos/#&#34;</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">	      <span class="n">PHOTO_ID</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="n">URI_MATCHER</span><span class="o">.</span><span class="na">addURI</span><span class="o">(</span><span class="n">LentItemsContract</span><span class="o">.</span><span class="na">AUTHORITY</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">         <span class="s">&#34;entities&#34;</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">         <span class="n">ENTITY_LIST</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="n">URI_MATCHER</span><span class="o">.</span><span class="na">addURI</span><span class="o">(</span><span class="n">LentItemsContract</span><span class="o">.</span><span class="na">AUTHORITY</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">         <span class="s">&#34;entities/#&#34;</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">         <span class="n">ENTITY_ID</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>You pass the authority, a path pattern and an int value to the addURI() method. Android returns the int value later on when you try to match patterns.</p>
+<p>The patterns of the sample above are the most common patterns. But you are not limited to those. Android’s calendar content provider for examples offers search URIs to find certain instances of events. And the content provider for contacts also offers non standard URIs – for example to provide access to the contact photo. You can take a look at the source of CalendarProvider2 or ContactsProvider2 to see how to use those non-standard URIs with the UriMatcher.</p>
+<h4 id="implement-the-oncreate-method">Implement the onCreate() method</h4>
+<p>Back to the actual content provider class. First implement the onCreate() method.</p>
+<p>The onCreate() method is a lifecycle method and runs on the UI thread. Thus you should avoid executing any long-lasting tasks in this method. Your content provider is usually created at the start of your app. And you want this to be as fast as possible. So even if your users do not get any “Application Not Responding” error messages, they won’t like anything that delays the perceived starting time of your app. Thus consider to do any long lasting stuff within the CRUD methods.</p>
+<p>Normally content providers use a database as the underlying data store. In this case you would create a reference to your SQLiteOpenHelper in onCreate() – but you wouldn’t try to get hold of an SQLiteDatabase object. In the original version of this post, my recommendation has been to get a reference to the database in this method. Please, do not do this!</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">LentItemsProvider</span> <span class="kd">extends</span> <span class="n">ContentProvider</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kd">private</span> <span class="n">LentItemsOpenHelper</span> <span class="n">mHelper</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">onCreate</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">mHelper</span> <span class="o">=</span> <span class="k">new</span> <span class="n">LentItemsOpenHelper</span><span class="o">(</span><span class="n">getContext</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="c1">//...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="implement-the-gettype-method">Implement the getType() method</h4>
+<p>Every content provider must return the content type for its supported URIs. The signature of the method takes a URI and returns a String. The next code sample shows the getType() method of the sample application.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="n">String</span> <span class="nf">getType</span><span class="o">(</span><span class="n">Uri</span> <span class="n">uri</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">   <span class="k">switch</span> <span class="o">(</span><span class="n">URI_MATCHER</span><span class="o">.</span><span class="na">match</span><span class="o">(</span><span class="n">uri</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">   <span class="k">case</span> <span class="n">ITEM_LIST</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">Items</span><span class="o">.</span><span class="na">CONTENT_TYPE</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="k">case</span> <span class="n">ITEM_ID</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">Items</span><span class="o">.</span><span class="na">CONTENT_ITEM_TYPE</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="k">case</span> <span class="n">PHOTO_ID</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">Photos</span><span class="o">.</span><span class="na">CONTENT_PHOTO_TYPE</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="k">case</span> <span class="n">PHOTO_LIST</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">Photos</span><span class="o">.</span><span class="na">CONTENT_TYPE</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="k">case</span> <span class="n">ENTITY_ID</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">ItemEntities</span><span class="o">.</span><span class="na">CONTENT_ENTITY_TYPE</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="k">case</span> <span class="n">ENTITY_LIST</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">ItemEntities</span><span class="o">.</span><span class="na">CONTENT_TYPE</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="k">default</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">      <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span><span class="s">&#34;Unsupported URI: &#34;</span> <span class="o">+</span> <span class="n">uri</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>As you can see this method is pretty simple. You just have to return the appropriate content type – defined within your contract class – for the URI passed into this method.</p>
+<h4 id="urimatcher">UriMatcher</h4>
+<p>The previous code sample shows how to make use of the UriMatcher. The pattern is also repeated within each of the CRUD methods, so let’s digg into it.</p>
+<p>When you initialize the UriMatcher you state for each URI which int value belongs to it. Now whenever you need to react diffently depending on the URI you use the UriMatcher. It’s match() method returns the int value used during initialization. And usually you use this within a switch statement. This switch statement has case branches for the constants used during initialization.</p>
+<p>You can use a “#” as a placeholder for an arbitrary numeric value and a “*” as a placeholder for arbitrary text. All other parts must be exactly as passed to the addURI() method.</p>
+<h4 id="adding-records-using-insert">Adding records using insert()</h4>
+<p>As expected this method is used by your clients to insert records into your datastore. The method only makes sense for dir based URIs, thus you first have to check if the right kind of URI is passed to the insert() method. Only then can you actually insert the values into the datastore you use.</p>
+<p>The content provider API is record-based – probably since most underlying datastores are record based databases anyway. This makes implementing the insert() method very easy, since it allows you to simply pass the ContentValues object on to the SQLiteDatabase’s insert() method.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="n">Uri</span> <span class="nf">insert</span><span class="o">(</span><span class="n">Uri</span> <span class="n">uri</span><span class="o">,</span> <span class="n">ContentValues</span> <span class="n">values</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">   <span class="k">if</span> <span class="o">(</span><span class="n">URI_MATCHER</span><span class="o">.</span><span class="na">match</span><span class="o">(</span><span class="n">uri</span><span class="o">)</span> <span class="o">!=</span> <span class="n">ITEM_LIST</span>
+</span></span><span class="line"><span class="cl">         <span class="o">&amp;&amp;</span> <span class="n">URI_MATCHER</span><span class="o">.</span><span class="na">match</span><span class="o">(</span><span class="n">uri</span><span class="o">)</span> <span class="o">!=</span> <span class="n">PHOTO_LIST</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">         <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">               <span class="s">&#34;Unsupported URI for insertion: &#34;</span> <span class="o">+</span> <span class="n">uri</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">   <span class="n">SQLiteDatabase</span> <span class="n">db</span> <span class="o">=</span> <span class="n">mHelper</span><span class="o">.</span><span class="na">getWritableDatabase</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">   <span class="k">if</span> <span class="o">(</span><span class="n">URI_MATCHER</span><span class="o">.</span><span class="na">match</span><span class="o">(</span><span class="n">uri</span><span class="o">)</span> <span class="o">==</span> <span class="n">ITEM_LIST</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="kt">long</span> <span class="n">id</span> <span class="o">=</span> 
+</span></span><span class="line"><span class="cl">            <span class="n">db</span><span class="o">.</span><span class="na">insert</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">                  <span class="n">DBSchema</span><span class="o">.</span><span class="na">TBL_ITEMS</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">                  <span class="kc">null</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">                  <span class="n">values</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">getUriForId</span><span class="o">(</span><span class="n">id</span><span class="o">,</span> <span class="n">uri</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// this insertWithOnConflict is a special case; 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="c1">// CONFLICT_REPLACE means that an existing entry 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="c1">// which violates the UNIQUE constraint on the 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="c1">// item_id column gets deleted. In this case this 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="c1">// INSERT behaves nearly like an UPDATE. Though 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="c1">// the new row has a new primary key.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="c1">// See how I mentioned this in the Contract class.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="kt">long</span> <span class="n">id</span> <span class="o">=</span> 
+</span></span><span class="line"><span class="cl">            <span class="n">db</span><span class="o">.</span><span class="na">insertWithOnConflict</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">                  <span class="n">DBSchema</span><span class="o">.</span><span class="na">TBL_PHOTOS</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">                  <span class="kc">null</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">                  <span class="n">values</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">                  <span class="n">SQLiteDatabase</span><span class="o">.</span><span class="na">CONFLICT_REPLACE</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">getUriForId</span><span class="o">(</span><span class="n">id</span><span class="o">,</span> <span class="n">uri</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">private</span> <span class="n">Uri</span> <span class="nf">getUriForId</span><span class="o">(</span><span class="kt">long</span> <span class="n">id</span><span class="o">,</span> <span class="n">Uri</span> <span class="n">uri</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">   <span class="k">if</span> <span class="o">(</span><span class="n">id</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">Uri</span> <span class="n">itemUri</span> <span class="o">=</span> <span class="n">ContentUris</span><span class="o">.</span><span class="na">withAppendedId</span><span class="o">(</span><span class="n">uri</span><span class="o">,</span> <span class="n">id</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="o">(!</span><span class="n">isInBatchMode</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">         <span class="c1">// notify all listeners of changes:
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>         <span class="n">getContext</span><span class="o">().</span>
+</span></span><span class="line"><span class="cl">               <span class="n">getContentResolver</span><span class="o">().</span>
+</span></span><span class="line"><span class="cl">                     <span class="n">notifyChange</span><span class="o">(</span><span class="n">itemUri</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">itemUri</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">   <span class="c1">// s.th. went wrong:
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>   <span class="k">throw</span> <span class="k">new</span> <span class="n">SQLException</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">         <span class="s">&#34;Problem while inserting into uri: &#34;</span> <span class="o">+</span> <span class="n">uri</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="notifying-listeners-of-dataset-changes">Notifying listeners of dataset changes</h4>
+<p>Clients often want to be notified about changes in the underlying datastore of your content provider. So inserting data, as well as deleting or updating data should trigger this notification.</p>
+<p>That’s why I used the following line in the code sample above:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">getContext</span><span class="o">().</span><span class="na">getContentResolver</span><span class="o">().</span><span class="na">notifyChange</span><span class="o">(</span><span class="n">itemUri</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span> 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Of course you should only call this method when there really has been a change – that’s why I test if the id is a positive number.</p>
+<p>Alas, it is not possible to notify the client of the actual change that has occurred. You can only state which URI has changed. Most often this is enough – though sometimes a client would like to know if this was an addition of a record, a deletion of entries or an update. Sadly, Android offers us no possibility to help those clients</p>
+<h4 id="querying-the-content-provider-for-records">Querying the content provider for records</h4>
+<p>Returning records from your ContentProvider is pretty easy. Android has a helper class, you can use here: The SQLiteQueryBuilder. Within the query() method of a content provider you can use this class as shown below.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="n">Cursor</span> <span class="nf">query</span><span class="o">(</span><span class="n">Uri</span> <span class="n">uri</span><span class="o">,</span> <span class="n">String</span><span class="o">[]</span> <span class="n">projection</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">      <span class="n">String</span> <span class="n">selection</span><span class="o">,</span> <span class="n">String</span><span class="o">[]</span> <span class="n">selectionArgs</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">      <span class="n">String</span> <span class="n">sortOrder</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">   <span class="n">SQLiteDatabase</span> <span class="n">db</span> <span class="o">=</span> <span class="n">mHelper</span><span class="o">.</span><span class="na">getReadableDatabase</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">   <span class="n">SQLiteQueryBuilder</span> <span class="n">builder</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SQLiteQueryBuilder</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">   <span class="kt">boolean</span> <span class="n">useAuthorityUri</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="k">switch</span> <span class="o">(</span><span class="n">URI_MATCHER</span><span class="o">.</span><span class="na">match</span><span class="o">(</span><span class="n">uri</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">   <span class="k">case</span> <span class="n">ITEM_LIST</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">      <span class="n">builder</span><span class="o">.</span><span class="na">setTables</span><span class="o">(</span><span class="n">DBSchema</span><span class="o">.</span><span class="na">TBL_ITEMS</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="o">(</span><span class="n">TextUtils</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">(</span><span class="n">sortOrder</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">         <span class="n">sortOrder</span> <span class="o">=</span> <span class="n">Items</span><span class="o">.</span><span class="na">SORT_ORDER_DEFAULT</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">      <span class="k">break</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="k">case</span> <span class="n">ITEM_ID</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">      <span class="n">builder</span><span class="o">.</span><span class="na">setTables</span><span class="o">(</span><span class="n">DBSchema</span><span class="o">.</span><span class="na">TBL_ITEMS</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// limit query to one row at most:
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="n">builder</span><span class="o">.</span><span class="na">appendWhere</span><span class="o">(</span><span class="n">Items</span><span class="o">.</span><span class="na">_ID</span> <span class="o">+</span> <span class="s">&#34; = &#34;</span> <span class="o">+</span>
+</span></span><span class="line"><span class="cl">            <span class="n">uri</span><span class="o">.</span><span class="na">getLastPathSegment</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">      <span class="k">break</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="k">case</span> <span class="n">PHOTO_LIST</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">      <span class="n">builder</span><span class="o">.</span><span class="na">setTables</span><span class="o">(</span><span class="n">DBSchema</span><span class="o">.</span><span class="na">TBL_PHOTOS</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="k">break</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="k">case</span> <span class="n">PHOTO_ID</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">      <span class="n">builder</span><span class="o">.</span><span class="na">setTables</span><span class="o">(</span><span class="n">DBSchema</span><span class="o">.</span><span class="na">TBL_PHOTOS</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// limit query to one row at most:
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="n">builder</span><span class="o">.</span><span class="na">appendWhere</span><span class="o">(</span><span class="n">Photos</span><span class="o">.</span><span class="na">_ID</span> <span class="o">+</span> 
+</span></span><span class="line"><span class="cl">            <span class="s">&#34; = &#34;</span> <span class="o">+</span> 
+</span></span><span class="line"><span class="cl">            <span class="n">uri</span><span class="o">.</span><span class="na">getLastPathSegment</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">      <span class="k">break</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="k">case</span> <span class="n">ENTITY_LIST</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">      <span class="n">builder</span><span class="o">.</span><span class="na">setTables</span><span class="o">(</span><span class="n">DBSchema</span><span class="o">.</span><span class="na">LEFT_OUTER_JOIN_STATEMENT</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="o">(</span><span class="n">TextUtils</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">(</span><span class="n">sortOrder</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">         <span class="n">sortOrder</span> <span class="o">=</span> <span class="n">ItemEntities</span><span class="o">.</span><span class="na">SORT_ORDER_DEFAULT</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">      <span class="n">useAuthorityUri</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">break</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="k">case</span> <span class="n">ENTITY_ID</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">      <span class="n">builder</span><span class="o">.</span><span class="na">setTables</span><span class="o">(</span><span class="n">DBSchema</span><span class="o">.</span><span class="na">LEFT_OUTER_JOIN_STATEMENT</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// limit query to one row at most:
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="n">builder</span><span class="o">.</span><span class="na">appendWhere</span><span class="o">(</span><span class="n">DBSchema</span><span class="o">.</span><span class="na">TBL_ITEMS</span> <span class="o">+</span> 
+</span></span><span class="line"><span class="cl">            <span class="s">&#34;.&#34;</span> <span class="o">+</span> 
+</span></span><span class="line"><span class="cl">            <span class="n">Items</span><span class="o">.</span><span class="na">_ID</span> <span class="o">+</span> 
+</span></span><span class="line"><span class="cl">            <span class="s">&#34; = &#34;</span> <span class="o">+</span>
+</span></span><span class="line"><span class="cl">            <span class="n">uri</span><span class="o">.</span><span class="na">getLastPathSegment</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">      <span class="n">useAuthorityUri</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">break</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="k">default</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">      <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">            <span class="s">&#34;Unsupported URI: &#34;</span> <span class="o">+</span> <span class="n">uri</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">   <span class="n">Cursor</span> <span class="n">cursor</span> <span class="o">=</span> 
+</span></span><span class="line"><span class="cl">         <span class="n">builder</span><span class="o">.</span><span class="na">query</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">         <span class="n">db</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">         <span class="n">projection</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">         <span class="n">selection</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">         <span class="n">selectionArgs</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">         <span class="kc">null</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">         <span class="kc">null</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">         <span class="n">sortOrder</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="c1">// if we want to be notified of any changes:
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>   <span class="k">if</span> <span class="o">(</span><span class="n">useAuthorityUri</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">cursor</span><span class="o">.</span><span class="na">setNotificationUri</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">            <span class="n">getContext</span><span class="o">().</span><span class="na">getContentResolver</span><span class="o">(),</span> 
+</span></span><span class="line"><span class="cl">            <span class="n">LentItemsContract</span><span class="o">.</span><span class="na">CONTENT_URI</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">   <span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">cursor</span><span class="o">.</span><span class="na">setNotificationUri</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">            <span class="n">getContext</span><span class="o">().</span><span class="na">getContentResolver</span><span class="o">(),</span> 
+</span></span><span class="line"><span class="cl">            <span class="n">uri</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">   <span class="k">return</span> <span class="n">cursor</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>After creating a new object you first define into which table(s) to insert. Then you might want to add a default sort order if none is specified by the caller of your code. Next you have to add a WHERE clause that matches the id for id based queries before you finally pass all arguments on to the builder’s query() method. This method returns a Cursor object which you simply return to your caller.</p>
+<p>There is one additional thing though you have to take care of. That is the SQLiteDatabase object you have to pass to the SQLiteQueryBuilder&rsquo;s query() method. I recommend to get access to the SQLiteDatabase object within each CRUD method.</p>
+<p>Now you might wonder if I ever close the object. Well, I don’t :-) But this is no problem. SQLiteOpenHelper keeps just one SQLiteDatabase object per SQLiteSession. This makes accessing the object very efficient. With version checking and all that is happening in the background it wouldn’t work too well otherwise. I will delve into all these details in one of my upcoming posts within my SQLite series. So for now simply believe me: There is no leak here! If you use just one SQLiteOpenHelper object within your app you will only have at most one SQLiteDatabase object at any time – unless you pass this object needlessly around and leak it that way. Finally: Android destroys the content provider when it’s no longer needed and cleans up any ressources. Very convenient!</p>
+<h4 id="updating-and-deleting-records-of-your-content-provider">Updating and deleting records of your content provider</h4>
+<p>The code for updating and deleting records looks pretty much the same. I’m going to show you how to update records and afterwards I will briefly describe the necessary changes for deleting.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">int</span> <span class="nf">update</span><span class="o">(</span><span class="n">Uri</span> <span class="n">uri</span><span class="o">,</span> <span class="n">ContentValues</span> <span class="n">values</span><span class="o">,</span> <span class="n">String</span> <span class="n">selection</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">      <span class="n">String</span><span class="o">[]</span> <span class="n">selectionArgs</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">   <span class="n">SQLiteDatabase</span> <span class="n">db</span> <span class="o">=</span> <span class="n">mHelper</span><span class="o">.</span><span class="na">getWritableDatabase</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">   <span class="kt">int</span> <span class="n">updateCount</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="k">switch</span> <span class="o">(</span><span class="n">URI_MATCHER</span><span class="o">.</span><span class="na">match</span><span class="o">(</span><span class="n">uri</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">   <span class="k">case</span> <span class="n">ITEM_LIST</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">      <span class="n">updateCount</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="na">update</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">            <span class="n">DBSchema</span><span class="o">.</span><span class="na">TBL_ITEMS</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">            <span class="n">values</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">            <span class="n">selection</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">            <span class="n">selectionArgs</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="k">break</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="k">case</span> <span class="n">ITEM_ID</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">      <span class="n">String</span> <span class="n">idStr</span> <span class="o">=</span> <span class="n">uri</span><span class="o">.</span><span class="na">getLastPathSegment</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="n">String</span> <span class="n">where</span> <span class="o">=</span> <span class="n">Items</span><span class="o">.</span><span class="na">_ID</span> <span class="o">+</span> <span class="s">&#34; = &#34;</span> <span class="o">+</span> <span class="n">idStr</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="o">(!</span><span class="n">TextUtils</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">(</span><span class="n">selection</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">         <span class="n">where</span> <span class="o">+=</span> <span class="s">&#34; AND &#34;</span> <span class="o">+</span> <span class="n">selection</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">      <span class="n">updateCount</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="na">update</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">            <span class="n">DBSchema</span><span class="o">.</span><span class="na">TBL_ITEMS</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">            <span class="n">values</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">            <span class="n">where</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">            <span class="n">selectionArgs</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="k">break</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="k">default</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// no support for updating photos or entities!
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span><span class="s">&#34;Unsupported URI: &#34;</span> <span class="o">+</span> <span class="n">uri</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">   <span class="c1">// notify all listeners of changes:
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>   <span class="k">if</span> <span class="o">(</span><span class="n">updateCount</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">isInBatchMode</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">getContext</span><span class="o">().</span><span class="na">getContentResolver</span><span class="o">().</span><span class="na">notifyChange</span><span class="o">(</span><span class="n">uri</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">   <span class="k">return</span> <span class="n">updateCount</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>First you once again use your UriMatcher to distinguish between dir based and id based URIs. If you use a dir based URI, you simply pass this call on to the SQLiteDatabase&rsquo;s update() method substituting the URI with the correct table name. In case of an id based URI you have to extract the id from the URI to form a valid WHERE clause. After this call SQLiteDatabase‘s update() method. Finally you return the number of modified records.</p>
+<p>The only changes you have to make for your delete() method is to change the method names and to get rid of the ContentValues object. Everthing else is exactly as shown in the update() method’s code sample.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">int</span> <span class="nf">delete</span><span class="o">(</span><span class="n">Uri</span> <span class="n">uri</span><span class="o">,</span> <span class="n">String</span> <span class="n">selection</span><span class="o">,</span> <span class="n">String</span><span class="o">[]</span> <span class="n">selectionArgs</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">   <span class="n">SQLiteDatabase</span> <span class="n">db</span> <span class="o">=</span> <span class="n">mHelper</span><span class="o">.</span><span class="na">getWritableDatabase</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">   <span class="kt">int</span> <span class="n">delCount</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="k">switch</span> <span class="o">(</span><span class="n">URI_MATCHER</span><span class="o">.</span><span class="na">match</span><span class="o">(</span><span class="n">uri</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">   <span class="k">case</span> <span class="n">ITEM_LIST</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">      <span class="n">delCount</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="na">delete</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">            <span class="n">DBSchema</span><span class="o">.</span><span class="na">TBL_ITEMS</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">            <span class="n">selection</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">            <span class="n">selectionArgs</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="k">break</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="k">case</span> <span class="n">ITEM_ID</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">      <span class="n">String</span> <span class="n">idStr</span> <span class="o">=</span> <span class="n">uri</span><span class="o">.</span><span class="na">getLastPathSegment</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="n">String</span> <span class="n">where</span> <span class="o">=</span> <span class="n">Items</span><span class="o">.</span><span class="na">_ID</span> <span class="o">+</span> <span class="s">&#34; = &#34;</span> <span class="o">+</span> <span class="n">idStr</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="o">(!</span><span class="n">TextUtils</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">(</span><span class="n">selection</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">         <span class="n">where</span> <span class="o">+=</span> <span class="s">&#34; AND &#34;</span> <span class="o">+</span> <span class="n">selection</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">      <span class="n">delCount</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="na">delete</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">            <span class="n">DBSchema</span><span class="o">.</span><span class="na">TBL_ITEMS</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">            <span class="n">where</span><span class="o">,</span> 
+</span></span><span class="line"><span class="cl">            <span class="n">selectionArgs</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="k">break</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="k">default</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// no support for deleting photos or entities -
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="c1">// photos are deleted by a trigger when the item is deleted
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span><span class="s">&#34;Unsupported URI: &#34;</span> <span class="o">+</span> <span class="n">uri</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">   <span class="c1">// notify all listeners of changes:
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>   <span class="k">if</span> <span class="o">(</span><span class="n">delCount</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">isInBatchMode</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">getContext</span><span class="o">().</span><span class="na">getContentResolver</span><span class="o">().</span><span class="na">notifyChange</span><span class="o">(</span><span class="n">uri</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">   <span class="k">return</span> <span class="n">delCount</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Lifecycle</p>
+<p>As with all components Android also manages the creation and destruction of a content provider. But a content provider has no visible state and there is also nothing the user has entered that should not be lost. Because of this Android can shut down the content provider whenever it sees fit.</p>
+<p>So instead of the many methods you usually have to take care of in your activities or fragments, you have to implement just this one method: onCreate(). Keep this method as fast as possible. It runs on the UI thread when your app starts up. So it has to be fast otherwise the first impression with your app won’t be too impressive.</p>
+<p>Normally that’s just it. But there are two other callback methods you might want to react to depending on circumstances:</p>
+<ul>
+<li>When your content provider needs to react to changed settings (e.g. the user selected language) you have to implement the onConfigurationChanged() method that takes a Configuration object as parameter.</li>
+<li>When your content provider keeps large amounts of data around (which you should strive to avoid) you should also implement the onLowMemory() method to release these data.</li>
+</ul>
+<h4 id="configuring-your-content-provider">Configuring your content provider</h4>
+<p>As with any component in Android you also have to register your content provider within the AndroidManifest.xml file. The next code sample shows the configuration of the sample content provider.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;provider</span>
+</span></span><span class="line"><span class="cl">   <span class="na">android:name=</span><span class="s">&#34;.provider.LentItemsProvider&#34;</span>
+</span></span><span class="line"><span class="cl">   <span class="na">android:authorities=</span><span class="s">&#34;de.openminds.samples.cpsample.lentitems&#34;</span>
+</span></span><span class="line"><span class="cl">   <span class="na">android:exported=</span><span class="s">&#34;true&#34;</span>
+</span></span><span class="line"><span class="cl">   <span class="na">android:grantUriPermissions=</span><span class="s">&#34;true&#34;</span>
+</span></span><span class="line"><span class="cl">   <span class="na">android:label=</span><span class="s">&#34;LentItemsProvider&#34;</span>
+</span></span><span class="line"><span class="cl">   <span class="na">android:readPermission=</span><span class="s">&#34;de.openminds.samples.cpsample.lentitems.READ&#34;</span>
+</span></span><span class="line"><span class="cl">   <span class="na">android:writePermission=</span><span class="s">&#34;de.openminds.samples.cpsample.lentitems.WRITE&#34;</span> <span class="nt">/&gt;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>You use a <provider> element for each content provider you want to register. Of its many attributes you usually will use authorities, name and possibly one of the permission attributes.</p>
+<p>The name attribute simply is the fully qualified class name of your ContentProvider subclass. As always it is possible to use a simple “.” for the default-package of your application.</p>
+<p>I have explained the rules for authorities in detail in the post about content provider clients. It should be akin to Java’s package naming conventions and must be unique among all content providers on any device it is going to be installed on. So don’t be sloppy with the provider’s authority.</p>
+<h4 id="think-about-necessary-permissions">Think about necessary permissions</h4>
+<p>As you have seen above, you can – and probably should – add restrictions to your content provider. By using one of the permission attributes you force clients to be open to their users about the use of your content provider’s data.</p>
+<p>If you do not export your content provider this is no issue for you. But if you do, think carefully about what you want clients to be able to do and how to set permissions accordingly.</p>
+<h4 id="when-to-use-content-providers">When to use content providers</h4>
+<p>As described in the introductory post, one reason to use content providers, is to export data. So, should you use content providers only to provide data to external applications? Or when would it be appropriate to prefer them for your own application over directly accessing the database?</p>
+<p>I recommend to use a content provider whenever your app needs to react to changes in the underlying data store – even to changes from within your app itself. And this of course is more often true than not. You might for example have a ListView which displays summary information of the data held in your data store. Now if you delete or add an entry and return to your list the list should reflect these changes. This is easily done using a content provider in combination with using Loaders. Using the database directly you would have to trigger a new query on your own.</p>
+<p>You must use content providers if you want to use search suggestions. In that case Android leaves you no choice.</p>
+<p>Android also demands that you use content providers with sync adapters. But contrary to search suggestions you can work around this requirement with a stub provider. But, well, I like content providers, so I recommend to use a proper one with sync adapters.</p>
+<h3 id="performance">Better Performance with ContentProviderOperation</h3>
+<p>ContentProviders are one of Android’s core building blocks. They represent a relational interface to data – either in databases or (cached) data from the cloud.</p>
+<p>Sometimes you want to use them for multiple operations in a row. Like updating different sources and so on. In those cases you could call the respective ContentResolver methods multiple times or you could execute a batch of operations. The latter is the recommended practise.</p>
+<p>To create, delete or update a set of data in a batch like fashion you should use the class ContentProviderOperation.</p>
+<p>According to Android’s documentation it is recommended to use ContentProviderOperations for multiple reasons:</p>
+<ul>
+<li>All operations execute within the same transaction – thus data integrity is assured</li>
+<li>This helps improve performance since starting, running and closing one transaction offers far better performance than opening and committing multiple transactions</li>
+<li>Finally using one batch operation instead of multiple isolated operations reduces the number of context switches between your app and the content provider you are using. This of course also helps to improve the performance of your app – and by using less cpu cycles also reduces the power consumption.</li>
+<li>To create an object of <code>ContentProviderOperation</code> you need to build it using the inner class <code>ContentProviderOperation.Builder</code>. You obtain an object of the Builder class by calling one of the three static methods newInsert, newUpdate or newDelete:</li>
+</ul>
+<table>
+<caption>Methods to obtain a Builder object</caption>
+<tr>
+<th>Method</th>
+<th>Usage</th>
+</tr>
+<tr>
+<td>newInsert</td>
+<td>Create a Builder object suitable for an insert operation</td>
+</tr>
+<tr>
+<td>newUpdate</td>
+<td>Create a Builder object suitable for an update operation</td>
+</tr>
+<tr>
+<td>newDelete</td>
+<td>Create a Builder object suitable for a delete operation</td>
+</tr>
+</table>
+<p>The Builder is an example of the Gang of Four Builder pattern. A Builder defines an interface for how to create objects. Concrete instances then create specific objects for the task at hand. In this case we have three different Builders for creating ContentProviderOperation objects. These objects can be used to create, update or delete ContentProvider data sets.</p>
+<p>Typically all steps necessary to create a ContentProviderOperation object are done in one round of method chaining. That’s possible because all methods of the Builder class return a Builder object themself. The one exception is the build() method, which instead returns the desired object: Our completely created ContentProviderOperation object. So a typical chain might look like this:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">ContentProviderOperation</span><span class="o">&gt;</span> <span class="n">ops</span> <span class="o">=</span> 
+</span></span><span class="line"><span class="cl">   <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">ContentProviderOperation</span><span class="o">&gt;();</span>
+</span></span><span class="line"><span class="cl"><span class="n">ops</span><span class="o">.</span><span class="na">add</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">   <span class="n">ContentProviderOperation</span><span class="o">.</span><span class="na">newInsert</span><span class="o">(</span><span class="n">RawContacts</span><span class="o">.</span><span class="na">CONTENT_URI</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">       <span class="o">.</span><span class="na">withValue</span><span class="o">(</span><span class="n">RawContacts</span><span class="o">.</span><span class="na">ACCOUNT_TYPE</span><span class="o">,</span> <span class="s">&#34;someAccountType&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">       <span class="o">.</span><span class="na">withValue</span><span class="o">(</span><span class="n">RawContacts</span><span class="o">.</span><span class="na">ACCOUNT_NAME</span><span class="o">,</span> <span class="s">&#34;someAccountName&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">       <span class="o">.</span><span class="na">withYieldAllowed</span><span class="o">(</span><span class="kc">true</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">       <span class="o">.</span><span class="na">build</span><span class="o">());</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Of course you could also use a ContentValues object as usual and use the withValues(values) method instead.</p>
+<p>The Builder class has among others these methods you can use to define which objects to delete or how to create or update an object:</p>
+<table>
+<caption>Some important methods of the Builder object</caption>
+<tr>
+<th>Method</th>
+<th>Usage</th>
+</tr>
+<tr>
+<td>withSelection (String selection, String[] selectionArgs)</td>
+<td>Specifies on which subset of the existing data set to operate. Only usable with ContentProviderOperation objects used to update or delete data</td>
+</tr>
+<tr>
+<td>withValue (String key, Object value)</td>
+<td>Defines the desired value for one column. Only usable with ContentProviderOperation objects used to create or update data</td>
+</tr>
+<tr>
+<td>withValues (ContentValues values)</td>
+<td>Defines the desired values for multiple columns. Only usable with ContentProviderOperation objects used to create or update data</td>
+</tr>
+</table>
+<p>As you can see in the code sample I presented above you need an ArrayList of ContentProviderOperation objects. For every ContentProvider-CRUD method you have to use one ContentProviderOperation object and add it to this list. I will explain in a later blog post about the method withValueBackReference() why it has to be an ArrayList and not say a LinkedList.</p>
+<p>The list is finally passed to the applyBatch() method of the ContentResolver object:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">   <span class="n">getContentResolver</span><span class="o">().</span>
+</span></span><span class="line"><span class="cl">      <span class="n">applyBatch</span><span class="o">(</span><span class="n">ContactsContract</span><span class="o">.</span><span class="na">AUTHORITY</span><span class="o">,</span> <span class="n">ops</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">RemoteException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">   <span class="c1">// do s.th.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">OperationApplicationException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">   <span class="c1">// do s.th.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2014-10-24
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/2014/10/26/android-dealing-with-asynctask-and-screen-orientation/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Android Dealing With Asynctask and Screen Orientation</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/2014/10/24/android-loader/">
+            <span class="next-text nav-default">Android Loader</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

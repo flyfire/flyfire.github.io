@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>concurrecy on Solarex&#39;s Blog</title>
+    <link>https://flyfire.github.io/categories/concurrecy/</link>
+    <description>Recent content in concurrecy on Solarex&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Fri, 09 Oct 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://flyfire.github.io/categories/concurrecy/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Understanding Memory Reordering</title>
+      <link>https://flyfire.github.io/post/understanding-memory-reordering/</link>
+      <pubDate>Fri, 09 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://flyfire.github.io/post/understanding-memory-reordering/</guid>
+      <description>系列的第四篇~ In the previous article of this series, Lock-free multithreading with atomic operations, I introduced lock-free multithreading: a low-level strategy for synchronizing threads in concurrent software. Based upon atomic operations — machine instructions performed directly by the CPU that can&amp;rsquo;t be broken into smaller steps, lock-free multithreading provides a faster and more fine-tuned synchronization mechanism if compared to traditional primitives like mutexes and semaphores.</description>
+    </item>
+    
+  </channel>
+</rss>

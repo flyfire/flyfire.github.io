@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Android Multithreading in a Ui Environment - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="Why do we need multithreading in Android applications? Let’s say you want to do a very long operation when the user pushes a button.If you are not using another thread, it will look something like this:
+1 2 3 4 5 6 7 8 9 ((Button)findViewById(R.id.Button01)).setOnClickListener( new OnClickListener() { @Override public void onClick(View v) { int result = doLongOperation(); updateUI(result); } }); What will happen?The UI freezes. This is a really bad UI experience." /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/2014/10/31/android-multithreading-in-a-ui-environment/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Android Multithreading in a Ui Environment" />
+<meta property="og:description" content="Why do we need multithreading in Android applications? Let’s say you want to do a very long operation when the user pushes a button.If you are not using another thread, it will look something like this:
+1 2 3 4 5 6 7 8 9 ((Button)findViewById(R.id.Button01)).setOnClickListener( new OnClickListener() { @Override public void onClick(View v) { int result = doLongOperation(); updateUI(result); } }); What will happen?The UI freezes. This is a really bad UI experience." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/2014/10/31/android-multithreading-in-a-ui-environment/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2014-10-31T00:00:00+00:00" />
+<meta property="article:modified_time" content="2014-10-31T00:00:00+00:00" />
+<meta itemprop="name" content="Android Multithreading in a Ui Environment">
+<meta itemprop="description" content="Why do we need multithreading in Android applications? Let’s say you want to do a very long operation when the user pushes a button.If you are not using another thread, it will look something like this:
+1 2 3 4 5 6 7 8 9 ((Button)findViewById(R.id.Button01)).setOnClickListener( new OnClickListener() { @Override public void onClick(View v) { int result = doLongOperation(); updateUI(result); } }); What will happen?The UI freezes. This is a really bad UI experience."><meta itemprop="datePublished" content="2014-10-31T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2014-10-31T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1306">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Android Multithreading in a Ui Environment"/>
+<meta name="twitter:description" content="Why do we need multithreading in Android applications? Let’s say you want to do a very long operation when the user pushes a button.If you are not using another thread, it will look something like this:
+1 2 3 4 5 6 7 8 9 ((Button)findViewById(R.id.Button01)).setOnClickListener( new OnClickListener() { @Override public void onClick(View v) { int result = doLongOperation(); updateUI(result); } }); What will happen?The UI freezes. This is a really bad UI experience."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Android Multithreading in a Ui Environment</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2014-10-31 </span>
+        <div class="post-category">
+            <a href="/categories/android/"> android </a>
+            <a href="/categories/dev/"> dev </a>
+            </div>
+          <span class="more-meta"> 约 1306 字 </span>
+          <span class="more-meta"> 预计阅读 7 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#why-do-we-need-multithreading-in-android-applications">Why do we need multithreading in Android applications?</a></li>
+        <li><a href="#the-problem-in-using-threads-in-a-ui-environment">The problem in using threads in a UI environment</a></li>
+        <li><a href="#handler">Handler</a></li>
+        <li><a href="#looper">Looper</a></li>
+        <li><a href="#asynctask">AsyncTask</a></li>
+        <li><a href="#timer--timertask">Timer + TimerTask</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p><center><img src="/images/android_threads.png"></center>
+<h2 id="why-do-we-need-multithreading-in-android-applications">Why do we need multithreading in Android applications?</h2>
+<p>Let’s say you want to do a very long operation when the user pushes a button.If you are not using another thread, it will look something like this:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="o">((</span><span class="n">Button</span><span class="o">)</span><span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">Button01</span><span class="o">)).</span><span class="na">setOnClickListener</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">             <span class="k">new</span> <span class="n">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      
+</span></span><span class="line"><span class="cl">          <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">          <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="n">doLongOperation</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="n">updateUI</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">          <span class="o">}</span>
+</span></span><span class="line"><span class="cl">      <span class="o">});</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>What will happen?The UI freezes. This is a really bad UI experience. The program may even crash.</p>
+<h2 id="the-problem-in-using-threads-in-a-ui-environment">The problem in using threads in a UI environment</h2>
+<p>So what will happen if we use a Thread for a long running operation.Let’s try a simple example:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="o">((</span><span class="n">Button</span><span class="o">)</span><span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">Button01</span><span class="o">)).</span><span class="na">setOnClickListener</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl"><span class="k">new</span> <span class="n">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">          
+</span></span><span class="line"><span class="cl">          <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">          <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">              
+</span></span><span class="line"><span class="cl">              <span class="o">(</span><span class="k">new</span> <span class="n">Thread</span><span class="o">(</span><span class="k">new</span> <span class="n">Runnable</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                  
+</span></span><span class="line"><span class="cl">                  <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">                  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="n">doLongOperation</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">updateUI</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">              <span class="o">})).</span><span class="na">start</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">              
+</span></span><span class="line"><span class="cl">          <span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The result in this case is that the application crashes.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">12-07 16:24:29.089: ERROR/AndroidRuntime<span class="o">(</span>315<span class="o">)</span>: FATAL EXCEPTION: Thread-8
+</span></span><span class="line"><span class="cl">12-07 16:24:29.089: ERROR/AndroidRuntime<span class="o">(</span>315<span class="o">)</span>: android.view.ViewRoot<span class="nv">$CalledFromWrongThreadException</span>: Only the original thread that created a view hierarchy can touch its views.
+</span></span><span class="line"><span class="cl">12-07 16:24:29.089: ERROR/AndroidRuntime<span class="o">(</span>315<span class="o">)</span>: at ...Clearly the Android OS wont <span class="nb">let</span> threads other than the main thread change UI elements.
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>But why?Android UI toolkit, like many other UI environments, is not thread-safe.</p>
+<!-- more -->
+<p>The solution</p>
+<ul>
+<li>A queue of messages. Each message is a job to be handled.</li>
+<li>Threads can add messages.</li>
+<li>Only a single thread pulls messages one by one from the queue.</li>
+</ul>
+<p>The same solution was implemented in swing (<a href="http://en.wikipedia.org/wiki/Event_dispatching_thread">Event dispatching thread</a> and <a href="http://download.oracle.com/javase/1.4.2/docs/api/javax/swing/SwingUtilities.html#invokeLater%28java.lang.Runnable%29">SwingUtilities.invokeLater()</a> )</p>
+<h2 id="handler">Handler</h2>
+<p>The Handler is the middleman between a new thread and the message queue.</p>
+<ul>
+<li>Option 1 – Run the new thread and use the handler to send messages for ui changes</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">final</span> <span class="n">Handler</span> <span class="n">myHandler</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Handler</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">  <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">handleMessage</span><span class="o">(</span><span class="n">Message</span> <span class="n">msg</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">updateUI</span><span class="o">((</span><span class="n">String</span><span class="o">)</span><span class="n">msg</span><span class="o">.</span><span class="na">obj</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl"><span class="o">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">(</span><span class="k">new</span> <span class="n">Thread</span><span class="o">(</span><span class="k">new</span> <span class="n">Runnable</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">  <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">Message</span> <span class="n">msg</span> <span class="o">=</span> <span class="n">myHandler</span><span class="o">.</span><span class="na">obtainMessage</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      
+</span></span><span class="line"><span class="cl">      <span class="n">msg</span><span class="o">.</span><span class="na">obj</span> <span class="o">=</span> <span class="n">doLongOperation</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      
+</span></span><span class="line"><span class="cl">      <span class="n">myHandler</span><span class="o">.</span><span class="na">sendMessage</span><span class="o">(</span><span class="n">msg</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">})).</span><span class="na">start</span><span class="o">();</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>keep in mind that updating the UI should still be a short operation, since the UI freezes during the updating process.</p>
+<p>Other possibilities:</p>
+<ul>
+<li>
+<p><code>handler.obtainMessage</code> with parameters</p>
+</li>
+<li>
+<p><code>handler.sendMessageAtFrontOfQueue()</code></p>
+</li>
+<li>
+<p><code>handler.sendMessageAtTime()</code></p>
+</li>
+<li>
+<p><code>handler.sendMessageDelayed()</code></p>
+</li>
+<li>
+<p><code>handler.sendEmptyMessage()</code></p>
+</li>
+<li>
+<p>Option 2 – run the new thread and use the handler to post a runnable which updates the GUI.</p>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">final</span> <span class="n">Handler</span> <span class="n">myHandler</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Handler</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">              
+</span></span><span class="line"><span class="cl">              <span class="o">(</span><span class="k">new</span> <span class="n">Thread</span><span class="o">(</span><span class="k">new</span> <span class="n">Runnable</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                  
+</span></span><span class="line"><span class="cl">                  <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">                  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                      <span class="kd">final</span> <span class="n">String</span> <span class="n">res</span> <span class="o">=</span> <span class="n">doLongOperation</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                      <span class="n">myHandler</span><span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="k">new</span> <span class="n">Runnable</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                          
+</span></span><span class="line"><span class="cl">                          <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">                          <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                              <span class="n">updateUI</span><span class="o">(</span><span class="n">res</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                          <span class="o">}</span>
+</span></span><span class="line"><span class="cl">                      <span class="o">});</span>
+</span></span><span class="line"><span class="cl">                  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">              <span class="o">})).</span><span class="na">start</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">              
+</span></span><span class="line"><span class="cl">          <span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><center><img src="/images/android_looper.png"></center>
+<h2 id="looper">Looper</h2>
+<p>If we want to dive a bit deeper into the android mechanism we have to understand what is a Looper.We have talked about the message queue that the main thread pulls messages and runnables from it and executes them.We also said that each handler you create has a reference to this queue.What we haven’t said yet is that the main thread has a reference to an object named Looper.</p>
+<p>The Looper gives the Thread the access to the message queue.Only the main thread has executes to the Looper by default.</p>
+<p>Lets say you would like to create a new thread and you also want to take advantage of the message queue functionality in that thread.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="o">(</span><span class="k">new</span> <span class="n">Thread</span><span class="o">(</span><span class="k">new</span> <span class="n">Runnable</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                      <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">                      <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                          <span class="n">innerHandler</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Handler</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                          
+</span></span><span class="line"><span class="cl">                          <span class="n">Message</span> <span class="n">message</span> <span class="o">=</span> <span class="n">innerHandler</span><span class="o">.</span><span class="na">obtainMessage</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                          <span class="n">innerHandler</span><span class="o">.</span><span class="na">dispatchMessage</span><span class="o">(</span><span class="n">message</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">                  <span class="o">})).</span><span class="na">start</span><span class="o">();</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Here we created a new thread which uses the handler to put a message in the messages queue.</p>
+<p>This will be the result:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">12-10 20:41:51.807: ERROR/AndroidRuntime<span class="o">(</span>254<span class="o">)</span>: Uncaught handler: thread Thread-8 exiting due to uncaught exception
+</span></span><span class="line"><span class="cl">12-10 20:41:51.817: ERROR/AndroidRuntime<span class="o">(</span>254<span class="o">)</span>: java.lang.RuntimeException: Can<span class="err">&#39;</span>t create handler inside thread that has not called Looper.prepare<span class="o">()</span>
+</span></span><span class="line"><span class="cl">12-10 20:41:51.817: ERROR/AndroidRuntime<span class="o">(</span>254<span class="o">)</span>: at android.os.Handler.<span class="o">(</span>Handler.java:121<span class="o">)</span>
+</span></span><span class="line"><span class="cl">12-10 20:41:51.817: ERROR/AndroidRuntime<span class="o">(</span>254<span class="o">)</span>: at ...
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The new created thread does not have a <code>Looper</code> with a queue attached to it. Only the UI thread has a <code>Looper</code>.We can however create a <code>Looper</code> for the new thread.In order to do that we need to use 2 functions: <code>Looper.prepare()</code> and <code>Looper.loop()</code>.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="o">(</span><span class="k">new</span> <span class="n">Thread</span><span class="o">(</span><span class="k">new</span> <span class="n">Runnable</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                  <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">                  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                      <span class="n">Looper</span><span class="o">.</span><span class="na">prepare</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                      <span class="n">innerHandler</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Handler</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                              
+</span></span><span class="line"><span class="cl">                      <span class="n">Message</span> <span class="n">message</span> <span class="o">=</span> <span class="n">innerHandler</span><span class="o">.</span><span class="na">obtainMessage</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                      <span class="n">innerHandler</span><span class="o">.</span><span class="na">dispatchMessage</span><span class="o">(</span><span class="n">message</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                      <span class="n">Looper</span><span class="o">.</span><span class="na">loop</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">              <span class="o">})).</span><span class="na">start</span><span class="o">();</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>If you use this option, don’t forget to use also the <code>quit()</code> function so the Looper will not loop for ever.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onDestroy</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">innerHandler</span><span class="o">.</span><span class="na">getLooper</span><span class="o">().</span><span class="na">quit</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="kd">super</span><span class="o">.</span><span class="na">onDestroy</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="asynctask">AsyncTask</h2>
+<p>I have explained to you that a Handler is the new thread’s way to communicate with the UI thread.If while reading this you were thinking to yourself, isn’t there an easier way to do all of that… well, you know what?! There is.</p>
+<p>Android team has created a class called AsyncTask which is in short a thread that can handle UI.</p>
+<p>Just like in java you extend the class Thread and a SwingWorker in Swing, in Android you extend the class AsyncTask.There is no interface here like Runnable to implement I’m afraid.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">class</span> <span class="nc">MyAsyncTask</span> <span class="kd">extends</span> <span class="n">AsyncTask</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">,</span> <span class="n">String</span><span class="o">,</span> <span class="n">Long</span><span class="o">&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      
+</span></span><span class="line"><span class="cl">      <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">      <span class="kd">protected</span> <span class="n">Long</span> <span class="nf">doInBackground</span><span class="o">(</span><span class="n">Integer</span><span class="o">...</span> <span class="n">params</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">          
+</span></span><span class="line"><span class="cl">          <span class="kt">long</span> <span class="n">start</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">          <span class="k">for</span> <span class="o">(</span><span class="n">Integer</span> <span class="n">integer</span> <span class="o">:</span> <span class="n">params</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">              <span class="n">publishProgress</span><span class="o">(</span><span class="s">&#34;start processing &#34;</span><span class="o">+</span><span class="n">integer</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">              <span class="n">doLongOperation</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">              <span class="n">publishProgress</span><span class="o">(</span><span class="s">&#34;done processing &#34;</span><span class="o">+</span><span class="n">integer</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">          <span class="o">}</span>
+</span></span><span class="line"><span class="cl">          
+</span></span><span class="line"><span class="cl">          <span class="k">return</span> <span class="n">start</span> <span class="o">-</span> <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      
+</span></span><span class="line"><span class="cl">      
+</span></span><span class="line"><span class="cl">      <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">      <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onProgressUpdate</span><span class="o">(</span><span class="n">String</span><span class="o">...</span> <span class="n">values</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">          <span class="n">updateUI</span><span class="o">(</span><span class="n">values</span><span class="o">[</span><span class="mi">0</span><span class="o">]);</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">      
+</span></span><span class="line"><span class="cl">      <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">      <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onPostExecute</span><span class="o">(</span><span class="n">Long</span> <span class="n">time</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">          <span class="n">updateUI</span><span class="o">(</span><span class="s">&#34;Done with all the operations, it took:&#34;</span> <span class="o">+</span>
+</span></span><span class="line"><span class="cl">                                     <span class="n">time</span> <span class="o">+</span> <span class="s">&#34; millisecondes&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">      <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onPreExecute</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">          <span class="n">updateUI</span><span class="o">(</span><span class="s">&#34;Starting process&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">      
+</span></span><span class="line"><span class="cl">      
+</span></span><span class="line"><span class="cl">      <span class="kd">public</span> <span class="kt">void</span> <span class="nf">doLongOperation</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">          
+</span></span><span class="line"><span class="cl">          <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">              <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="mi">1000</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">          <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InterruptedException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">              <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">          <span class="o">}</span>
+</span></span><span class="line"><span class="cl">          
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">      
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>This is how you start this thread:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">MyAsyncTask</span> <span class="n">aTask</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MyAsyncTask</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="n">aTask</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">4</span><span class="o">,</span> <span class="mi">5</span><span class="o">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>AsyncTask defines 3 generic types:<code>AsyncTask&lt;{type of the input}, {type of the update unit}, {type of the result}&gt;</code>,You don’t have to use all of them – simply use ‘Void’ for any of them.</p>
+<p>Notice that <code>AsyncTask</code> has 4 operations, which are executed by order.</p>
+<ul>
+<li><code>onPreExecute()</code> – is invoked before the execution.</li>
+<li><code>onPostExecute()</code> – is invoked after the execution.</li>
+<li><code>doInBackground()</code> – the main operation. Write your heavy operation here.</li>
+<li><code>onProgressUpdate()</code> – Indication to the user on progress. It is invoked every time publishProgress() is called.</li>
+</ul>
+<p><strong>Notice: doInBackground() is invoked on a background thread where onPreExecute(), onPostExecute() and onProgressUpdate() are invoked on the UI thread since their purpose is to update the UI.</strong></p>
+<p>Android developer website also mentions these 4 rules regarding the <code>AsyncTask</code>:</p>
+<ul>
+<li>The task instance must be created on the UI thread.</li>
+<li><code>execute(Params…)</code> must be invoked on the UI thread.</li>
+<li>Do not call <code>onPreExecute()</code>, <code>onPostExecute(Result)</code>, <code>doInBackground(Params…)</code>, <code>onProgressUpdate(Progress…)</code> manually.</li>
+<li>The task can be executed only once (an exception will be thrown if a second execution is attempted.)</li>
+</ul>
+<h2 id="timer--timertask">Timer + TimerTask</h2>
+<p>Another option is to use a Timer.Timer is a comfortable way to dispatch a thread in the future, be it once or more.</p>
+<p>Instead of doing this:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Runnable</span> <span class="n">threadTask</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Runnable</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">  <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      
+</span></span><span class="line"><span class="cl">      <span class="k">while</span><span class="o">(</span><span class="kc">true</span><span class="o">){</span>
+</span></span><span class="line"><span class="cl">          <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">              <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="mi">2000</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">          <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InterruptedException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">              <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">          <span class="o">}</span>
+</span></span><span class="line"><span class="cl">          
+</span></span><span class="line"><span class="cl">          <span class="n">doSomething</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">};</span>
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl"><span class="o">(</span><span class="k">new</span> <span class="n">Thread</span><span class="o">(</span><span class="n">threadTask</span><span class="o">)).</span><span class="na">start</span><span class="o">();</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>do this:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">TimerTask</span> <span class="n">timerTask</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TimerTask</span><span class="o">()</span> <span class="o">{</span>     
+</span></span><span class="line"><span class="cl">  <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">doSomething</span><span class="o">();</span>            
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">Timer</span> <span class="n">timer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Timer</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="n">timer</span><span class="o">.</span><span class="na">schedule</span><span class="o">(</span><span class="n">timerTask</span><span class="o">,</span> <span class="mi">2000</span><span class="o">,</span><span class="mi">2000</span><span class="o">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>which is a bit more elegant.</p>
+<p>Bare in mind, you still have to use Handler if you need to do UI operations.</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2014-10-31
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/2014/10/31/android-best-practices-for-background-jobs/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Android Best Practices for Background Jobs</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/2014/10/26/android-dealing-with-asynctask-and-screen-orientation/">
+            <span class="next-text nav-default">Android Dealing With Asynctask and Screen Orientation</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

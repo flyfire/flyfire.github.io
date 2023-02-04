@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Building a Recyclerview Layoutmanager Part I - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="By now, if you’re an Android developer paying any attention, you’ve at least heard of RecyclerView; a new component that will be added to the support library to facilitate custom implementations of high-performance view collections by facilitating view recycling. Others have already done a remarkable job describing the basics of how to use RecyclerView with the built-in pieces already provided, including item animations. So rather than dive into all that again, here are some resources to get you up to speed:" /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/2016/01/10/building-a-recyclerview-layoutmanager-part-i/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Building a Recyclerview Layoutmanager Part I" />
+<meta property="og:description" content="By now, if you’re an Android developer paying any attention, you’ve at least heard of RecyclerView; a new component that will be added to the support library to facilitate custom implementations of high-performance view collections by facilitating view recycling. Others have already done a remarkable job describing the basics of how to use RecyclerView with the built-in pieces already provided, including item animations. So rather than dive into all that again, here are some resources to get you up to speed:" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/2016/01/10/building-a-recyclerview-layoutmanager-part-i/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2016-01-10T00:00:00+00:00" />
+<meta property="article:modified_time" content="2016-01-10T00:00:00+00:00" />
+<meta itemprop="name" content="Building a Recyclerview Layoutmanager Part I">
+<meta itemprop="description" content="By now, if you’re an Android developer paying any attention, you’ve at least heard of RecyclerView; a new component that will be added to the support library to facilitate custom implementations of high-performance view collections by facilitating view recycling. Others have already done a remarkable job describing the basics of how to use RecyclerView with the built-in pieces already provided, including item animations. So rather than dive into all that again, here are some resources to get you up to speed:"><meta itemprop="datePublished" content="2016-01-10T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2016-01-10T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2778">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Building a Recyclerview Layoutmanager Part I"/>
+<meta name="twitter:description" content="By now, if you’re an Android developer paying any attention, you’ve at least heard of RecyclerView; a new component that will be added to the support library to facilitate custom implementations of high-performance view collections by facilitating view recycling. Others have already done a remarkable job describing the basics of how to use RecyclerView with the built-in pieces already provided, including item animations. So rather than dive into all that again, here are some resources to get you up to speed:"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Building a Recyclerview Layoutmanager Part I</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2016-01-10 </span>
+        <div class="post-category">
+            <a href="/categories/dev/"> dev </a>
+            <a href="/categories/android/"> android </a>
+            </div>
+          <span class="more-meta"> 约 2778 字 </span>
+          <span class="more-meta"> 预计阅读 14 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#recyclerview-playground">RecyclerView Playground</a></li>
+        <li><a href="#the-recycler">The Recycler</a></li>
+        <li><a href="#detach-vs-remove">Detach vs. Remove</a></li>
+        <li><a href="#scrap-vs-recycle">Scrap vs. Recycle</a></li>
+        <li><a href="#rule-of-thumb">Rule of Thumb</a></li>
+        <li><a href="#building-the-core">Building The Core</a>
+          <ul>
+            <li><a href="#generatedefaultlayoutparams">generateDefaultLayoutParams()</a></li>
+            <li><a href="#onlayoutchildren">onLayoutChildren()</a></li>
+          </ul>
+        </li>
+        <li><a href="#adding-user-interactivity">Adding User Interactivity</a>
+          <ul>
+            <li><a href="#canscrollhorizontally--canscrollvertically">canScrollHorizontally() &amp; canScrollVertically()</a></li>
+            <li><a href="#scrollhorizontallyby--scrollverticallyby">scrollHorizontallyBy() &amp; scrollVerticallyBy()</a></li>
+          </ul>
+        </li>
+        <li><a href="#just-getting-warmed-up">Just Getting Warmed Up</a></li>
+        <li><a href="#reference">reference</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>By now, if you’re an Android developer paying any attention, you’ve at least heard of RecyclerView; a new component that will be added to the support library to facilitate custom implementations of high-performance view collections by facilitating view recycling. Others have already done a remarkable job describing the basics of how to use RecyclerView with the built-in pieces already provided, including item animations. So rather than dive into all that again, here are some resources to get you up to speed:</p>
+<ul>
+<li><a href="http://www.grokkingandroid.com/first-glance-androids-recyclerview/">A First Glance at Android’s RecyclerView</a></li>
+<li><a href="http://lucasr.org/2014/07/31/the-new-twowayview/">The new TwoWayView</a></li>
+<li><a href="https://github.com/gabrielemariotti/RecyclerViewItemAnimators">RecyclerViewItemAnimators</a></li>
+</ul>
+<p>In this series of posts, we will be focused on the low-level details involved in building your own LayoutManager implementation, to do something a bit more complex than a simple vertical or horizontal scrolling list.</p>
+<pre><code>Before going any further, a warning is in order. The LayoutManager API allows powerful and complex layout recycling because it doesn’t do much for you; these implementations involve a fair amount of code you have to write yourself. As with any project involving custom views, don’t get caught in a trap of over-optimizing or over-generalizing your code. Build the features you need for the application use case you’re concerned with.
+</code></pre>
+<!-- more -->
+<h2 id="recyclerview-playground">RecyclerView Playground</h2>
+<p>All the code snippets in this post series are taken from the <a href="https://github.com/devunwired/recyclerview-playground">RecyclerView Playground sample</a> that I have posted on GitHub. This sample application includes examples of various aspects of working with RecyclerView, from creating simple lists, to custom LayoutManagers.</p>
+<p>Code for this post is drawn from the <code>FixedGridLayoutManager</code> example; a two-dimensional grid layout with full scrolling in both the horizontal and vertical directions.</p>
+<pre><code>The support library also has a sample that includes a custom LayoutManager; it is essentially a custom implementation of a vertical linear list: [SDK_PATH]/extras/android/compatibility/samples/Support7Demos/src/com/example/android/supportv7/widget/RecyclerViewActivity.java
+
+Also, while much of Android “L” and the new support libraries may not yet be in AOSP, the RecyclerView support artifact ships with a sources JAR you can view inside your environment: [SDK_PATH]/extras/android/m2repository/com/android/support/recyclerview-v7/21.0.0-rc1/recyclerview-v7-21.0.0-rc1-sources.jar
+</code></pre>
+<h2 id="the-recycler">The Recycler</h2>
+<p>First, a bit of insight into how the API is structured. Your LayoutManager is given access to a <code>Recycler</code> instance at key points in the process when you might need to recycle old views, or obtain new views from a potentially recycled previous child.</p>
+<p>The <code>Recycler</code> also removes the need to directly access the view’s current adapter implementation. When your <code>LayoutManager</code> requires a new child view, simply call <code>getViewForPosition()</code> and the <code>Recycler</code> will return the view with the appropriate data already bound. The <code>Recycler</code> takes care of determining whether a new view must be created, or if an existing scrapped view gets reused. Your responsibility, inside your <code>LayoutManager</code>, is to ensure that views which are no longer visible get passed to the <code>Recycler</code> in a timely manner; this will keep the <code>Recycler</code> from creating more view objects than is necessary.</p>
+<h2 id="detach-vs-remove">Detach vs. Remove</h2>
+<p>date = &ldquo;are&rdquo;
+slug = &ldquo;are/building-a-recyclerview-layoutmanager-part-i&rdquo;</p>
+<p>Remove is meant for views that are no longer needed. Any view that is permanently removed should be placed in the Recycler for later re-use, but the API does not enforce this. It is up to you whether the views you remove also get recycled.</p>
+<h2 id="scrap-vs-recycle">Scrap vs. Recycle</h2>
+<p><code>Recycler</code> has a two-level view caching system: the <strong>scrap heap</strong> and the <strong>recycle pool</strong>. The scrap heap represents a lighter weight collection where views can be returned to the <code>LayoutManager</code> directly without passing through the adapter again. Views are typically placed here when they are temporarily being detached, but will be re-used within the same layout pass. The recycle pool consists of views that are assumed to have incorrect data (data from a different position), so they will always be passed through the adapter to have data re-bound before they are returned to the <code>LayoutManager</code>.</p>
+<p>When attempting to supply the <code>LayoutManager</code> with a new view, a <code>Recycler</code> will first check the scrap heap for a matching position/id; if one exists, it will be returned without re-binding to the adapter data. If no matching view is found, the <code>Recycler</code> will instead pull a suitable view from the recycle pool and bind the necessary data to it from the adapter (i.e. <code>RecyclerView.Adapter.bindViewHolder()</code> is invoked) before returning it. In cases where no valid views exist in the recycle pool, a new view will be created instead (i.e. <code>RecyclerView.Adapter.createViewHolder()</code> is invoked) before being bound, and returned.</p>
+<h2 id="rule-of-thumb">Rule of Thumb</h2>
+<p>The <code>LayoutManager</code> API lets you do pretty much all of these tasks independently if you wish, so the possible combinations can be a bit numerous. In general, use <code>detachAndScrapView()</code> for views you want to temporarily reorganize and expect to re-attach inside the same layout pass. Use <code>removeAndRecycleView()</code> for views you no longer need based on the current layout.</p>
+<h2 id="building-the-core">Building The Core</h2>
+<p>A <code>LayoutManager</code> implementation is responsible for attaching, measuring, and laying out all the child views it needs in real-time. As the user scrolls the view, it will be up to the layout manager to determine when new child views need to be added, and old views can be detached and scrapped.</p>
+<p>You will need to override and implement the following method to create a minimum viable <code>LayoutManager</code>.</p>
+<h3 id="generatedefaultlayoutparams">generateDefaultLayoutParams()</h3>
+<p>This is actually the only required override to get your <code>LayoutManager</code> to compile. The implementation is pretty straightforward, just return a new instance of the <code>RecyclerView.LayoutParams</code> that you want applied by default to all the child views returned from the Recycler. These parameters will be applied to each child before they return from <code>getViewForPosition()</code>.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="n">RecyclerView</span><span class="o">.</span><span class="na">LayoutParams</span> <span class="nf">generateDefaultLayoutParams</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="k">new</span> <span class="n">RecyclerView</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">        <span class="n">RecyclerView</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">WRAP_CONTENT</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">RecyclerView</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">WRAP_CONTENT</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="onlayoutchildren">onLayoutChildren()</h3>
+<p>This is the main entry point into your LayoutManager. This method will be called when the view needs to do an initial layout, and again whenever the adapter data set changes (or the entire adapter is swapped out). This method is NOT called for every possible change you need to make to the layout. It is a good opportunity to reset the layout of child views for either an initial pass or a data set change.</p>
+<p>In the next segment, we will look at how this can be used to do a fresh layout based on the currently visible elements when the adapter updates. For now, we’ll address it simply as the first pass for laying out child views. Below is a simplified version of what exists in the <code>FixedGridLayoutManager</code> example:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">onLayoutChildren</span><span class="o">(</span><span class="n">RecyclerView</span><span class="o">.</span><span class="na">Recycler</span> <span class="n">recycler</span><span class="o">,</span> <span class="n">RecyclerView</span><span class="o">.</span><span class="na">State</span> <span class="n">state</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//Scrap measure one child
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">View</span> <span class="n">scrap</span> <span class="o">=</span> <span class="n">recycler</span><span class="o">.</span><span class="na">getViewForPosition</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">addView</span><span class="o">(</span><span class="n">scrap</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">measureChildWithMargins</span><span class="o">(</span><span class="n">scrap</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * We make some assumptions in this code based on every child
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * view being the same size (i.e. a uniform grid). This allows
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * us to compute the following values up front because they
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * won&#39;t change.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="n">mDecoratedChildWidth</span> <span class="o">=</span> <span class="n">getDecoratedMeasuredWidth</span><span class="o">(</span><span class="n">scrap</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">mDecoratedChildHeight</span> <span class="o">=</span> <span class="n">getDecoratedMeasuredHeight</span><span class="o">(</span><span class="n">scrap</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">detachAndScrapView</span><span class="o">(</span><span class="n">scrap</span><span class="o">,</span> <span class="n">recycler</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="n">updateWindowSizing</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">childLeft</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">childTop</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Reset the visible and scroll positions
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="n">mFirstVisiblePosition</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">childLeft</span> <span class="o">=</span> <span class="n">childTop</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1">//Clear all attached views into the recycle bin
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">detachAndScrapAttachedViews</span><span class="o">(</span><span class="n">recycler</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//Fill the grid for the initial layout of views
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">fillGrid</span><span class="o">(</span><span class="n">DIRECTION_NONE</span><span class="o">,</span> <span class="n">childLeft</span><span class="o">,</span> <span class="n">childTop</span><span class="o">,</span> <span class="n">recycler</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>We do some bookkeeping and setup (this manager assumes all child views from the adapter will be the same size, for simplicity), and make sure all views that might have existed are in the scrap heap. I have abstracted the bulk of the work to a <code>fillGrid()</code> helper method for re-use. We will see shortly this method gets called a lot to update the visible views as scrolling occurs as well.</p>
+<pre><code>Just as with a custom ViewGroup implementation, you are responsible for triggering measure and layout on each child view you get from the Recycler. None of this work is done directly by the APIs.
+</code></pre>
+<p>In general, the primary steps you would want to accomplish in a method like this are:</p>
+<ul>
+<li>Check the current offset positions of all the attached views after the latest scroll event.</li>
+<li>Determine if there are empty spaces created by scrolling where new views need to be added. Get them from the Recycler.</li>
+<li>Determine if there are now existing views that are no longer visible. Remove them and place them in the Recycler.</li>
+<li>Determine if the remaining views should be reorganized. It may be that the above changes require you modify the child indices of the views to better align with their adapter positions.</li>
+</ul>
+<p>Notice the primary steps we’ve taken to fill the <code>RecyclerView</code> inside of <code>FixedGridLayoutManager.fillGrid()</code>. This manager orders positions right-to-left, wrapping when the max column count is reached:</p>
+<ul>
+<li>Take inventory of the views we have currently. Detach them all so they can be re-attached again later.</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">SparseArray</span><span class="o">&lt;</span><span class="n">View</span><span class="o">&gt;</span> <span class="n">viewCache</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SparseArray</span><span class="o">&lt;</span><span class="n">View</span><span class="o">&gt;(</span><span class="n">getChildCount</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl"><span class="c1">//...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">if</span> <span class="o">(</span><span class="n">getChildCount</span><span class="o">()</span> <span class="o">!=</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">//Cache all views by their existing position, before updating counts
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">getChildCount</span><span class="o">();</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">int</span> <span class="n">position</span> <span class="o">=</span> <span class="n">positionOfIndex</span><span class="o">(</span><span class="n">i</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">final</span> <span class="n">View</span> <span class="n">child</span> <span class="o">=</span> <span class="n">getChildAt</span><span class="o">(</span><span class="n">i</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">viewCache</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">position</span><span class="o">,</span> <span class="n">child</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//Temporarily detach all views.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// Views we still need will be added back at the proper index.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">viewCache</span><span class="o">.</span><span class="na">size</span><span class="o">();</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">detachView</span><span class="o">(</span><span class="n">viewCache</span><span class="o">.</span><span class="na">valueAt</span><span class="o">(</span><span class="n">i</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>Do measure/layout for each child view that is visible at the current moment. Views we already had are simply re-attached; new views are obtained from the <code>Recycler</code>.</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">getVisibleChildCount</span><span class="o">();</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//Layout this position
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">View</span> <span class="n">view</span> <span class="o">=</span> <span class="n">viewCache</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">nextPosition</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(</span><span class="n">view</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * The Recycler will give us either a newly constructed view,
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * or a recycled view it has on-hand. In either case, the
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * view will already be fully bound to the data by the
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * adapter for us.
+</span></span></span><span class="line"><span class="cl"><span class="cm">         */</span>
+</span></span><span class="line"><span class="cl">        <span class="n">view</span> <span class="o">=</span> <span class="n">recycler</span><span class="o">.</span><span class="na">getViewForPosition</span><span class="o">(</span><span class="n">nextPosition</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">addView</span><span class="o">(</span><span class="n">view</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * It is prudent to measure/layout each new view we
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * receive from the Recycler. We don&#39;t have to do
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * this for views we are just re-arranging.
+</span></span></span><span class="line"><span class="cl"><span class="cm">         */</span>
+</span></span><span class="line"><span class="cl">        <span class="n">measureChildWithMargins</span><span class="o">(</span><span class="n">view</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">layoutDecorated</span><span class="o">(</span><span class="n">view</span><span class="o">,</span> <span class="n">leftOffset</span><span class="o">,</span> <span class="n">topOffset</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">                <span class="n">leftOffset</span> <span class="o">+</span> <span class="n">mDecoratedChildWidth</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">                <span class="n">topOffset</span> <span class="o">+</span> <span class="n">mDecoratedChildHeight</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//Re-attach the cached view at its new index
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">attachView</span><span class="o">(</span><span class="n">view</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">viewCache</span><span class="o">.</span><span class="na">remove</span><span class="o">(</span><span class="n">nextPosition</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>Finally, any views we detached in Step 1 that did not get re-attached are no longer visible. Relegate them all to the Recycler for use later on.</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">viewCache</span><span class="o">.</span><span class="na">size</span><span class="o">();</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">recycler</span><span class="o">.</span><span class="na">recycleView</span><span class="o">(</span><span class="n">viewCache</span><span class="o">.</span><span class="na">valueAt</span><span class="o">(</span><span class="n">i</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>As a side note, the reason we detach all the views and re-attach just those we still need is to preserve the order of child indices (i.e. the <code>getChildAt()</code> index) for each view. We expect that the visible views flow from top-left as 0 to bottom-right as <code>getChildCount()-1</code>. As we scroll in both directions and new children are attached, this ordering would become unreliable. We need this order to be preserved to best determine the location of each child at any point. In a simpler <code>LayoutManager</code> (like <code>LinearLayoutManager</code>) where child views can be easily inserted at each end of the list, this level of bookkeeping isn’t necessary.</p>
+<h2 id="adding-user-interactivity">Adding User Interactivity</h2>
+<p>At this stage we have a very nice initial layout, but no way to move around. The whole point of a RecyclerView is to dynamically provide views as the user scrolls through a data set! A few more overrides will get us there.</p>
+<h3 id="canscrollhorizontally--canscrollvertically">canScrollHorizontally() &amp; canScrollVertically()</h3>
+<p>These methods are simple. Just return true if your view supports any scrolling at all in the given direction, and false if you want to ignore it.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">canScrollVertically</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//We do allow scrolling
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="scrollhorizontallyby--scrollverticallyby">scrollHorizontallyBy() &amp; scrollVerticallyBy()</h3>
+<p>Here you will implement the logic by which the content should shift. Scrolling and flinging touch logic is handled already by RecyclerView, so no messing with MotionEvents or GestureDetectors. You have three tasks inside of these methods:</p>
+<ul>
+<li>Shift all child views by the appropriate distance (yes, you have to do this part yourself).</li>
+<li>Determine if another fill is in order to add/remove views once we’ve shifted.</li>
+<li>Return back the actual distance traveled. The framework uses this to know when you’ve hit an edge boundary.</li>
+</ul>
+<p>In <code>FixedGridLayoutManager</code>, both methods are very similar. Here is the condensed implementation of scrolling vertically:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span><span class="lnt">82
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">int</span> <span class="nf">scrollVerticallyBy</span><span class="o">(</span><span class="kt">int</span> <span class="n">dy</span><span class="o">,</span> <span class="n">RecyclerView</span><span class="o">.</span><span class="na">Recycler</span> <span class="n">recycler</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">RecyclerView</span><span class="o">.</span><span class="na">State</span> <span class="n">state</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(</span><span class="n">getChildCount</span><span class="o">()</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="mi">0</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//Take top measurements from the top-left child
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kd">final</span> <span class="n">View</span> <span class="n">topView</span> <span class="o">=</span> <span class="n">getChildAt</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//Take bottom measurements from the bottom-right child.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kd">final</span> <span class="n">View</span> <span class="n">bottomView</span> <span class="o">=</span> <span class="n">getChildAt</span><span class="o">(</span><span class="n">getChildCount</span><span class="o">()-</span><span class="mi">1</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//Optimize the case where the entire data set is too small to scroll
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">int</span> <span class="n">viewSpan</span> <span class="o">=</span> <span class="n">getDecoratedBottom</span><span class="o">(</span><span class="n">bottomView</span><span class="o">)</span> <span class="o">-</span> <span class="n">getDecoratedTop</span><span class="o">(</span><span class="n">topView</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(</span><span class="n">viewSpan</span> <span class="o">&lt;=</span> <span class="n">getVerticalSpace</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//We cannot scroll in either direction
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">return</span> <span class="mi">0</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">delta</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">maxRowCount</span> <span class="o">=</span> <span class="n">getTotalRowCount</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">boolean</span> <span class="n">topBoundReached</span> <span class="o">=</span> <span class="n">getFirstVisibleRow</span><span class="o">()</span> <span class="o">==</span> <span class="mi">0</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">boolean</span> <span class="n">bottomBoundReached</span> <span class="o">=</span> <span class="n">getLastVisibleRow</span><span class="o">()</span> <span class="o">&gt;=</span> <span class="n">maxRowCount</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(</span><span class="n">dy</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span> <span class="c1">// Contents are scrolling up
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="c1">//Check against bottom bound
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">if</span> <span class="o">(</span><span class="n">bottomBoundReached</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">//If we&#39;ve reached the last row, enforce limits
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="kt">int</span> <span class="n">bottomOffset</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">rowOfIndex</span><span class="o">(</span><span class="n">getChildCount</span><span class="o">()</span> <span class="o">-</span> <span class="mi">1</span><span class="o">)</span> <span class="o">&gt;=</span> <span class="o">(</span><span class="n">maxRowCount</span> <span class="o">-</span> <span class="mi">1</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">//We are truly at the bottom, determine how far
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="n">bottomOffset</span> <span class="o">=</span> <span class="n">getVerticalSpace</span><span class="o">()</span> <span class="o">-</span> <span class="n">getDecoratedBottom</span><span class="o">(</span><span class="n">bottomView</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                        <span class="o">+</span> <span class="n">getPaddingBottom</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">                 * Extra space added to account for allowing bottom space in the grid.
+</span></span></span><span class="line"><span class="cl"><span class="cm">                 * This occurs when the overlap in the last row is not large enough to
+</span></span></span><span class="line"><span class="cl"><span class="cm">                 * ensure that at least one element in that row isn&#39;t fully recycled.
+</span></span></span><span class="line"><span class="cl"><span class="cm">                 */</span>
+</span></span><span class="line"><span class="cl">                <span class="n">bottomOffset</span> <span class="o">=</span> <span class="n">getVerticalSpace</span><span class="o">()</span> <span class="o">-</span> <span class="o">(</span><span class="n">getDecoratedBottom</span><span class="o">(</span><span class="n">bottomView</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                        <span class="o">+</span> <span class="n">mDecoratedChildHeight</span><span class="o">)</span> <span class="o">+</span> <span class="n">getPaddingBottom</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="n">delta</span> <span class="o">=</span> <span class="n">Math</span><span class="o">.</span><span class="na">max</span><span class="o">(-</span><span class="n">dy</span><span class="o">,</span> <span class="n">bottomOffset</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">//No limits while the last row isn&#39;t visible
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">delta</span> <span class="o">=</span> <span class="o">-</span><span class="n">dy</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span> <span class="c1">// Contents are scrolling down
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="c1">//Check against top bound
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">if</span> <span class="o">(</span><span class="n">topBoundReached</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="kt">int</span> <span class="n">topOffset</span> <span class="o">=</span> <span class="o">-</span><span class="n">getDecoratedTop</span><span class="o">(</span><span class="n">topView</span><span class="o">)</span> <span class="o">+</span> <span class="n">getPaddingTop</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="n">delta</span> <span class="o">=</span> <span class="n">Math</span><span class="o">.</span><span class="na">min</span><span class="o">(-</span><span class="n">dy</span><span class="o">,</span> <span class="n">topOffset</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">delta</span> <span class="o">=</span> <span class="o">-</span><span class="n">dy</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">offsetChildrenVertical</span><span class="o">(</span><span class="n">delta</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(</span><span class="n">dy</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(</span><span class="n">getDecoratedBottom</span><span class="o">(</span><span class="n">topView</span><span class="o">)</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">bottomBoundReached</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">fillGrid</span><span class="o">(</span><span class="n">DIRECTION_DOWN</span><span class="o">,</span> <span class="n">recycler</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">         <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(!</span><span class="n">bottomBoundReached</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">fillGrid</span><span class="o">(</span><span class="n">DIRECTION_NONE</span><span class="o">,</span> <span class="n">recycler</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">         <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(</span><span class="n">getDecoratedTop</span><span class="o">(</span><span class="n">topView</span><span class="o">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">topBoundReached</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">fillGrid</span><span class="o">(</span><span class="n">DIRECTION_UP</span><span class="o">,</span> <span class="n">recycler</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(!</span><span class="n">topBoundReached</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">fillGrid</span><span class="o">(</span><span class="n">DIRECTION_NONE</span><span class="o">,</span> <span class="n">recycler</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Return value determines if a boundary has been reached
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * (for edge effects and flings). If returned value does not
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * match original delta (passed in), RecyclerView will draw
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * an edge effect.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="o">-</span><span class="n">delta</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Notice we are given the incremental scroll distance (dx/dy) to validate. The first portion of this method deals with determining whether scrolling the given distance (the sign gives the direction) would overscroll the edge of our content. If it would, we need to reduce how far the views are actually moved.</p>
+<p>We must manually move the views ourselves inside of this method. The <code>offsetChildrenVertical()</code> and <code>offsetChildrenHorizontal()</code> methods assist us in applying the uniform translation. If you don’t do this, your views won’t scroll. After moving the views, we trigger another fill operation to swap views based on the direction we scrolled.</p>
+<p>Finally, we return the actual shift value applied to the children. <code>RecyclerView</code> uses this value to determine when it should draw the edge effects you see on any scrolling content when the end is reached. Essentially, if the return value doesn’t exactly match the dx/dy passed in, expect some amount of edge glow to be drawn. Also note that if you return a value with the incorrect sign, the framework’s math will take that also as a big change and you’ll get edge glows at the wrong time.</p>
+<p>In addition to drawing edge effects, this return value is also used to determine when to cancel flings. Returning the incorrect value here will disable your ability to fling the content as the framework will think you’ve prematurely hit an edge and abort the fling.</p>
+<h2 id="just-getting-warmed-up">Just Getting Warmed Up</h2>
+<p>At this point, we should have a base functional implementation. It’s missing some of the finer details, but scrolling and proper view recycling are in place. There’s a lot more to go in our discussion of building a custom LayoutManager. In the next segment, we will look at dealing with decorations, data set changes, and implementing position scrolling.</p>
+<h2 id="reference">reference</h2>
+<ul>
+<li><a href="http://wiresareobsolete.com/2014/09/building-a-recyclerview-layoutmanager-part-1/">Building a RecyclerView LayoutManager – Part 1</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2016-01-10
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/2016/01/11/building-a-recyclerview-layoutmanager-part-ii/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Building a Recyclerview Layoutmanager Part Ii</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/2015/12/10/a-first-glance-at-recyclerview/">
+            <span class="next-text nav-default">A First Glance at Recyclerview</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

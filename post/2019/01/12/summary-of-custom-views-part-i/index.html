@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Summary of Custom Views Part I - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="自定义View总结 - 绘制 绘制基础 Canvas.drawColor(@ColorInt int color) 颜色填充 drawCircle(float centerX, float centerY, float radius, Paint paint) 画圆 Paint.setColor(int color),Paint.setStyle(Paint.Style style),Paint.setStrokeWidth(float width),Paint.setAntiAlias(boolean aa) drawRect(float left, float top, float right, float bottom, Paint paint) 画矩形 drawPoint(float x, float y, Paint paint) 画点 drawPoints(float[] pts, int offset, int count, Paint paint) / drawPoints(float[] pts," /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/2019/01/12/summary-of-custom-views-part-i/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Summary of Custom Views Part I" />
+<meta property="og:description" content="自定义View总结 - 绘制 绘制基础 Canvas.drawColor(@ColorInt int color) 颜色填充 drawCircle(float centerX, float centerY, float radius, Paint paint) 画圆 Paint.setColor(int color),Paint.setStyle(Paint.Style style),Paint.setStrokeWidth(float width),Paint.setAntiAlias(boolean aa) drawRect(float left, float top, float right, float bottom, Paint paint) 画矩形 drawPoint(float x, float y, Paint paint) 画点 drawPoints(float[] pts, int offset, int count, Paint paint) / drawPoints(float[] pts," />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/2019/01/12/summary-of-custom-views-part-i/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2019-01-12T00:00:00+00:00" />
+<meta property="article:modified_time" content="2019-01-12T00:00:00+00:00" />
+<meta itemprop="name" content="Summary of Custom Views Part I">
+<meta itemprop="description" content="自定义View总结 - 绘制 绘制基础 Canvas.drawColor(@ColorInt int color) 颜色填充 drawCircle(float centerX, float centerY, float radius, Paint paint) 画圆 Paint.setColor(int color),Paint.setStyle(Paint.Style style),Paint.setStrokeWidth(float width),Paint.setAntiAlias(boolean aa) drawRect(float left, float top, float right, float bottom, Paint paint) 画矩形 drawPoint(float x, float y, Paint paint) 画点 drawPoints(float[] pts, int offset, int count, Paint paint) / drawPoints(float[] pts,"><meta itemprop="datePublished" content="2019-01-12T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2019-01-12T00:00:00+00:00" />
+<meta itemprop="wordCount" content="6226">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Summary of Custom Views Part I"/>
+<meta name="twitter:description" content="自定义View总结 - 绘制 绘制基础 Canvas.drawColor(@ColorInt int color) 颜色填充 drawCircle(float centerX, float centerY, float radius, Paint paint) 画圆 Paint.setColor(int color),Paint.setStyle(Paint.Style style),Paint.setStrokeWidth(float width),Paint.setAntiAlias(boolean aa) drawRect(float left, float top, float right, float bottom, Paint paint) 画矩形 drawPoint(float x, float y, Paint paint) 画点 drawPoints(float[] pts, int offset, int count, Paint paint) / drawPoints(float[] pts,"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Summary of Custom Views Part I</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2019-01-12 </span>
+        <div class="post-category">
+            <a href="/categories/dev/"> dev </a>
+            <a href="/categories/android/"> android </a>
+            </div>
+          <span class="more-meta"> 约 6226 字 </span>
+          <span class="more-meta"> 预计阅读 13 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#自定义view总结---绘制">自定义View总结 - 绘制</a>
+      <ul>
+        <li><a href="#绘制基础">绘制基础</a>
+          <ul>
+            <li><a href="#path">Path</a></li>
+            <li><a href="#paint详解">Paint详解</a></li>
+            <li><a href="#颜色">颜色</a></li>
+            <li><a href="#效果">效果</a></li>
+            <li><a href="#paint初始化类">Paint初始化类</a></li>
+            <li><a href="#文字的绘制">文字的绘制</a></li>
+            <li><a href="#canvas-对绘制的辅助-clipxxx-和-matrix">Canvas 对绘制的辅助 clipXXX() 和 Matrix</a></li>
+            <li><a href="#绘制顺序">绘制顺序</a></li>
+            <li><a href="#属性动画-property-animation">属性动画 Property Animation</a></li>
+            <li><a href="#硬件加速">硬件加速</a></li>
+            <li><a href="#reference">reference</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <h1 id="自定义view总结---绘制">自定义View总结 - 绘制</h1>
+<h2 id="绘制基础">绘制基础</h2>
+<ul>
+<li><code>Canvas.drawColor(@ColorInt int color)</code> 颜色填充</li>
+<li><code>drawCircle(float centerX, float centerY, float radius, Paint paint)</code> 画圆</li>
+<li><code> Paint.setColor(int color)</code>,<code>Paint.setStyle(Paint.Style style)</code>,<code>Paint.setStrokeWidth(float width)</code>,<code>Paint.setAntiAlias(boolean aa)</code></li>
+<li><code>drawRect(float left, float top, float right, float bottom, Paint paint)</code> 画矩形</li>
+<li><code>drawPoint(float x, float y, Paint paint)</code> 画点</li>
+<li><code>drawPoints(float[] pts, int offset, int count, Paint paint) / drawPoints(float[] pts, Paint paint)</code> 画点（批量）</li>
+<li><code>drawOval(float left, float top, float right, float bottom, Paint paint) </code>画椭圆</li>
+<li><code>drawLine(float startX, float startY, float stopX, float stopY, Paint paint)</code> 画线</li>
+<li><code>drawLines(float[] pts, int offset, int count, Paint paint) / drawLines(float[] pts, Paint paint) </code> 画线（批量）</li>
+<li><code>drawRoundRect(float left, float top, float right, float bottom, float rx, float ry, Paint paint)</code> 画圆角矩形</li>
+<li><code>drawArc(float left, float top, float right, float bottom, float startAngle, float sweepAngle, boolean useCenter, Paint paint)</code> 绘制弧形或扇形</li>
+<li><code>drawPath(Path path, Paint paint)</code> 画自定义图形</li>
+<li><code>drawBitmap(Bitmap bitmap, float left, float top, Paint paint)</code> 画 Bitmap</li>
+<li><code>drawText(String text, float x, float y, Paint paint) </code>绘制文字</li>
+</ul>
+<!-- more -->
+<h3 id="path">Path</h3>
+<ul>
+<li><code>addCircle(float x, float y, float radius, Direction dir)</code> 添加圆</li>
+<li><code>addOval(float left, float top, float right, float bottom, Direction dir) / addOval(RectF oval, Direction dir) </code>添加椭圆</li>
+<li><code>addRect(float left, float top, float right, float bottom, Direction dir) / addRect(RectF rect, Direction dir) </code>添加矩形</li>
+<li><code>addRoundRect(RectF rect, float rx, float ry, Direction dir) / addRoundRect(float left, float top, float right, float bottom, float rx, float ry, Direction dir) / addRoundRect(RectF rect, float[] radii, Direction dir) / addRoundRect(float left, float top, float right, float bottom, float[] radii, Direction dir) </code>添加圆角矩形</li>
+<li><code>addPath(Path path)</code> 添加另一个 Path</li>
+<li><code>lineTo(float x, float y) / rLineTo(float x, float y) </code>画直线</li>
+<li><code>quadTo(float x1, float y1, float x2, float y2) / rQuadTo(float dx1, float dy1, float dx2, float dy2) </code>画二次贝塞尔曲线</li>
+<li><code>cubicTo(float x1, float y1, float x2, float y2, float x3, float y3) / rCubicTo(float x1, float y1, float x2, float y2, float x3, float y3)</code> 画三次贝塞尔曲线</li>
+<li><code>moveTo(float x, float y) / rMoveTo(float x, float y) </code>移动到目标位置</li>
+<li><code>arcTo(RectF oval, float startAngle, float sweepAngle, boolean forceMoveTo) / arcTo(float left, float top, float right, float bottom, float startAngle, float sweepAngle, boolean forceMoveTo) / arcTo(RectF oval, float startAngle, float sweepAngle)</code> 画弧形</li>
+<li><code>addArc(float left, float top, float right, float bottom, float startAngle, float sweepAngle) / addArc(RectF oval, float startAngle, float sweepAngle)</code>,<code>addArc()</code> 只是一个直接使用了 <code>forceMoveTo = true</code> 的简化版 <code>arcTo()</code></li>
+<li><code>close() </code>封闭当前子图形</li>
+<li><code>Path.setFillType(Path.FillType ft)</code> 设置填充方式</li>
+</ul>
+<h3 id="paint详解">Paint详解</h3>
+<center><p><img src="/images/canvas-color.jpg" alt="Canvas绘制的内容，有三层对颜色的处理"></p></center>
+<h3 id="颜色">颜色</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">canvas 方法</th>
+<th>像素颜色的设置方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">drawColor/RGB/ARGB()</td>
+<td>直接作为参数传入</td>
+</tr>
+<tr>
+<td style="text-align:center">drawBitmap()</td>
+<td>与<code>bitmap</code>参数的像素颜色相同</td>
+</tr>
+<tr>
+<td style="text-align:center">图形和文字(drawCircle()/drawPath()/drawText()&hellip;)</td>
+<td>在<code>paint</code>参数中设置</td>
+</tr>
+</tbody>
+</table>
+<h4 id="直接设置颜色paintsetcolorint-colorpaintsetargbint-aint-rint-gint-b">直接设置颜色<code>Paint.setColor(int color)</code>,<code>Paint.setARGB(int a,int r,int g,int b)</code></h4>
+<h4 id="setshadershader-shader-设置shader">setShader(Shader shader) 设置shader</h4>
+<ul>
+<li>
+<p>shader着色器，它和直接设置颜色的区别是，着色器设置的是一个颜色方案，或者说是一套着色规则。</p>
+</li>
+<li>
+<p>LinearGradient 线性渐变</p>
+</li>
+<li>
+<p>RadialGradient 辐射渐变，辐射渐变很好理解，就是从中心向周围辐射状的渐变。</p>
+</li>
+<li>
+<p>SweepGradient 扫描渐变</p>
+</li>
+<li>
+<p>BitmapShader 用 Bitmap 来着色，其实也就是用 Bitmap 的像素来作为图形或文字的填充。</p>
+</li>
+<li>
+<p>ComposeShader 混合着色器 所谓混合，就是把两个 Shader 一起使用。</p>
+</li>
+</ul>
+<h4 id="setcolorfiltercolorfilter-colorfilter">setColorFilter(ColorFilter colorFilter)</h4>
+<p>为绘制设置颜色过滤。颜色过滤的意思，就是为绘制的内容设置一个统一的过滤策略，然后 Canvas.drawXXX() 方法会对每个像素都进行过滤后再绘制出来。</p>
+<ul>
+<li><code>LightingColorFilter(int mul, int add)</code></li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">R</span><span class="err">&#39;</span> <span class="o">=</span> <span class="n">R</span> <span class="o">*</span> <span class="n">mul</span><span class="o">.</span><span class="na">R</span> <span class="o">/</span> <span class="mh">0xff</span> <span class="o">+</span> <span class="n">add</span><span class="o">.</span><span class="na">R</span>  
+</span></span><span class="line"><span class="cl"><span class="n">G</span><span class="err">&#39;</span> <span class="o">=</span> <span class="n">G</span> <span class="o">*</span> <span class="n">mul</span><span class="o">.</span><span class="na">G</span> <span class="o">/</span> <span class="mh">0xff</span> <span class="o">+</span> <span class="n">add</span><span class="o">.</span><span class="na">G</span>  
+</span></span><span class="line"><span class="cl"><span class="n">B</span><span class="err">&#39;</span> <span class="o">=</span> <span class="n">B</span> <span class="o">*</span> <span class="n">mul</span><span class="o">.</span><span class="na">B</span> <span class="o">/</span> <span class="mh">0xff</span> <span class="o">+</span> <span class="n">add</span><span class="o">.</span><span class="na">B</span>  
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li><code>PorterDuffColorFilter(int color, PorterDuff.Mode mode)</code></li>
+<li><code>ColorMatrixColorFilter</code></li>
+</ul>
+<p><code>ColorMatrixColorFilter</code> 使用一个 <code>ColorMatrix</code> 来对颜色进行处理。 <code>ColorMatrix</code> 这个类，内部是一个 4x5 的矩阵：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="o">[</span> <span class="n">a</span><span class="o">,</span> <span class="n">b</span><span class="o">,</span> <span class="n">c</span><span class="o">,</span> <span class="n">d</span><span class="o">,</span> <span class="n">e</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">f</span><span class="o">,</span> <span class="n">g</span><span class="o">,</span> <span class="n">h</span><span class="o">,</span> <span class="n">i</span><span class="o">,</span> <span class="n">j</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">k</span><span class="o">,</span> <span class="n">l</span><span class="o">,</span> <span class="n">m</span><span class="o">,</span> <span class="n">n</span><span class="o">,</span> <span class="n">o</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">p</span><span class="o">,</span> <span class="n">q</span><span class="o">,</span> <span class="n">r</span><span class="o">,</span> <span class="n">s</span><span class="o">,</span> <span class="n">t</span> <span class="o">]</span>
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl"><span class="n">R</span><span class="err">’</span> <span class="o">=</span> <span class="n">a</span><span class="o">*</span><span class="n">R</span> <span class="o">+</span> <span class="n">b</span><span class="o">*</span><span class="n">G</span> <span class="o">+</span> <span class="n">c</span><span class="o">*</span><span class="n">B</span> <span class="o">+</span> <span class="n">d</span><span class="o">*</span><span class="n">A</span> <span class="o">+</span> <span class="n">e</span><span class="o">;</span>  
+</span></span><span class="line"><span class="cl"><span class="n">G</span><span class="err">’</span> <span class="o">=</span> <span class="n">f</span><span class="o">*</span><span class="n">R</span> <span class="o">+</span> <span class="n">g</span><span class="o">*</span><span class="n">G</span> <span class="o">+</span> <span class="n">h</span><span class="o">*</span><span class="n">B</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">A</span> <span class="o">+</span> <span class="n">j</span><span class="o">;</span>  
+</span></span><span class="line"><span class="cl"><span class="n">B</span><span class="err">’</span> <span class="o">=</span> <span class="n">k</span><span class="o">*</span><span class="n">R</span> <span class="o">+</span> <span class="n">l</span><span class="o">*</span><span class="n">G</span> <span class="o">+</span> <span class="n">m</span><span class="o">*</span><span class="n">B</span> <span class="o">+</span> <span class="n">n</span><span class="o">*</span><span class="n">A</span> <span class="o">+</span> <span class="n">o</span><span class="o">;</span>  
+</span></span><span class="line"><span class="cl"><span class="n">A</span><span class="err">’</span> <span class="o">=</span> <span class="n">p</span><span class="o">*</span><span class="n">R</span> <span class="o">+</span> <span class="n">q</span><span class="o">*</span><span class="n">G</span> <span class="o">+</span> <span class="n">r</span><span class="o">*</span><span class="n">B</span> <span class="o">+</span> <span class="n">s</span><span class="o">*</span><span class="n">A</span> <span class="o">+</span> <span class="n">t</span><span class="o">;</span> 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><a href="https://github.com/chengdazhi/StyleImageView">StyleImageView</a></p>
+<h4 id="setxfermodexfermode-xfermode">setXfermode(Xfermode xfermode)</h4>
+<ul>
+<li>
+<p>使用离屏缓冲（Off-screen Buffer）</p>
+</li>
+<li>
+<p>控制好透明区域</p>
+</li>
+</ul>
+<h3 id="效果">效果</h3>
+<h4 id="setantialias-boolean-aa-设置抗锯齿">setAntiAlias (boolean aa) 设置抗锯齿</h4>
+<h4 id="setstylepaintstyle-style">setStyle(Paint.Style style)</h4>
+<h4 id="线条形状">线条形状</h4>
+<ul>
+<li>
+<p><code>setStrokeWidth(float width)</code></p>
+</li>
+<li>
+<p><code>setStrokeCap(Paint.Cap cap)</code></p>
+</li>
+<li>
+<p><code>setStrokeJoin(Paint.Join join)</code></p>
+</li>
+<li>
+<p><code>setStrokeMiter(float miter)</code></p>
+</li>
+</ul>
+<h4 id="色彩优化">色彩优化</h4>
+<ul>
+<li>
+<p><code>setDither(boolean dither)</code> 设置图像的抖动</p>
+</li>
+<li>
+<p><code>setFilterBitmap(boolean filter)</code> 设置是否使用双线性过滤来绘制 Bitmap</p>
+</li>
+</ul>
+<h4 id="setpatheffectpatheffect-effect">setPathEffect(PathEffect effect)</h4>
+<p>使用 <code>PathEffect</code> 来给图形的轮廓设置效果。对 Canvas 所有的图形绘制有效，也就是  <code>drawLine() drawCircle() drawPath()</code> 这些方法。</p>
+<ul>
+<li>
+<p><code>CornerPathEffect</code> 把所有拐角变成圆角</p>
+</li>
+<li>
+<p><code>DiscretePathEffect</code> 把线条进行随机的偏离，让轮廓变得乱七八糟。</p>
+</li>
+<li>
+<p><code>DashPathEffect</code> 使用虚线来绘制线条</p>
+</li>
+<li>
+<p><code>PathDashPathEffect</code> 这个方法比 DashPathEffect 多一个前缀 Path ，所以顾名思义，它是使用一个 Path 来绘制「虚线」。</p>
+</li>
+<li>
+<p><code>SumPathEffect</code> 这是一个组合效果类的 PathEffect 。它的行为特别简单，就是分别按照两种 PathEffect 分别对目标进行绘制。</p>
+</li>
+<li>
+<p><code>ComposePathEffect</code> 这也是一个组合效果类的 PathEffect 。不过它是先对目标 Path 使用一个 PathEffect，然后再对这个改变后的 Path 使用另一个 PathEffect。它的构造方法 <code>ComposePathEffect(PathEffect outerpe, PathEffect innerpe)</code> 中的两个  PathEffect 参数， innerpe 是先应用的， outerpe 是后应用的。</p>
+</li>
+</ul>
+<h4 id="setshadowlayerfloat-radius-float-dx-float-dy-int-shadowcolor">setShadowLayer(float radius, float dx, float dy, int shadowColor)</h4>
+<p>在之后的绘制内容下面加一层阴影。如果要清除阴影层，使用 clearShadowLayer() 。</p>
+<ul>
+<li>
+<p>在硬件加速开启的情况下， setShadowLayer() 只支持文字的绘制，文字之外的绘制必须关闭硬件加速才能正常绘制阴影。</p>
+</li>
+<li>
+<p>如果 shadowColor 是半透明的，阴影的透明度就使用 shadowColor 自己的透明度；而如果 shadowColor 是不透明的，阴影的透明度就使用 paint 的透明度。</p>
+</li>
+</ul>
+<h4 id="setmaskfiltermaskfilter-maskfilter">setMaskFilter(MaskFilter maskfilter)</h4>
+<p>为之后的绘制设置 <code>MaskFilter</code>。上一个方法 <code>setShadowLayer()</code> 是设置的在绘制层下方的附加效果；而这个 <code>MaskFilter</code> 和它相反，设置的是在绘制层上方的附加效果。</p>
+<ul>
+<li>
+<p><code>BlurMaskFilter</code> 模糊效果的 MaskFilter。<code>BlurMaskFilter(float radius, BlurMaskFilter.Blur style)</code> 中， radius 参数是模糊的范围， style 是模糊的类型。NORMAL: 内外都模糊绘制，SOLID: 内部正常绘制，外部模糊，INNER: 内部模糊，外部不绘制，OUTER: 内部不绘制，外部模糊。</p>
+</li>
+<li>
+<p><code>EmbossMaskFilter</code> 浮雕效果的 MaskFilter。</p>
+</li>
+</ul>
+<h4 id="获取绘制的-path">获取绘制的 Path</h4>
+<p>根据 paint 的设置，计算出绘制 Path 或文字时的实际 Path。所谓实际 Path ，指的就是 drawPath() 的绘制内容的轮廓，要算上线条宽度和设置的 PathEffect。</p>
+<ul>
+<li>
+<p><code>getFillPath(Path src, Path dst)</code>，<code>getFillPath(src, dst)</code> 方法就能获取这个实际 Path。方法的参数里，src 是原 Path ，而 dst 就是实际 Path 的保存位置。 <code>getFillPath(src, dst)</code> 会计算出实际 Path，然后把结果保存在 dst 里。</p>
+</li>
+<li>
+<p><code>getTextPath(String text, int start, int end, float x, float y, Path path) / getTextPath(char[] text, int index, int count, float x, float y, Path path)</code> 文字的绘制，虽然是使用 Canvas.drawText() 方法，但其实在下层，文字信息全是被转化成图形，对图形进行绘制的。  getTextPath() 方法，获取的就是目标文字所对应的 Path</p>
+</li>
+</ul>
+<h3 id="paint初始化类">Paint初始化类</h3>
+<ul>
+<li>
+<p><code>reset()</code></p>
+</li>
+<li>
+<p><code>set(Paint src)</code></p>
+</li>
+<li>
+<p><code>setFlags(int flags)</code></p>
+</li>
+</ul>
+<h3 id="文字的绘制">文字的绘制</h3>
+<h4 id="canvas-绘制文字的方式">Canvas 绘制文字的方式</h4>
+<ul>
+<li>
+<p><code>drawText(String text, float x, float y, Paint paint)</code></p>
+</li>
+<li>
+<p><code>drawTextRun()</code></p>
+</li>
+<li>
+<p><code>drawTextOnPath()</code></p>
+</li>
+<li>
+<p><code>StaticLayout</code></p>
+</li>
+</ul>
+<h4 id="paint-对文字绘制的辅助">Paint 对文字绘制的辅助</h4>
+<ul>
+<li>
+<p><code>setTextSize(float textSize)</code></p>
+</li>
+<li>
+<p><code>setTypeface(Typeface typeface)</code></p>
+</li>
+<li>
+<p><code>setFakeBoldText(boolean fakeBoldText)</code> 伪粗体（ fake bold ），因为它并不是通过选用更高 weight 的字体让文字变粗，而是通过程序在运行时把文字给「描粗」了</p>
+</li>
+<li>
+<p><code>setStrikeThruText(boolean strikeThruText)</code> 是否加删除线</p>
+</li>
+<li>
+<p><code>setUnderlineText(boolean underlineText)</code> 是否加下划线</p>
+</li>
+<li>
+<p><code>setTextSkewX(float skewX)</code> 设置文字横向错切角度。其实就是文字倾斜度的啦。</p>
+</li>
+<li>
+<p><code>setTextScaleX(float scaleX)</code> 设置文字横向放缩。也就是文字变胖变瘦。</p>
+</li>
+<li>
+<p><code>setLetterSpacing(float letterSpacing)</code> 设置字符间距。默认值是 0。</p>
+</li>
+<li>
+<p><code>setFontFeatureSettings(String settings)</code></p>
+</li>
+<li>
+<p><code>setTextAlign(Paint.Align align)</code> 设置文字的对齐方式。一共有三个值：LEFT CETNER 和 RIGHT。默认值为 LEFT。</p>
+</li>
+<li>
+<p><code>setTextLocale(Locale locale) / setTextLocales(LocaleList locales)</code> 设置绘制所使用的 Locale。</p>
+</li>
+<li>
+<p><code>setHinting(int mode)</code> 设置是否启用字体的 hinting （字体微调）。</p>
+</li>
+<li>
+<p><code>setElegantTextHeight(boolean elegant)</code> 设置是否开启文字的 elegant height 。开启之后，文字的高度就变优雅了</p>
+</li>
+<li>
+<p><code>setSubpixelText(boolean subpixelText)</code> 是否开启次像素级的抗锯齿（ sub-pixel anti-aliasing ）。</p>
+</li>
+<li>
+<p><code>setLinearText(boolean linearText)</code></p>
+</li>
+<li>
+<p><code>hasGlyph(String string)</code> 检查指定的字符串中是否是一个单独的字形 (glyph）。</p>
+</li>
+</ul>
+<h4 id="测量文字尺寸类">测量文字尺寸类</h4>
+<ul>
+<li>
+<p><code>float getFontSpacing()</code> 获取推荐的行距。</p>
+</li>
+<li>
+<p><code>FontMetircs getFontMetrics()</code> 获取 Paint 的 FontMetrics。<code>FontMetrics</code> 是个相对专业的工具类，它提供了几个文字排印方面的数值：<code>ascent</code>,  <code>descent</code>, <code>top</code>, <code>bottom</code>, <code>leading</code>。<code>ascent</code> 和 <code>descent</code> 这两个值还可以通过 <code>Paint.ascent()</code> 和 <code>Paint.descent()</code> 来快捷获取。</p>
+</li>
+<li>
+<p><code>getTextBounds(String text, int start, int end, Rect bounds)</code> 获取文字的显示范围。</p>
+</li>
+<li>
+<p><code>float measureText(String text)</code> 测量文字的宽度并返回。</p>
+</li>
+</ul>
+<p>如果你用代码分别使用 getTextBounds() 和 measureText() 来测量文字的宽度，你会发现  measureText() 测出来的宽度总是比 getTextBounds() 大一点点。这是因为这两个方法其实测量的是两个不一样的东西。getTextBounds: 它测量的是文字的显示范围（关键词：显示）。形象点来说，你这段文字外放置一个可变的矩形，然后把矩形尽可能地缩小，一直小到这个矩形恰好紧紧包裹住文字，那么这个矩形的范围，就是这段文字的 bounds。measureText(): 它测量的是文字绘制时所占用的宽度（关键词：占用）。前面已经讲过，一个文字在界面中，往往需要占用比他的实际显示宽度更多一点的宽度，以此来让文字和文字之间保留一些间距，不会显得过于拥挤。</p>
+<ul>
+<li>
+<p><code>getTextWidths(String text, float[] widths)</code> 获取字符串中每个字符的宽度，并把结果填入参数 widths。</p>
+</li>
+<li>
+<p><code>int breakText(String text, boolean measureForwards, float maxWidth, float[] measuredWidth)</code> 这个方法也是用来测量文字宽度的。但和 measureText() 的区别是， breakText() 是在给出宽度上限的前提下测量文字的宽度。如果文字的宽度超出了上限，那么在临近超限的位置截断文字。</p>
+</li>
+</ul>
+<h4 id="光标相关">光标相关</h4>
+<ul>
+<li>
+<p><code>getRunAdvance(CharSequence text, int start, int end, int contextStart, int contextEnd, boolean isRtl, int offset)</code> 对于一段文字，计算出某个字符处光标的 x 坐标。</p>
+</li>
+<li>
+<p><code>getOffsetForAdvance(CharSequence text, int start, int end, int contextStart, int contextEnd, boolean isRtl, float advance)</code> 给出一个位置的像素值，计算出文字中最接近这个位置的字符偏移量</p>
+</li>
+</ul>
+<h3 id="canvas-对绘制的辅助-clipxxx-和-matrix">Canvas 对绘制的辅助 clipXXX() 和 Matrix</h3>
+<h4 id="范围裁切">范围裁切</h4>
+<p>范围裁切有两个方法： <code>clipRect()</code> 和 <code>clipPath()</code>。裁切方法之后的绘制代码，都会被限制在裁切范围内。</p>
+<ul>
+<li>
+<p><code>clipRect()</code></p>
+</li>
+<li>
+<p><code> clipPath()</code></p>
+</li>
+</ul>
+<h4 id="几何变换">几何变换</h4>
+<p>几何变换的使用大概分为三类：</p>
+<ul>
+<li>使用 Canvas 来做常见的二维变换；</li>
+<li>使用 Matrix 来做常见和不常见的二维变换；</li>
+<li>使用 Camera 来做三维变换。</li>
+</ul>
+<h5 id="使用-canvas-来做常见的二维变换">使用 Canvas 来做常见的二维变换</h5>
+<ul>
+<li>
+<p><code>Canvas.translate(float dx, float dy)</code> 平移</p>
+</li>
+<li>
+<p><code>Canvas.rotate(float degrees, float px, float py)</code> 旋转</p>
+</li>
+<li>
+<p><code>Canvas.scale(float sx, float sy, float px, float py)</code> 放缩</p>
+</li>
+<li>
+<p><code>skew(float sx, float sy)</code> 错切</p>
+</li>
+</ul>
+<h5 id="使用-matrix-来做变换">使用 Matrix 来做变换</h5>
+<p>Matrix 做常见变换的方式：</p>
+<ul>
+<li>创建 Matrix 对象；</li>
+<li>调用 Matrix 的 <code>pre/postTranslate/Rotate/Scale/Skew()</code> 方法来设置几何变换；</li>
+<li>使用 <code>Canvas.setMatrix(matrix)</code> 或 <code>Canvas.concat(matrix)</code> 来把几何变换应用到 Canvas。</li>
+</ul>
+<p>把 Matrix 应用到 Canvas 有两个方法： <code>Canvas.setMatrix(matrix)</code> 和 <code>Canvas.concat(matrix)</code>。</p>
+<ul>
+<li><code>Canvas.setMatrix(matrix)</code>：用 Matrix 直接替换 Canvas 当前的变换矩阵，即抛弃 Canvas 当前的变换，改用 Matrix 的变换（注：根据下面评论里以及我在微信公众号中收到的反馈，不同的系统中 setMatrix(matrix) 的行为可能不一致，所以还是尽量用  concat(matrix) 吧）；</li>
+<li><code>Canvas.concat(matrix)</code>：用 Canvas 当前的变换矩阵和 Matrix 相乘，即基于 Canvas 当前的变换，叠加上 Matrix 中的变换。</li>
+</ul>
+<p>使用 Matrix 来做自定义变换</p>
+<ul>
+<li><code>Matrix.setPolyToPoly(float[] src, int srcIndex, float[] dst, int dstIndex, int pointCount)</code> 用点对点映射的方式设置变换。poly 就是「多」的意思。setPolyToPoly() 的作用是通过多点的映射的方式来直接设置变换。「多点映射」的意思就是把指定的点移动到给出的位置，从而发生形变。例如：(0, 0) -&gt; (100, 100) 表示把 (0, 0) 位置的像素移动到 (100, 100) 的位置，这个是单点的映射，单点映射可以实现平移。而多点的映射，就可以让绘制内容任意地扭曲。</li>
+</ul>
+<h5 id="使用-camera-来做三维变换">使用 Camera 来做三维变换</h5>
+<p>Camera 的三维变换有三类：旋转、平移、移动相机。</p>
+<ul>
+<li>
+<p><code>Camera.rotate*()</code> 三维旋转 <code>Camera.rotate*()</code> 一共有四个方法： <code>rotateX(deg) rotateY(deg) rotateZ(deg) rotate(x, y, z)</code>。</p>
+</li>
+<li>
+<p><code>Camera.translate(float x, float y, float z)</code> 移动</p>
+</li>
+<li>
+<p><code>Camera.setLocation(x, y, z)</code> 设置虚拟相机的位置。在 Camera 中，相机的默认位置是 (0, 0, -8)（英寸）。8 x 72 = 576，所以它的默认位置是 (0, 0, -576)（像素）。</p>
+</li>
+</ul>
+<h3 id="绘制顺序">绘制顺序</h3>
+<h4 id="superondraw-前-or-后">super.onDraw() 前 or 后？</h4>
+<h4 id="dispatchdraw绘制子-view-的方法"><code>dispatchDraw()</code>：绘制子 View 的方法</h4>
+<h4 id="绘制过程简述">绘制过程简述</h4>
+<p>绘制过程中最典型的两个部分是上面讲到的主体和子 View，但它们并不是绘制过程的全部。除此之外，绘制过程还包含一些其他内容的绘制。具体来讲，一个完整的绘制过程会依次绘制以下几个内容：</p>
+<ul>
+<li>背景</li>
+<li>主体（onDraw()）</li>
+<li>子 View（dispatchDraw()）</li>
+<li>滑动边缘渐变和滑动条</li>
+<li>前景</li>
+</ul>
+<center><p><img src="/images/canvas-draw-process.jpg"/></p></center>
+<h4 id="ondrawforeground">onDrawForeground()</h4>
+<p>在 onDrawForeground() 中，会依次绘制滑动边缘渐变、滑动条和前景。</p>
+<h4 id="draw-总调度方法">draw() 总调度方法</h4>
+<center><p><img src="/images/canvas-draw.jpg"/></p></center>
+<p>关于绘制方法，有两点需要注意一下：</p>
+<ul>
+<li>
+<p>出于效率的考虑，ViewGroup 默认会绕过 <code>draw()</code> 方法，换而直接执行  <code>dispatchDraw()</code>，以此来简化绘制流程。所以如果你自定义了某个 ViewGroup 的子类（比如 LinearLayout）并且需要在它的除 <code>dispatchDraw()</code> 以外的任何一个绘制方法内绘制内容，你可能会需要调用 <code>View.setWillNotDraw(false)</code> 这行代码来切换到完整的绘制流程（是「可能」而不是「必须」的原因是，有些 ViewGroup 是已经调用过  setWillNotDraw(false) 了的，例如 ScrollView）。</p>
+</li>
+<li>
+<p>有的时候，一段绘制代码写在不同的绘制方法中效果是一样的，这时你可以选一个自己喜欢或者习惯的绘制方法来重写。但有一个例外：如果绘制代码既可以写在  <code>onDraw()</code> 里，也可以写在其他绘制方法里，那么优先写在 <code>onDraw()</code> ，因为 Android 有相关的优化，可以在不需要重绘的时候自动跳过 <code>onDraw()</code> 的重复执行，以提升开发效率。享受这种优化的只有 <code>onDraw()</code> 一个方法。</p>
+</li>
+</ul>
+<h3 id="属性动画-property-animation">属性动画 Property Animation</h3>
+<p>Android 里动画是有一些分类的：动画可以分为两类：Animation 和 Transition；其中 Animation 又可以再分为 View Animation 和 Property Animation 两类： View Animation 是纯粹基于 framework 的绘制转变，Property Animation，属性动画，这是在 Android 3.0 开始引入的新的动画形式。</p>
+<h4 id="viewpropertyanimator">ViewPropertyAnimator</h4>
+ <center><p><img src="/images/view-animate.jpg"/></p></center>
+<h4 id="objectanimator">ObjectAnimator</h4>
+<p>使用方式：</p>
+<ul>
+<li>如果是自定义控件，需要添加 setter / getter 方法；</li>
+<li>用 ObjectAnimator.ofXXX() 创建 ObjectAnimator 对象；</li>
+<li>用 start() 方法执行动画。</li>
+</ul>
+<h4 id="通用方法">通用方法</h4>
+<ul>
+<li>
+<p><code>setDuration(int duration)</code> 设置动画时长</p>
+</li>
+<li>
+<p><code>setInterpolator(Interpolator interpolator)</code> 设置 Interpolator,<code>AccelerateDecelerateInterpolator</code>,<code>LinearInterpolator</code>,<code>AccelerateInterpolator</code>,<code>DecelerateInterpolator</code>,<code>AnticipateInterpolator</code>,<code>OvershootInterpolator</code>,<code>AnticipateOvershootInterpolator</code>,<code>BounceInterpolator</code>,<code>CycleInterpolator</code>,<code>PathInterpolator</code>,<code>FastOutLinearInInterpolator</code>,<code>FastOutSlowInInterpolator</code>,<code>LinearOutSlowInInterpolator</code></p>
+</li>
+</ul>
+<h4 id="设置监听器">设置监听器</h4>
+<p>设置监听器的方法， ViewPropertyAnimator 和 ObjectAnimator 略微不一样：  ViewPropertyAnimator 用的是 setListener() 和 setUpdateListener() 方法，可以设置一个监听器，要移除监听器时通过 set[Update]Listener(null) 填 null 值来移除；而  ObjectAnimator 则是用 addListener() 和 addUpdateListener() 来添加一个或多个监听器，移除监听器则是通过 remove[Update]Listener() 来指定移除对象。另外，由于 ObjectAnimator 支持使用 pause() 方法暂停，所以它还多了一个  addPauseListener() / removePauseListener() 的支持；而 ViewPropertyAnimator 则独有  withStartAction() 和 withEndAction() 方法，可以设置一次性的动画开始或结束的监听。</p>
+<p>AnimatorListener 共有 4 个回调方法：</p>
+<ul>
+<li>
+<p><code>onAnimationStart(Animator animation)</code></p>
+</li>
+<li>
+<p><code>onAnimationEnd(Animator animation)</code></p>
+</li>
+<li>
+<p><code>onAnimationCancel(Animator animation)</code></p>
+</li>
+<li>
+<p><code>onAnimationRepeat(Animator animation)</code></p>
+</li>
+</ul>
+<p><code>AnimatorUpdateListener</code>它只有一个回调方法：<code>onAnimationUpdate(ValueAnimator animation)</code></p>
+<p><code>ViewPropertyAnimator.withStartAction/EndAction()</code>，<code>withStartAction() / withEndAction()</code> 是一次性的，在动画执行结束后就自动弃掉了，就算之后再重用 <code>ViewPropertyAnimator</code> 来做别的动画，用它们设置的回调也不会再被调用。而 <code>set/addListener()</code> 所设置的 <code>AnimatorListener</code> 是持续有效的，当动画重复执行时，回调总会被调用。<code>withEndAction()</code> 设置的回调只有在动画正常结束时才会被调用，而在动画被取消时不会被执行。这点和 <code>AnimatorListener.onAnimationEnd()</code> 的行为是不一致的。</p>
+<h4 id="typeevaluator">TypeEvaluator</h4>
+<ul>
+<li>
+<p><code>ArgbEvaluator</code></p>
+</li>
+<li>
+<p>自定义 Evaluator</p>
+</li>
+</ul>
+<p>借助于 TypeEvaluator，属性动画就可以通过 ofObject() 来对不限定类型的属性做动画了。方式很简单：</p>
+<ul>
+<li>
+<p>为目标属性写一个自定义的 TypeEvaluator</p>
+</li>
+<li>
+<p>使用 ofObject() 来创建 Animator，并把自定义的 TypeEvaluator 作为参数填入</p>
+</li>
+</ul>
+<h4 id="propertyvaluesholder-同一个动画中改变多个属性">PropertyValuesHolder 同一个动画中改变多个属性</h4>
+<h4 id="animatorset-多个动画配合执行">AnimatorSet 多个动画配合执行</h4>
+<h4 id="propertyvaluesholdersofkeyframe-把同一个属性拆分">PropertyValuesHolders.ofKeyframe() 把同一个属性拆分</h4>
+<h3 id="硬件加速">硬件加速</h3>
+<ul>
+<li>
+<p><a href="https://developer.android.google.cn/guide/topics/graphics/hardware-accel.html">Hardware Acceleration | Android Developers</a></p>
+</li>
+<li>
+<p><a href="https://www.youtube.com/watch?v=v9S5EO7CLjo">Google I/O 2011: Accelerated Android Rendering</a></p>
+</li>
+</ul>
+<p>所谓硬件加速，指的是把某些计算工作交给专门的硬件来做，而不是和普通的计算工作一样交给 CPU 来处理。这样不仅减轻了 CPU 的压力，而且由于有了「专人」的处理，这份计算工作的速度也被加快了。这就是「硬件加速」。</p>
+<p>而对于 Android 来说，硬件加速有它专属的意思：在 Android 里，硬件加速专指把 View 中绘制的计算工作交给 GPU 来处理。进一步地再明确一下，这个「绘制的计算工作」指的就是把绘制方法中的那些 Canvas.drawXXX() 变成实际的像素这件事。</p>
+<p>在硬件加速关闭的时候，Canvas 绘制的工作方式是：把要绘制的内容写进一个  Bitmap，然后在之后的渲染过程中，这个 Bitmap 的像素内容被直接用于渲染到屏幕。这种绘制方式的主要计算工作在于把绘制操作转换为像素的过程（例如由一句  Canvas.drawCircle() 来获得一个具体的圆的像素信息），这个过程的计算是由 CPU 来完成的。而在硬件加速开启时，Canvas 的工作方式改变了：它只是把绘制的内容转换为 GPU 的操作保存了下来，然后就把它交给 GPU，最终由 GPU 来完成实际的显示工作。</p>
+<p>硬件加速不只是好处，也有它的限制：受到 GPU 绘制方式的限制，Canvas 的有些方法在硬件加速开启式会失效或无法正常工作。比如，在硬件加速开启时， clipPath() 在 API 18 及以上的系统中才有效。具体的 API 限制和 API 版本的关系如下图：</p>
+<center><p><img src="/images/hardware-acceleration.jpg"></p></center>
+<h4 id="view-layer">View Layer</h4>
+<p>setLayerType() 这个方法，它的作用其实就是名字里的意思：设置 View Layer 的类型。所谓 View Layer，又称为离屏缓冲（Off-screen Buffer），它的作用是单独启用一块地方来绘制这个 View ，而不是使用软件绘制的 Bitmap 或者通过硬件加速的 GPU。这块「地方」可能是一块单独的 Bitmap，也可能是一块 OpenGL 的纹理（texture，OpenGL 的纹理可以简单理解为图像的意思），具体取决于硬件加速是否开启。采用什么来绘制 View 不是关键，关键在于当设置了 View Layer 的时候，它的绘制会被缓存下来，而且缓存的是最终的绘制结果，而不是像硬件加速那样只是把 GPU 的操作保存下来再交给 GPU 去计算。通过这样更进一步的缓存方式，View 的重绘效率进一步提高了：只要绘制的内容没有变，那么不论是 CPU 绘制还是 GPU 绘制，它们都不用重新计算，而只要只用之前缓存的绘制结果就可以了。</p>
+<p>基于这样的原理，在进行移动、旋转等（无需调用 invalidate()）的属性动画的时候开启 Hardware Layer 将会极大地提升动画的效率，因为在动画过程中 View 本身并没有发生改变，只是它的位置或角度改变了，而这种改变是可以由 GPU 通过简单计算就完成的，并不需要重绘整个 View。所以在这种动画的过程中开启 Hardware Layer，可以让本来就依靠硬件加速而变流畅了的动画变得更加流畅。</p>
+<p>不过一定要注意，只有你在对 translationX translationY rotation alpha 等无需调用  invalidate() 的属性做动画的时候，这种方法才适用，因为这种方法本身利用的就是当界面不发生时，缓存未更新所带来的时间的节省。所以简单地说——这种方式不适用于基于自定义属性绘制的动画。</p>
+<p>另外，由于设置了 View Layer 后，View 在初次绘制时以及每次 invalidate() 后重绘时，需要进行两次的绘制工作（一次绘制到 Layer，一次从 Layer 绘制到显示屏），所以其实它的每次绘制的效率是被降低了的。所以一定要慎重使用 View Layer，在需要用到它的时候再去使用。</p>
+<h3 id="reference">reference</h3>
+<ul>
+<li><a href="https://github.com/xinghongfei/awesome-view">awesome-view</a></li>
+<li><a href="https://github.com/GcsSloop/AndroidNote/tree/master/CustomView">GcsSloop CustomView</a></li>
+<li><a href="https://blog.csdn.net/aigestudio/column/info/androidcustomview">Android自定义控件其实很简单</a></li>
+<li><a href="https://hencoder.com/tag/hui-zhi/">自定义View-绘制</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2019-01-12
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/2019/02/12/summary-of-custom-views-part-ii/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Summary of Custom Views Part Ii</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/2018/09/12/a-few-lately-thoughts/">
+            <span class="next-text nav-default">A Few Lately Thoughts</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

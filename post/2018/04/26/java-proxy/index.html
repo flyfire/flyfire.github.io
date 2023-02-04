@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Java Proxy - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="Java代理有静态代理和动态代理之分。 静态代理 静态代理类图如下： ProxyObject持有RealObject的引用，在someOperat" /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/2018/04/26/java-proxy/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Java Proxy" />
+<meta property="og:description" content="Java代理有静态代理和动态代理之分。 静态代理 静态代理类图如下： ProxyObject持有RealObject的引用，在someOperat" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/2018/04/26/java-proxy/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2018-04-26T00:00:00+00:00" />
+<meta property="article:modified_time" content="2018-04-26T00:00:00+00:00" />
+<meta itemprop="name" content="Java Proxy">
+<meta itemprop="description" content="Java代理有静态代理和动态代理之分。 静态代理 静态代理类图如下： ProxyObject持有RealObject的引用，在someOperat"><meta itemprop="datePublished" content="2018-04-26T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2018-04-26T00:00:00+00:00" />
+<meta itemprop="wordCount" content="3192">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Java Proxy"/>
+<meta name="twitter:description" content="Java代理有静态代理和动态代理之分。 静态代理 静态代理类图如下： ProxyObject持有RealObject的引用，在someOperat"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Java Proxy</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2018-04-26 </span>
+        <div class="post-category">
+            <a href="/categories/dev/"> dev </a>
+            <a href="/categories/android/"> android </a>
+            </div>
+          <span class="more-meta"> 约 3192 字 </span>
+          <span class="more-meta"> 预计阅读 7 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#静态代理">静态代理</a></li>
+            <li><a href="#动态代理">动态代理</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>Java代理有静态代理和动态代理之分。</p>
+<h3 id="静态代理">静态代理</h3>
+<p>静态代理类图如下：</p>
+<p><center><img src="/images/java-proxy-static.png" width=225 height=225/></center></p>
+<p><code>ProxyObject</code>持有<code>RealObject</code>的引用，在<code>someOperation</code>方法中可以代理<code>RealObject</code>做操作。</p>
+<!-- more -->
+<h3 id="动态代理">动态代理</h3>
+<p>动态代理有Java的InvocationHandler实现方式和CGLib实现方式，我没用过CGLib，这里只讨论<code>InvocationHandler</code>实现方式。主要有三个步骤，代码示例可以在<a href="https://github.com/flyfire/YouDontKnowJava/tree/master/src/com/solarexsoft/test/proxy">github</a>上面看</p>
+<ul>
+<li>定义一个interface</li>
+<li>定义一个InvocationHandler实现类，将要代理的对象传入InvocationHandler中，也即让InvocationHandler实现类代理传入的对象</li>
+<li>调用Proxy.newProxyInstance</li>
+</ul>
+<p>动态代理的秘密主要是藏在<code>Proxy.newProxyInstance</code>当中</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">static</span> <span class="n">Object</span> <span class="nf">newProxyInstance</span><span class="o">(</span><span class="n">ClassLoader</span> <span class="n">loader</span><span class="o">,</span><span class="n">Class</span><span class="o">&lt;?&gt;[]</span> <span class="n">interfaces</span><span class="o">,</span><span class="n">InvocationHandler</span> <span class="n">h</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IllegalArgumentException</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="o">...</span>
+</span></span><span class="line"><span class="cl">        <span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * Look up or generate the designated proxy class.
+</span></span></span><span class="line"><span class="cl"><span class="cm">         */</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Class</span><span class="o">&lt;?&gt;</span> <span class="n">cl</span> <span class="o">=</span> <span class="n">getProxyClass0</span><span class="o">(</span><span class="n">loader</span><span class="o">,</span> <span class="n">intfs</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">final</span> <span class="n">Constructor</span><span class="o">&lt;?&gt;</span> <span class="n">cons</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="na">getConstructor</span><span class="o">(</span><span class="n">constructorParams</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">final</span> <span class="n">InvocationHandler</span> <span class="n">ih</span> <span class="o">=</span> <span class="n">h</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">cons</span><span class="o">.</span><span class="na">newInstance</span><span class="o">(</span><span class="k">new</span> <span class="n">Object</span><span class="o">[]{</span><span class="n">h</span><span class="o">});</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以看出它先调用<code>getProxyClass(loader, interfaces)</code>得到动态代理类，然后将<code>InvocationHandler</code>作为代理类构造函数入参新建代理类对象。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span><span class="lnt">133
+</span><span class="lnt">134
+</span><span class="lnt">135
+</span><span class="lnt">136
+</span><span class="lnt">137
+</span><span class="lnt">138
+</span><span class="lnt">139
+</span><span class="lnt">140
+</span><span class="lnt">141
+</span><span class="lnt">142
+</span><span class="lnt">143
+</span><span class="lnt">144
+</span><span class="lnt">145
+</span><span class="lnt">146
+</span><span class="lnt">147
+</span><span class="lnt">148
+</span><span class="lnt">149
+</span><span class="lnt">150
+</span><span class="lnt">151
+</span><span class="lnt">152
+</span><span class="lnt">153
+</span><span class="lnt">154
+</span><span class="lnt">155
+</span><span class="lnt">156
+</span><span class="lnt">157
+</span><span class="lnt">158
+</span><span class="lnt">159
+</span><span class="lnt">160
+</span><span class="lnt">161
+</span><span class="lnt">162
+</span><span class="lnt">163
+</span><span class="lnt">164
+</span><span class="lnt">165
+</span><span class="lnt">166
+</span><span class="lnt">167
+</span><span class="lnt">168
+</span><span class="lnt">169
+</span><span class="lnt">170
+</span><span class="lnt">171
+</span><span class="lnt">172
+</span><span class="lnt">173
+</span><span class="lnt">174
+</span><span class="lnt">175
+</span><span class="lnt">176
+</span><span class="lnt">177
+</span><span class="lnt">178
+</span><span class="lnt">179
+</span><span class="lnt">180
+</span><span class="lnt">181
+</span><span class="lnt">182
+</span><span class="lnt">183
+</span><span class="lnt">184
+</span><span class="lnt">185
+</span><span class="lnt">186
+</span><span class="lnt">187
+</span><span class="lnt">188
+</span><span class="lnt">189
+</span><span class="lnt">190
+</span><span class="lnt">191
+</span><span class="lnt">192
+</span><span class="lnt">193
+</span><span class="lnt">194
+</span><span class="lnt">195
+</span><span class="lnt">196
+</span><span class="lnt">197
+</span><span class="lnt">198
+</span><span class="lnt">199
+</span><span class="lnt">200
+</span><span class="lnt">201
+</span><span class="lnt">202
+</span><span class="lnt">203
+</span><span class="lnt">204
+</span><span class="lnt">205
+</span><span class="lnt">206
+</span><span class="lnt">207
+</span><span class="lnt">208
+</span><span class="lnt">209
+</span><span class="lnt">210
+</span><span class="lnt">211
+</span><span class="lnt">212
+</span><span class="lnt">213
+</span><span class="lnt">214
+</span><span class="lnt">215
+</span><span class="lnt">216
+</span><span class="lnt">217
+</span><span class="lnt">218
+</span><span class="lnt">219
+</span><span class="lnt">220
+</span><span class="lnt">221
+</span><span class="lnt">222
+</span><span class="lnt">223
+</span><span class="lnt">224
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Returns the {@code java.lang.Class} object for a proxy class
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * given a class loader and an array of interfaces.  The proxy class
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * will be defined by the specified class loader and will implement
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * all of the supplied interfaces.  If any of the given interfaces
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * is non-public, the proxy class will be non-public. If a proxy class
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * for the same permutation of interfaces has already been defined by the
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * class loader, then the existing proxy class will be returned; otherwise,
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * a proxy class for those interfaces will be generated dynamically
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * and defined by the class loader.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;p&gt;There are several restrictions on the parameters that may be
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * passed to {@code Proxy.getProxyClass}:
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;ul&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;li&gt;All of the {@code Class} objects in the
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * {@code interfaces} array must represent interfaces, not
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * classes or primitive types.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;li&gt;No two elements in the {@code interfaces} array may
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * refer to identical {@code Class} objects.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;li&gt;All of the interface types must be visible by name through the
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * specified class loader.  In other words, for class loader
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * {@code cl} and every interface {@code i}, the following
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * expression must be true:
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;pre&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *     Class.forName(i.getName(), false, cl) == i
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;/pre&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;li&gt;All non-public interfaces must be in the same package;
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * otherwise, it would not be possible for the proxy class to
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * implement all of the interfaces, regardless of what package it is
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * defined in.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;li&gt;For any set of member methods of the specified interfaces
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * that have the same signature:
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;ul&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;li&gt;If the return type of any of the methods is a primitive
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * type or void, then all of the methods must have that same
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * return type.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;li&gt;Otherwise, one of the methods must have a return type that
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * is assignable to all of the return types of the rest of the
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * methods.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;/ul&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;li&gt;The resulting proxy class must not exceed any limits imposed
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * on classes by the virtual machine.  For example, the VM may limit
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * the number of interfaces that a class may implement to 65535; in
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * that case, the size of the {@code interfaces} array must not
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * exceed 65535.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;/ul&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;p&gt;If any of these restrictions are violated,
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * {@code Proxy.getProxyClass} will throw an
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * {@code IllegalArgumentException}.  If the {@code interfaces}
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * array argument or any of its elements are {@code null}, a
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * {@code NullPointerException} will be thrown.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;p&gt;Note that the order of the specified proxy interfaces is
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * significant: two requests for a proxy class with the same combination
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * of interfaces but in a different order will result in two distinct
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * proxy classes.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * 得到代理类，不存在则动态生成
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @param loader 代理类所属 ClassLoader
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @param interfaces 代理类需要实现的接口
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @return
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">static</span> <span class="n">Class</span><span class="o">&lt;?&gt;</span> <span class="n">getProxyClass</span><span class="o">(</span><span class="n">ClassLoader</span> <span class="n">loader</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">                                     <span class="n">Class</span><span class="o">&lt;?&gt;...</span> <span class="n">interfaces</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">throws</span> <span class="n">IllegalArgumentException</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(</span><span class="n">interfaces</span><span class="o">.</span><span class="na">length</span> <span class="o">&gt;</span> <span class="mi">65535</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span><span class="s">&#34;interface limit exceeded&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 代理类类对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">Class</span> <span class="n">proxyClass</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/* collect interface names to use as key for proxy class cache */</span>
+</span></span><span class="line"><span class="cl">    <span class="n">String</span><span class="o">[]</span> <span class="n">interfaceNames</span> <span class="o">=</span> <span class="k">new</span> <span class="n">String</span><span class="o">[</span><span class="n">interfaces</span><span class="o">.</span><span class="na">length</span><span class="o">];</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">Set</span> <span class="n">interfaceSet</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashSet</span><span class="o">();</span>       <span class="c1">// for detecting duplicates
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 入参 interfaces 检验，包含三部分
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * （1）是否在入参指定的 ClassLoader 内
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * （2）是否是 Interface
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * （3）interfaces 中是否有重复
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">interfaces</span><span class="o">.</span><span class="na">length</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">String</span> <span class="n">interfaceName</span> <span class="o">=</span> <span class="n">interfaces</span><span class="o">[</span><span class="n">i</span><span class="o">].</span><span class="na">getName</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Class</span> <span class="n">interfaceClass</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">interfaceClass</span> <span class="o">=</span> <span class="n">Class</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="n">interfaceName</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="n">loader</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">ClassNotFoundException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(</span><span class="n">interfaceClass</span> <span class="o">!=</span> <span class="n">interfaces</span><span class="o">[</span><span class="n">i</span><span class="o">])</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">                <span class="n">interfaces</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">+</span> <span class="s">&#34; is not visible from class loader&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(!</span><span class="n">interfaceClass</span><span class="o">.</span><span class="na">isInterface</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">                <span class="n">interfaceClass</span><span class="o">.</span><span class="na">getName</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34; is not an interface&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(</span><span class="n">interfaceSet</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="n">interfaceClass</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">                <span class="s">&#34;repeated interface: &#34;</span> <span class="o">+</span> <span class="n">interfaceClass</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="n">interfaceSet</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">interfaceClass</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">interfaceNames</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">=</span> <span class="n">interfaceName</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// 以接口名对应的 List 作为缓存的 key
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">Object</span> <span class="n">key</span> <span class="o">=</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="n">interfaceNames</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * loaderToCache 是个双层的 Map
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 第一层 key 为 ClassLoader，第二层 key 为 上面的 List，value 为代理类的弱引用
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Map</span> <span class="n">cache</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">synchronized</span> <span class="o">(</span><span class="n">loaderToCache</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cache</span> <span class="o">=</span> <span class="o">(</span><span class="n">Map</span><span class="o">)</span> <span class="n">loaderToCache</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">loader</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(</span><span class="n">cache</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">cache</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="n">loaderToCache</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">loader</span><span class="o">,</span> <span class="n">cache</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 以上面的接口名对应的 List 为 key 查找代理类，如果结果为：
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * (1) 弱引用，表示代理类已经在缓存中
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * (2) pendingGenerationMarker 对象，表示代理类正在生成中，等待生成完成通知。
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * (3) null 表示不在缓存中且没有开始生成，添加标记到缓存中，继续生成代理类
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">synchronized</span> <span class="o">(</span><span class="n">cache</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">do</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">Object</span> <span class="n">value</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">key</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">value</span> <span class="k">instanceof</span> <span class="n">Reference</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">proxyClass</span> <span class="o">=</span> <span class="o">(</span><span class="n">Class</span><span class="o">)</span> <span class="o">((</span><span class="n">Reference</span><span class="o">)</span> <span class="n">value</span><span class="o">).</span><span class="na">get</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">proxyClass</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">// proxy class already generated: return it
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="k">return</span> <span class="n">proxyClass</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">value</span> <span class="o">==</span> <span class="n">pendingGenerationMarker</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">// proxy class being generated: wait for it
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">cache</span><span class="o">.</span><span class="na">wait</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InterruptedException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span>
+</span></span><span class="line"><span class="cl">                <span class="k">continue</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">cache</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">key</span><span class="o">,</span> <span class="n">pendingGenerationMarker</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                <span class="k">break</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span> <span class="k">while</span> <span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">String</span> <span class="n">proxyPkg</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>     <span class="c1">// package to define proxy class in
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">        <span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * 如果 interfaces 中存在非 public 的接口，则所有非 public 接口必须在同一包下面，后续生成的代理类也会在该包下面
+</span></span></span><span class="line"><span class="cl"><span class="cm">         */</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">interfaces</span><span class="o">.</span><span class="na">length</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="kt">int</span> <span class="n">flags</span> <span class="o">=</span> <span class="n">interfaces</span><span class="o">[</span><span class="n">i</span><span class="o">].</span><span class="na">getModifiers</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(!</span><span class="n">Modifier</span><span class="o">.</span><span class="na">isPublic</span><span class="o">(</span><span class="n">flags</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">String</span> <span class="n">name</span> <span class="o">=</span> <span class="n">interfaces</span><span class="o">[</span><span class="n">i</span><span class="o">].</span><span class="na">getName</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="na">lastIndexOf</span><span class="o">(</span><span class="sc">&#39;.&#39;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                <span class="n">String</span> <span class="n">pkg</span> <span class="o">=</span> <span class="o">((</span><span class="n">n</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="o">)</span> <span class="o">?</span> <span class="s">&#34;&#34;</span> <span class="o">:</span> <span class="n">name</span><span class="o">.</span><span class="na">substring</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="o">(</span><span class="n">proxyPkg</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">proxyPkg</span> <span class="o">=</span> <span class="n">pkg</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(!</span><span class="n">pkg</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">proxyPkg</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">                        <span class="s">&#34;non-public interfaces from different packages&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(</span><span class="n">proxyPkg</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>     <span class="c1">// if no non-public proxy interfaces,
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">proxyPkg</span> <span class="o">=</span> <span class="s">&#34;&#34;</span><span class="o">;</span>          <span class="c1">// use the unnamed package
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// 得到代理类的类名，jdk 1.6 版本中缺少对这个生成类已经存在的处理。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="kt">long</span> <span class="n">num</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">synchronized</span> <span class="o">(</span><span class="n">nextUniqueNumberLock</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">num</span> <span class="o">=</span> <span class="n">nextUniqueNumber</span><span class="o">++;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="n">String</span> <span class="n">proxyName</span> <span class="o">=</span> <span class="n">proxyPkg</span> <span class="o">+</span> <span class="n">proxyClassNamePrefix</span> <span class="o">+</span> <span class="n">num</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="c1">// 动态生成代理类的字节码
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="c1">// 最终调用 sun.misc.ProxyGenerator.generateClassFile() 得到代理类相关信息写入 DataOutputStream 实现
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="kt">byte</span><span class="o">[]</span> <span class="n">proxyClassFile</span> <span class="o">=</span> <span class="n">ProxyGenerator</span><span class="o">.</span><span class="na">generateProxyClass</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">                <span class="n">proxyName</span><span class="o">,</span> <span class="n">interfaces</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">// native 层实现，虚拟机加载代理类并返回其类对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="n">proxyClass</span> <span class="o">=</span> <span class="n">defineClass0</span><span class="o">(</span><span class="n">loader</span><span class="o">,</span> <span class="n">proxyName</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">proxyClassFile</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">proxyClassFile</span><span class="o">.</span><span class="na">length</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">ClassFormatError</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// add to set of all generated proxy classes, for isProxyClass
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">proxyClasses</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">proxyClass</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 代理类生成成功则保存到缓存，否则从缓存中删除，然后通知等待的调用
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="kd">synchronized</span> <span class="o">(</span><span class="n">cache</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">proxyClass</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">cache</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">key</span><span class="o">,</span> <span class="k">new</span> <span class="n">WeakReference</span><span class="o">(</span><span class="n">proxyClass</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">cache</span><span class="o">.</span><span class="na">remove</span><span class="o">(</span><span class="n">key</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="n">cache</span><span class="o">.</span><span class="na">notifyAll</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">proxyClass</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>函数主要包括三部分：</p>
+<ul>
+<li>入参 interfaces 检验，包含是否在入参指定的 ClassLoader 内、是否是 Interface、interfaces 中是否有重复
+以接口名对应的 List 为 key 查找代理类，如果结果为：
+<ul>
+<li>弱引用，表示代理类已经在缓存中；</li>
+<li>pendingGenerationMarker 对象，表示代理类正在生成中，等待生成完成返回；</li>
+<li>null 表示不在缓存中且没有开始生成，添加标记到缓存中，继续生成代理类。</li>
+</ul>
+</li>
+<li>如果代理类不存在调用ProxyGenerator.generateProxyClass(…)生成代理类并存入缓存，通知在等待的缓存。</li>
+</ul>
+<p>函数中几个注意的地方：</p>
+<ul>
+<li>代理类的缓存 key 为接口名对应的 List，接口顺序不同表示不同的 key 即不同的代理类。</li>
+<li>如果 interfaces 中存在非 public 的接口，则所有非 public 接口必须在同一包下面，后续生成的代理类也会在该包下面。</li>
+<li>代理类如果在 ClassLoader 中已经存在的情况没有做处理。</li>
+</ul>
+<p>可以开启 System Properties 的<code>sun.misc.ProxyGenerator.saveGeneratedFiles</code>开关，保存动态类到目的地址。</p>
+<p>Java 1.7 的实现略有不同，通过<code>getProxyClass0(…)</code>函数实现，实现中调用代理类的缓存，判断代理类在缓存中是否已经存在，存在直接返回，不存在则调用proxyClassCache的valueFactory属性进行动态生成，valueFactory的apply函数与上面的<code>getProxyClass(…)</code>函数逻辑类似。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span><span class="lnt">133
+</span><span class="lnt">134
+</span><span class="lnt">135
+</span><span class="lnt">136
+</span><span class="lnt">137
+</span><span class="lnt">138
+</span><span class="lnt">139
+</span><span class="lnt">140
+</span><span class="lnt">141
+</span><span class="lnt">142
+</span><span class="lnt">143
+</span><span class="lnt">144
+</span><span class="lnt">145
+</span><span class="lnt">146
+</span><span class="lnt">147
+</span><span class="lnt">148
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">import java.lang.reflect.InvocationHandler;
+</span></span><span class="line"><span class="cl">import java.lang.reflect.Method;
+</span></span><span class="line"><span class="cl">import java.lang.reflect.Proxy;
+</span></span><span class="line"><span class="cl">import java.lang.reflect.UndeclaredThrowableException;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">public final class $Proxy0 extends Proxy
+</span></span><span class="line"><span class="cl">  implements Operate
+</span></span><span class="line"><span class="cl">{
+</span></span><span class="line"><span class="cl">  private static Method m4;
+</span></span><span class="line"><span class="cl">  private static Method m1;
+</span></span><span class="line"><span class="cl">  private static Method m5;
+</span></span><span class="line"><span class="cl">  private static Method m0;
+</span></span><span class="line"><span class="cl">  private static Method m3;
+</span></span><span class="line"><span class="cl">  private static Method m2;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  public $Proxy0(InvocationHandler paramInvocationHandler)
+</span></span><span class="line"><span class="cl">    throws 
+</span></span><span class="line"><span class="cl">  {
+</span></span><span class="line"><span class="cl">    super(paramInvocationHandler);
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  public final void operateMethod1()
+</span></span><span class="line"><span class="cl">    throws 
+</span></span><span class="line"><span class="cl">  {
+</span></span><span class="line"><span class="cl">    try
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      h.invoke(this, m4, null);
+</span></span><span class="line"><span class="cl">      return;
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">    catch (Error|RuntimeException localError)
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      throw localError;
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">    catch (Throwable localThrowable)
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      throw new UndeclaredThrowableException(localThrowable);
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  public final boolean equals(Object paramObject)
+</span></span><span class="line"><span class="cl">    throws 
+</span></span><span class="line"><span class="cl">  {
+</span></span><span class="line"><span class="cl">    try
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      return ((Boolean)h.invoke(this, m1, new Object[] { paramObject })).booleanValue();
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">    catch (Error|RuntimeException localError)
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      throw localError;
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">    catch (Throwable localThrowable)
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      throw new UndeclaredThrowableException(localThrowable);
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  public final void operateMethod2()
+</span></span><span class="line"><span class="cl">    throws 
+</span></span><span class="line"><span class="cl">  {
+</span></span><span class="line"><span class="cl">    try
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      h.invoke(this, m5, null);
+</span></span><span class="line"><span class="cl">      return;
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">    catch (Error|RuntimeException localError)
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      throw localError;
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">    catch (Throwable localThrowable)
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      throw new UndeclaredThrowableException(localThrowable);
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  public final int hashCode()
+</span></span><span class="line"><span class="cl">    throws 
+</span></span><span class="line"><span class="cl">  {
+</span></span><span class="line"><span class="cl">    try
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      return ((Integer)h.invoke(this, m0, null)).intValue();
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">    catch (Error|RuntimeException localError)
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      throw localError;
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">    catch (Throwable localThrowable)
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      throw new UndeclaredThrowableException(localThrowable);
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  public final void operateMethod3()
+</span></span><span class="line"><span class="cl">    throws 
+</span></span><span class="line"><span class="cl">  {
+</span></span><span class="line"><span class="cl">    try
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      h.invoke(this, m3, null);
+</span></span><span class="line"><span class="cl">      return;
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">    catch (Error|RuntimeException localError)
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      throw localError;
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">    catch (Throwable localThrowable)
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      throw new UndeclaredThrowableException(localThrowable);
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  public final String toString()
+</span></span><span class="line"><span class="cl">    throws 
+</span></span><span class="line"><span class="cl">  {
+</span></span><span class="line"><span class="cl">    try
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      return (String)h.invoke(this, m2, null);
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">    catch (Error|RuntimeException localError)
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      throw localError;
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">    catch (Throwable localThrowable)
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      throw new UndeclaredThrowableException(localThrowable);
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  static
+</span></span><span class="line"><span class="cl">  {
+</span></span><span class="line"><span class="cl">    try
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      m4 = Class.forName(&#34;com.codekk.java.test.dynamicproxy.Operate&#34;).getMethod(&#34;operateMethod1&#34;, new Class[0]);
+</span></span><span class="line"><span class="cl">      m1 = Class.forName(&#34;java.lang.Object&#34;).getMethod(&#34;equals&#34;, new Class[] { Class.forName(&#34;java.lang.Object&#34;) });
+</span></span><span class="line"><span class="cl">      m5 = Class.forName(&#34;com.codekk.java.test.dynamicproxy.Operate&#34;).getMethod(&#34;operateMethod2&#34;, new Class[0]);
+</span></span><span class="line"><span class="cl">      m0 = Class.forName(&#34;java.lang.Object&#34;).getMethod(&#34;hashCode&#34;, new Class[0]);
+</span></span><span class="line"><span class="cl">      m3 = Class.forName(&#34;com.codekk.java.test.dynamicproxy.Operate&#34;).getMethod(&#34;operateMethod3&#34;, new Class[0]);
+</span></span><span class="line"><span class="cl">      m2 = Class.forName(&#34;java.lang.Object&#34;).getMethod(&#34;toString&#34;, new Class[0]);
+</span></span><span class="line"><span class="cl">      return;
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">    catch (NoSuchMethodException localNoSuchMethodException)
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      throw new NoSuchMethodError(localNoSuchMethodException.getMessage());
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">    catch (ClassNotFoundException localClassNotFoundException)
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      throw new NoClassDefFoundError(localClassNotFoundException.getMessage());
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以看到实际上在底层生成了一个class的字节流，并且被ClassLoader加载了，生成了一个继承<code>Proxy</code>实现了接口的类，这个类以<code>InvocationHandler</code>为构造函数参数，所以实际上是在调用方法时，生成的<code>$Proxy0</code>对象代理了<code>InvocationHandler</code>实现对象，<code>InvocationHandler</code>对象代理了实际的对象。</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2018-04-26
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/2018/05/30/recyclerview-smooth-scoll-to-position/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Recyclerview Smooth Scoll to Position</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/2018/04/23/okhttp3-source-analysis/">
+            <span class="next-text nav-default">Okhttp3 Source Analysis</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

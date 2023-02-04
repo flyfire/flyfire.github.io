@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Aspect Oriented Programming in Android - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="Aspect-oriented programming entails breaking down program logic into &amp;ldquo;concerns&amp;rdquo; (cohesive areas of functionality). This means, that with AOP, we can add executable blocks to some source code without explicitly changing it. This programming paradigm pretends that “cross-cutting concerns” (the logic needed at many places, without a single class where to implement them) should be implemented once and injected it many times into those places.
+Code injection becomes a very important part of AOP: it is useful for dealing with the mentioned &amp;ldquo;concerns&amp;rdquo; that cut across the whole application, such as logging or performance monitoring, and, using it in this way, should not be something used rarely as you might think, quite the contrary; every programmer will come into a situation where this ability of injecting code, could prevent a lot of pain and frustration." /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/2016/09/20/aspect-oriented-programming-in-android/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Aspect Oriented Programming in Android" />
+<meta property="og:description" content="Aspect-oriented programming entails breaking down program logic into &ldquo;concerns&rdquo; (cohesive areas of functionality). This means, that with AOP, we can add executable blocks to some source code without explicitly changing it. This programming paradigm pretends that “cross-cutting concerns” (the logic needed at many places, without a single class where to implement them) should be implemented once and injected it many times into those places.
+Code injection becomes a very important part of AOP: it is useful for dealing with the mentioned &ldquo;concerns&rdquo; that cut across the whole application, such as logging or performance monitoring, and, using it in this way, should not be something used rarely as you might think, quite the contrary; every programmer will come into a situation where this ability of injecting code, could prevent a lot of pain and frustration." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/2016/09/20/aspect-oriented-programming-in-android/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2016-09-20T00:00:00+00:00" />
+<meta property="article:modified_time" content="2016-09-20T00:00:00+00:00" />
+<meta itemprop="name" content="Aspect Oriented Programming in Android">
+<meta itemprop="description" content="Aspect-oriented programming entails breaking down program logic into &ldquo;concerns&rdquo; (cohesive areas of functionality). This means, that with AOP, we can add executable blocks to some source code without explicitly changing it. This programming paradigm pretends that “cross-cutting concerns” (the logic needed at many places, without a single class where to implement them) should be implemented once and injected it many times into those places.
+Code injection becomes a very important part of AOP: it is useful for dealing with the mentioned &ldquo;concerns&rdquo; that cut across the whole application, such as logging or performance monitoring, and, using it in this way, should not be something used rarely as you might think, quite the contrary; every programmer will come into a situation where this ability of injecting code, could prevent a lot of pain and frustration."><meta itemprop="datePublished" content="2016-09-20T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2016-09-20T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2207">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Aspect Oriented Programming in Android"/>
+<meta name="twitter:description" content="Aspect-oriented programming entails breaking down program logic into &ldquo;concerns&rdquo; (cohesive areas of functionality). This means, that with AOP, we can add executable blocks to some source code without explicitly changing it. This programming paradigm pretends that “cross-cutting concerns” (the logic needed at many places, without a single class where to implement them) should be implemented once and injected it many times into those places.
+Code injection becomes a very important part of AOP: it is useful for dealing with the mentioned &ldquo;concerns&rdquo; that cut across the whole application, such as logging or performance monitoring, and, using it in this way, should not be something used rarely as you might think, quite the contrary; every programmer will come into a situation where this ability of injecting code, could prevent a lot of pain and frustration."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Aspect Oriented Programming in Android</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2016-09-20 </span>
+        <div class="post-category">
+            <a href="/categories/dev/"> dev </a>
+            <a href="/categories/android/"> android </a>
+            </div>
+          <span class="more-meta"> 约 2207 字 </span>
+          <span class="more-meta"> 预计阅读 11 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#terminology-mini-glossary">Terminology (Mini glossary)</a></li>
+        <li><a href="#sowhere-and-when-can-we-apply-aop">So…where and when can we apply AOP?</a></li>
+        <li><a href="#tools-and-libraries">Tools and Libraries</a></li>
+        <li><a href="#why-aspectj">Why AspectJ?</a></li>
+        <li><a href="#example">Example</a></li>
+        <li><a href="#project-structure">Project structure</a></li>
+        <li><a href="#creating-our-annotation">Creating our annotation</a></li>
+        <li><a href="#our-stopwatch-for-performance-monitoring">Our StopWatch for performance monitoring</a></li>
+        <li><a href="#debuglog-class">DebugLog Class</a></li>
+        <li><a href="#our-aspect">Our Aspect</a></li>
+        <li><a href="#making-aspectj-to-work-with-android">Making AspectJ to work with Android</a></li>
+        <li><a href="#our-test-method">Our test method</a></li>
+        <li><a href="#executing-our-application">Executing our application</a></li>
+        <li><a href="#recap">Recap</a></li>
+        <li><a href="#conclusion">Conclusion</a></li>
+        <li><a href="#source-code">Source Code</a></li>
+        <li><a href="#resources">Resources</a></li>
+        <li><a href="#reference">reference</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>Aspect-oriented programming entails breaking down program logic into &ldquo;concerns&rdquo; (cohesive areas of functionality). This means, that with AOP, we can add executable blocks to some source code without explicitly changing it. This programming paradigm pretends that “cross-cutting concerns” (the logic needed at many places, without a single class where to implement them) should be implemented once and injected it many times into those places.</p>
+<p>Code injection becomes a very important part of AOP: it is useful for dealing with the mentioned &ldquo;concerns&rdquo; that cut across the whole application, such as logging or performance monitoring, and, using it in this way, should not be something used rarely as you might think, quite the contrary; every programmer will come into a situation where this ability of injecting code, could prevent a lot of pain and frustration.</p>
+<p>AOP is a paradigm that has been with us for many years, and I found it very useful to apply it to Android. After some investigation I consider that we can get a lot of advantages and very useful stuff when making use of it.</p>
+<!-- more -->
+<h2 id="terminology-mini-glossary">Terminology (Mini glossary)</h2>
+<p>Before we get started, let&rsquo;s have a look at some vocabulary that we should keep in mind:</p>
+<ul>
+<li>
+<p>Cross-cutting concerns:Even though most classes in an OO model will perform a single, specific function, they often share common, secondary requirements with other classes. For example, we may want to add logging to classes within the data-access layer and also to classes in the UI layer whenever a thread enters or exits a method. Even though each class has a very different primary functionality, the code needed to perform the secondary functionality is often identical.</p>
+</li>
+<li>
+<p>Advice: The code that is injected to a class file. Typically we talk about before, after, and around advices, which are executed before, after, or instead of a target method. It’s possible to make also other changes than injecting code into methods, e.g. adding fields or interfaces to a class.</p>
+</li>
+<li>
+<p>Joint point: A particular point in a program that might be the target of code injection, e.g. a method call or method entry.</p>
+</li>
+<li>
+<p>Pointcut: An expression which tells a code injection tool where to inject a particular piece of code, i.e. to which joint points to apply a particular advice. It could select only a single such point – e.g. execution of a single method – or many similar points – e.g. executions of all methods marked with a custom annotation such as @DebugTrace.</p>
+</li>
+<li>
+<p>Aspect: The combination of the pointcut and the advice is termed an aspect. For instance, we add a logging aspect to our application by defining a pointcut and giving the correct advice.</p>
+</li>
+<li>
+<p>Weaving: The process of injecting code – advices – into the target places – joint points.</p>
+</li>
+</ul>
+<p>This picture summarizes a bit a few of these concepts:</p>
+<center><img src="/images/aop.png"/></center>
+<h2 id="sowhere-and-when-can-we-apply-aop">So…where and when can we apply AOP?</h2>
+<p>Some examples of cross-cutting concerns are:</p>
+<ul>
+<li>Logging</li>
+<li>Persistance</li>
+<li>Performance monitoring</li>
+<li>Data Validation</li>
+<li>Caching</li>
+<li>Many others</li>
+</ul>
+<p>And in relation with &ldquo;when the magic happens&rdquo;, the code can be injected at different points in time:</p>
+<ul>
+<li>
+<p>At run-time: your code has to explicitly ask for the enhanced code, e.g. by using a Dynamic Proxy (this is arguably not true code injection). Anyway here is an example I created for testing it.</p>
+</li>
+<li>
+<p>At load-time: the modification are performed when the target classes are being loaded by Dalvik or ART. Byte-code or Dex-code weaving.</p>
+</li>
+<li>
+<p>At build-time: you add an extra step to your build process to modify the compiled classes before packaging and deploying your application. Source-code weaving.</p>
+</li>
+</ul>
+<p>Depending on the situation you will be choosing one or the other :).</p>
+<h2 id="tools-and-libraries">Tools and Libraries</h2>
+<p>There are a few tools and libraries out there that help us use AOP:</p>
+<ul>
+<li>
+<p><a href="https://eclipse.org/aspectj/">AspectJ</a>: A seamless aspect-oriented extension to the Javatm programming language (works with Android).</p>
+</li>
+<li>
+<p><a href="https://github.com/crimsonwoods/javassist-android">Javassist for Android</a>: An android porting of the very well known java library Javassist for bytecode manipulation.</p>
+</li>
+<li>
+<p><a href="https://code.google.com/p/dexmaker/">DexMaker</a>: A Java-language API for doing compile time or runtime code generation targeting the Dalvik VM.</p>
+</li>
+<li>
+<p><a href="http://asm.ow2.org/asmdex-index.html">ASMDEX</a>: A bytecode manipulation library as ASM but it handles the DEX bytecode used by Android executables.</p>
+</li>
+</ul>
+<h2 id="why-aspectj">Why AspectJ?</h2>
+<p>For our example below I have chosen AspectJ for the following reasons:</p>
+<ul>
+<li>Very powerful.</li>
+<li>Supports build time and load time code injection.</li>
+<li>Easy to use.</li>
+</ul>
+<h2 id="example">Example</h2>
+<p>Let&rsquo;s say we want to measure the performance of a method (how long takes its execution). For doing this we want to mark our method with a <code>@DebugTrace</code> annotation and want to see the results using the logcat transparently without having to write code in each annotated method. Our approach is to use AspectJ for this purpose.</p>
+<p>This is what is gonna happen under the hood:</p>
+<ul>
+<li>The annotation will be processed in a new step we are adding to our compilation fase.</li>
+<li>Necessary boilerplate code will be generated and injected in the annotated method.</li>
+</ul>
+<p>I have to say here that while I was researching I found <a href="https://github.com/JakeWharton/hugo">Jake Wharton&rsquo;s Hugo Library</a> that it is suppose to do the same, so I refactored my code and looks similar to it, although mine is a more primitive and simpler version (I have learnt a lot by looking at its code by the way).</p>
+<center><img src="/images/aspectweaving.png"/></center>
+<h2 id="project-structure">Project structure</h2>
+<p>We will break up our sample application into 2 modules, the first will contain our android app and the second will be an android library that will make use of AspectJ library for weaving (code injection).</p>
+<p>You may be wondering why we are using an android library module instead of a pure java library: <strong>the reason is that for AspectJ to work on Android we have to make use of some hooks when compiling our app and this is only possible using the android-library gradle plugin.</strong> (Do not worry about this yet, cause I will be giving some more details later).</p>
+<h2 id="creating-our-annotation">Creating our annotation</h2>
+<p>We first create our Java annotation. This annotation will be persisted in the class (<code>RetentionPolicy.CLASS</code>) file and we will be able to annotate any constructor or method with it (<code>ElementType.CONSTRUCTOR</code> and <code>ElementType.METHOD</code>). So our <code>DebugTrace.java</code> file will look like this:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">@Retention(RetentionPolicy.CLASS)
+</span></span><span class="line"><span class="cl">@Target({ ElementType.CONSTRUCTOR, ElementType.METHOD })
+</span></span><span class="line"><span class="cl">public @interface DebugTrace {}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="our-stopwatch-for-performance-monitoring">Our StopWatch for performance monitoring</h2>
+<p>I have created a simple class that encapsulates time start/stop. Here is our <code>StopWatch.java</code> class:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">/**
+</span></span><span class="line"><span class="cl"> * Class representing a StopWatch for measuring time.
+</span></span><span class="line"><span class="cl"> */
+</span></span><span class="line"><span class="cl">public class StopWatch {
+</span></span><span class="line"><span class="cl">  private long startTime;
+</span></span><span class="line"><span class="cl">  private long endTime;
+</span></span><span class="line"><span class="cl">  private long elapsedTime;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  public StopWatch() {
+</span></span><span class="line"><span class="cl">    //empty
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  private void reset() {
+</span></span><span class="line"><span class="cl">    startTime = 0;
+</span></span><span class="line"><span class="cl">    endTime = 0;
+</span></span><span class="line"><span class="cl">    elapsedTime = 0;
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  public void start() {
+</span></span><span class="line"><span class="cl">    reset();
+</span></span><span class="line"><span class="cl">    startTime = System.nanoTime();
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  public void stop() {
+</span></span><span class="line"><span class="cl">    if (startTime != 0) {
+</span></span><span class="line"><span class="cl">      endTime = System.nanoTime();
+</span></span><span class="line"><span class="cl">      elapsedTime = endTime - startTime;
+</span></span><span class="line"><span class="cl">    } else {
+</span></span><span class="line"><span class="cl">      reset();
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  public long getTotalTimeMillis() {
+</span></span><span class="line"><span class="cl">    return (elapsedTime != 0) ? TimeUnit.NANOSECONDS.toMillis(endTime - startTime) : 0;
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="debuglog-class">DebugLog Class</h2>
+<p>I just decorated the &ldquo;android.util.Log&rdquo; cause my first idea was to add some more functionality to the android log. Here it is:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">/**
+</span></span><span class="line"><span class="cl"> * Wrapper around {@link android.util.Log}
+</span></span><span class="line"><span class="cl"> */
+</span></span><span class="line"><span class="cl">public class DebugLog {
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  private DebugLog() {}
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  /**
+</span></span><span class="line"><span class="cl">   * Send a debug log message
+</span></span><span class="line"><span class="cl">   *
+</span></span><span class="line"><span class="cl">   * @param tag Source of a log message.
+</span></span><span class="line"><span class="cl">   * @param message The message you would like logged.
+</span></span><span class="line"><span class="cl">   */
+</span></span><span class="line"><span class="cl">  public static void log(String tag, String message) {
+</span></span><span class="line"><span class="cl">    Log.d(tag, message);
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="our-aspect">Our Aspect</h2>
+<p>Now it is time to create our aspect class (<code>TraceAspect.java</code>) that will be in charge of managing the annotation processing and source-code weaving.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">/**
+</span></span><span class="line"><span class="cl"> * Aspect representing the cross cutting-concern: Method and Constructor Tracing.
+</span></span><span class="line"><span class="cl"> */
+</span></span><span class="line"><span class="cl">@Aspect
+</span></span><span class="line"><span class="cl">public class TraceAspect {
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  private static final String POINTCUT_METHOD =
+</span></span><span class="line"><span class="cl">      &#34;execution(@org.android10.gintonic.annotation.DebugTrace * *(..))&#34;;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  private static final String POINTCUT_CONSTRUCTOR =
+</span></span><span class="line"><span class="cl">      &#34;execution(@org.android10.gintonic.annotation.DebugTrace *.new(..))&#34;;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  @Pointcut(POINTCUT_METHOD)
+</span></span><span class="line"><span class="cl">  public void methodAnnotatedWithDebugTrace() {}
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  @Pointcut(POINTCUT_CONSTRUCTOR)
+</span></span><span class="line"><span class="cl">  public void constructorAnnotatedDebugTrace() {}
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  @Around(&#34;methodAnnotatedWithDebugTrace() || constructorAnnotatedDebugTrace()&#34;)
+</span></span><span class="line"><span class="cl">  public Object weaveJoinPoint(ProceedingJoinPoint joinPoint) throws Throwable {
+</span></span><span class="line"><span class="cl">    MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+</span></span><span class="line"><span class="cl">    String className = methodSignature.getDeclaringType().getSimpleName();
+</span></span><span class="line"><span class="cl">    String methodName = methodSignature.getName();
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    final StopWatch stopWatch = new StopWatch();
+</span></span><span class="line"><span class="cl">    stopWatch.start();
+</span></span><span class="line"><span class="cl">    Object result = joinPoint.proceed();
+</span></span><span class="line"><span class="cl">    stopWatch.stop();
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    DebugLog.log(className, buildLogMessage(methodName, stopWatch.getTotalTimeMillis()));
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    return result;
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  /**
+</span></span><span class="line"><span class="cl">   * Create a log message.
+</span></span><span class="line"><span class="cl">   *
+</span></span><span class="line"><span class="cl">   * @param methodName A string with the method name.
+</span></span><span class="line"><span class="cl">   * @param methodDuration Duration of the method in milliseconds.
+</span></span><span class="line"><span class="cl">   * @return A string representing message.
+</span></span><span class="line"><span class="cl">   */
+</span></span><span class="line"><span class="cl">  private static String buildLogMessage(String methodName, long methodDuration) {
+</span></span><span class="line"><span class="cl">    StringBuilder message = new StringBuilder();
+</span></span><span class="line"><span class="cl">    message.append(&#34;Gintonic --&gt; &#34;);
+</span></span><span class="line"><span class="cl">    message.append(methodName);
+</span></span><span class="line"><span class="cl">    message.append(&#34; --&gt; &#34;);
+</span></span><span class="line"><span class="cl">    message.append(&#34;[&#34;);
+</span></span><span class="line"><span class="cl">    message.append(methodDuration);
+</span></span><span class="line"><span class="cl">    message.append(&#34;ms&#34;);
+</span></span><span class="line"><span class="cl">    message.append(&#34;]&#34;);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    return message.toString();
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Some important points to mention here:</p>
+<ul>
+<li>
+<p>We declare 2 public methods with 2 pointcuts that will filter all methods and constructors annotated with &ldquo;org.android10.gintonic.annotation.DebugTrace&rdquo;.</p>
+</li>
+<li>
+<p>We define the &ldquo;weaveJointPoint(ProceedingJoinPoint joinPoint)&rdquo; annotated with &ldquo;@Around&rdquo; which means that our code injection will happen around the annotated method with &ldquo;@DebugTrace&rdquo;.</p>
+</li>
+<li>
+<p>The line &ldquo;Object result = joinPoint.proceed();&rdquo; is where the annotated method execution happens, so before this, is where we start our StopWatch to start measuring time, and after that, we stop it.</p>
+</li>
+<li>
+<p>Finally we build our message and print it using the Android Log.</p>
+</li>
+</ul>
+<h2 id="making-aspectj-to-work-with-android">Making AspectJ to work with Android</h2>
+<p>Now everything should be working, but, if we compile our sample, we will see that nothing happens.</p>
+<p>The reason is that we have to use the AspectJ compiler (ajc, an extension of the java compiler) to weave all classes that are affected by an aspect. That&rsquo;s why, as I mention before, we need to add some extra configuration to our gradle build task to make it work.</p>
+<p>This is how our <code>build.gradle</code> looks like:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">import com.android.build.gradle.LibraryPlugin
+</span></span><span class="line"><span class="cl">import org.aspectj.bridge.IMessage
+</span></span><span class="line"><span class="cl">import org.aspectj.bridge.MessageHandler
+</span></span><span class="line"><span class="cl">import org.aspectj.tools.ajc.Main
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">buildscript {
+</span></span><span class="line"><span class="cl">  repositories {
+</span></span><span class="line"><span class="cl">    mavenCentral()
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">  dependencies {
+</span></span><span class="line"><span class="cl">    classpath &#39;com.android.tools.build:gradle:0.12.+&#39;
+</span></span><span class="line"><span class="cl">    classpath &#39;org.aspectj:aspectjtools:1.8.1&#39;
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">}
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">apply plugin: &#39;android-library&#39;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">repositories {
+</span></span><span class="line"><span class="cl">  mavenCentral()
+</span></span><span class="line"><span class="cl">}
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">dependencies {
+</span></span><span class="line"><span class="cl">  compile &#39;org.aspectj:aspectjrt:1.8.1&#39;
+</span></span><span class="line"><span class="cl">}
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">android {
+</span></span><span class="line"><span class="cl">  compileSdkVersion 19
+</span></span><span class="line"><span class="cl">  buildToolsVersion &#39;19.1.0&#39;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  lintOptions {
+</span></span><span class="line"><span class="cl">    abortOnError false
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">}
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">android.libraryVariants.all { variant -&gt;
+</span></span><span class="line"><span class="cl">  LibraryPlugin plugin = project.plugins.getPlugin(LibraryPlugin)
+</span></span><span class="line"><span class="cl">  JavaCompile javaCompile = variant.javaCompile
+</span></span><span class="line"><span class="cl">  javaCompile.doLast {
+</span></span><span class="line"><span class="cl">    String[] args = [&#34;-showWeaveInfo&#34;,
+</span></span><span class="line"><span class="cl">                     &#34;-1.5&#34;,
+</span></span><span class="line"><span class="cl">                     &#34;-inpath&#34;, javaCompile.destinationDir.toString(),
+</span></span><span class="line"><span class="cl">                     &#34;-aspectpath&#34;, javaCompile.classpath.asPath,
+</span></span><span class="line"><span class="cl">                     &#34;-d&#34;, javaCompile.destinationDir.toString(),
+</span></span><span class="line"><span class="cl">                     &#34;-classpath&#34;, javaCompile.classpath.asPath,
+</span></span><span class="line"><span class="cl">                     &#34;-bootclasspath&#34;, plugin.project.android.bootClasspath.join(
+</span></span><span class="line"><span class="cl">        File.pathSeparator)]
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    MessageHandler handler = new MessageHandler(true);
+</span></span><span class="line"><span class="cl">    new Main().run(args, handler)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    def log = project.logger
+</span></span><span class="line"><span class="cl">    for (IMessage message : handler.getMessages(null, true)) {
+</span></span><span class="line"><span class="cl">      switch (message.getKind()) {
+</span></span><span class="line"><span class="cl">        case IMessage.ABORT:
+</span></span><span class="line"><span class="cl">        case IMessage.ERROR:
+</span></span><span class="line"><span class="cl">        case IMessage.FAIL:
+</span></span><span class="line"><span class="cl">          log.error message.message, message.thrown
+</span></span><span class="line"><span class="cl">          break;
+</span></span><span class="line"><span class="cl">        case IMessage.WARNING:
+</span></span><span class="line"><span class="cl">        case IMessage.INFO:
+</span></span><span class="line"><span class="cl">          log.info message.message, message.thrown
+</span></span><span class="line"><span class="cl">          break;
+</span></span><span class="line"><span class="cl">        case IMessage.DEBUG:
+</span></span><span class="line"><span class="cl">          log.debug message.message, message.thrown
+</span></span><span class="line"><span class="cl">          break;
+</span></span><span class="line"><span class="cl">      }
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="our-test-method">Our test method</h2>
+<p>Let&rsquo;s use our cool aspect annotation by adding it to a test method. I have created a method inside the main activity for testing purpose. Let&rsquo;s have a look at it:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">@DebugTrace
+</span></span><span class="line"><span class="cl">  private void testAnnotatedMethod() {
+</span></span><span class="line"><span class="cl">    try {
+</span></span><span class="line"><span class="cl">      Thread.sleep(10);
+</span></span><span class="line"><span class="cl">    } catch (InterruptedException e) {
+</span></span><span class="line"><span class="cl">      e.printStackTrace();
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">  }
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="executing-our-application">Executing our application</h2>
+<p>We build and install our app on an android device/emulator by executing the gradle command:<code>gradlew clean build installDebug</code></p>
+<p>If we open the logcat and execute our sample, we will see a debug log with:</p>
+<p><code>Gintonic --&gt; testAnnotatedMethod --&gt; [10ms]</code></p>
+<p>Our first android application using AOP worked!</p>
+<p>You can use the <a href="https://play.google.com/store/apps/details?id=jp.itplus.android.dex.dump&amp;hl=en">Dex Dump</a> android application (from your phone), or any any other reverse engineering tool for decompiling the apk and see the source code generated and injected.</p>
+<h2 id="recap">Recap</h2>
+<p>So to recap and summarize:</p>
+<ul>
+<li>We have had a taste of Aspect Oriented programming paradigm.</li>
+<li>Code Injection becomes a very important part of this approach (AOP).</li>
+<li>AspectJ is a very powerful and easy to use tool for source code weaving in Android applications.</li>
+<li>We have created a working example using AOP capabilities.</li>
+</ul>
+<h2 id="conclusion">Conclusion</h2>
+<p>Aspect Oriented Programming is very powerful. Using it the right way, you can avoid duplicating a lot of code when you have &ldquo;cross-cutting concerns&rdquo; in your Android apps, like performance monitoring, as we have seen in our example. I do encourage you to give it a try, you will find it very useful.</p>
+<p>I hope you like the article, the purpose of it was to share what I&rsquo;ve learnt so far, so feel free to comment and give feedback, or even better, fork the code and play a bit with it.</p>
+<p>I&rsquo;m sure we can add very interesting stuff to our AOP module in the sample app. Ideas are very welcome ;).</p>
+<h2 id="source-code">Source Code</h2>
+<p>You can check 2 examples here, the first one uses AspectJ and the second one uses a Dynamic Proxy approach:</p>
+<ul>
+<li><a href="https://github.com/android10/Android-AOPExample">https://github.com/android10/Android-AOPExample</a>.</li>
+<li><a href="https://github.com/android10/DynamicProxy_Java_Sample">https://github.com/android10/DynamicProxy_Java_Sample</a></li>
+</ul>
+<h2 id="resources">Resources</h2>
+<ul>
+<li><a href="http://en.wikipedia.org/wiki/Aspect-oriented_programming">Aspect-oriented programming</a>.</li>
+<li><a href="http://en.wikipedia.org/wiki/Aspect-oriented_software_development">Aspect-oriented software development</a>.</li>
+<li><a href="http://www.javacodegeeks.com/2011/09/practical-introduction-into-code.html">Practical Introduction into Code Injection with AspectJ, Javassist, and Java Proxy</a>.</li>
+<li><a href="http://java.dzone.com/articles/implementing-build-time">Implementing Build-time Bytecode Instrumentation With Javassist</a>.</li>
+<li><a href="http://www.eclipse.org/aspectj/doc/released/faq.php">Frequently Asked Questions about AspectJ</a>.</li>
+<li><a href="http://blog.espenberntsen.net/2010/03/20/aspectj-cheat-sheet/">AspectJ Cheat Sheet</a>.</li>
+</ul>
+<h2 id="reference">reference</h2>
+<ul>
+<li><a href="https://fernandocejas.com/2014/08/03/aspect-oriented-programming-in-android/">Aspect Oriented Programming in Android</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2016-09-20
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/2016/10/09/vsync-in-android/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Vsync in Android</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/2016/09/17/using-annotations-element-value-pairs-in-aspectj/">
+            <span class="next-text nav-default">Using Annotations Element Value Pairs in Aspectj</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>

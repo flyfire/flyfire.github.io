@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Android Dealing With Asynctask and Screen Orientation - Solarex&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Solarex" /><meta name="description" content="A common task in Android is to perform some background activity in another thread, meanwhile displaying a ProgressDialog to the user. Example of these tasks include downloading some data from internet, logging into an application, etc. Implementing an AsyncTask is fairly a simple job, the big challenge is how to handle it properly when an orientation change occurs.
+In this article I will walk though a series of potential solutions to address the screen orientation issues when using an AsyncTask." /><meta name="keywords" content="Android, Java, Kotlin" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.110.0 with theme even" />
+
+
+<link rel="canonical" href="https://flyfire.github.io/post/2014/10/26/android-dealing-with-asynctask-and-screen-orientation/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Android Dealing With Asynctask and Screen Orientation" />
+<meta property="og:description" content="A common task in Android is to perform some background activity in another thread, meanwhile displaying a ProgressDialog to the user. Example of these tasks include downloading some data from internet, logging into an application, etc. Implementing an AsyncTask is fairly a simple job, the big challenge is how to handle it properly when an orientation change occurs.
+In this article I will walk though a series of potential solutions to address the screen orientation issues when using an AsyncTask." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://flyfire.github.io/post/2014/10/26/android-dealing-with-asynctask-and-screen-orientation/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2014-10-26T00:00:00+00:00" />
+<meta property="article:modified_time" content="2014-10-26T00:00:00+00:00" />
+<meta itemprop="name" content="Android Dealing With Asynctask and Screen Orientation">
+<meta itemprop="description" content="A common task in Android is to perform some background activity in another thread, meanwhile displaying a ProgressDialog to the user. Example of these tasks include downloading some data from internet, logging into an application, etc. Implementing an AsyncTask is fairly a simple job, the big challenge is how to handle it properly when an orientation change occurs.
+In this article I will walk though a series of potential solutions to address the screen orientation issues when using an AsyncTask."><meta itemprop="datePublished" content="2014-10-26T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2014-10-26T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1535">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Android Dealing With Asynctask and Screen Orientation"/>
+<meta name="twitter:description" content="A common task in Android is to perform some background activity in another thread, meanwhile displaying a ProgressDialog to the user. Example of these tasks include downloading some data from internet, logging into an application, etc. Implementing an AsyncTask is fairly a simple job, the big challenge is how to handle it properly when an orientation change occurs.
+In this article I will walk though a series of potential solutions to address the screen orientation issues when using an AsyncTask."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Solarex&#39;s Blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/projects/">
+        <li class="mobile-menu-item">Projects</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Solarex&#39;s Blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/projects/">Projects</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Android Dealing With Asynctask and Screen Orientation</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2014-10-26 </span>
+        <div class="post-category">
+            <a href="/categories/dev/"> dev </a>
+            <a href="/categories/android/"> android </a>
+            </div>
+          <span class="more-meta"> 约 1535 字 </span>
+          <span class="more-meta"> 预计阅读 8 分钟 </span>
+        <span id="busuanzi_container_page_pv" class="more-meta"> <span id="busuanzi_value_page_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次阅读 </span>
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#solution-1--think-twice-if-you-really-need-an-asynctask">Solution 1 – Think twice if you really need an AsyncTask.</a></li>
+            <li><a href="#solution-2--put-the-asynctask-in-a-fragment">Solution 2 – Put the AsyncTask in a Fragment.</a></li>
+            <li><a href="#solution-3--lock-the-screen-orientation">Solution 3 – Lock the screen orientation</a></li>
+            <li><a href="#solution-4--prevent-the-activity-from-being-recreated">Solution 4 – Prevent the Activity from being recreated.</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p><center><img src="/images/android_logo.jpg"/></center></p>
+<p>A common task in Android is to perform some background activity in another thread, meanwhile displaying a ProgressDialog to the user. Example of these tasks include downloading some data from internet, logging into an application, etc. Implementing an AsyncTask is fairly a simple job, the big challenge is how to handle it properly when an orientation change occurs.</p>
+<!-- more -->
+<p>In this article I will walk though a series of potential solutions to address the screen orientation issues when using an AsyncTask.</p>
+<p>So, lets create a proof of concept application that makes use of an AsyncTask which does not handle configuration changes yet, and then present a few solutions.</p>
+<p>Here’s the AsyncTask implementation that we will be using during the tutorial:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">AsyncTaskExample</span> <span class="kd">extends</span> <span class="n">AsyncTask</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Integer</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err"> </span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="kd">private</span> <span class="kd">final</span> <span class="n">TaskListener</span> <span class="n">listener</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="err"> </span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="kd">public</span> <span class="nf">AsyncTaskExample</span><span class="o">(</span><span class="n">TaskListener</span> <span class="n">listener</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="k">this</span><span class="o">.</span><span class="na">listener</span> <span class="o">=</span> <span class="n">listener</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="err"> </span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onPreExecute</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="n">listener</span><span class="o">.</span><span class="na">onTaskStarted</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="err"> </span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="kd">protected</span> <span class="n">String</span> <span class="nf">doInBackground</span><span class="o">(</span><span class="n">String</span><span class="o">...</span> <span class="n">params</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">10</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">            </span><span class="n">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="s">&#34;GREC&#34;</span><span class="o">,</span> <span class="s">&#34;AsyncTask is working: &#34;</span> <span class="o">+</span> <span class="n">i</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="err">            </span><span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">                </span><span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="mi">1000</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="err">            </span><span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InterruptedException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">                </span><span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="err">            </span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="k">return</span> <span class="s">&#34;All Done!&#34;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="err"> </span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onPostExecute</span><span class="o">(</span><span class="n">String</span> <span class="n">result</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="n">listener</span><span class="o">.</span><span class="na">onTaskFinished</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li><code>doInBackground()</code> – this will be called by the AsyncTask on a background thread, and performs all the heavy work. For the sake of this example, I just wrote a simple loop  with a delay of 1 sec between iterations to simulate a task that takes some time.</li>
+<li>The constructor of the class takes a listener as a parameter. The listener will be used to delegate the work of <code>onPreExecute()/onPostExecute()</code> to the calling Activity.</li>
+</ul>
+<p>This is the interface definition used by AsyncTaskExample:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">TaskListener</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="kt">void</span> <span class="nf">onTaskStarted</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="err"> </span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="kt">void</span> <span class="nf">onTaskFinished</span><span class="o">(</span><span class="n">String</span> <span class="n">result</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>And here’s the usage of AsyncTaskExample (the problematic case):</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MainActivity</span> <span class="kd">extends</span> <span class="n">Activity</span> <span class="kd">implements</span> <span class="n">TaskListener</span><span class="o">,</span> <span class="n">OnClickListener</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err"> </span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="kd">private</span> <span class="n">ProgressDialog</span> <span class="n">progressDialog</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="err"> </span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="kd">public</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">(</span><span class="n">savedInstanceState</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="n">setContentView</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">main</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">start</span><span class="o">).</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="err"> </span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="k">if</span> <span class="o">(</span><span class="n">v</span><span class="o">.</span><span class="na">getId</span><span class="o">()</span> <span class="o">==</span> <span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">start</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">            </span><span class="k">new</span> <span class="n">AsyncTaskExample</span><span class="o">(</span><span class="k">this</span><span class="o">).</span><span class="na">execute</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="err"> </span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="kd">public</span> <span class="kt">void</span> <span class="nf">onTaskStarted</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="n">progressDialog</span> <span class="o">=</span> <span class="n">ProgressDialog</span><span class="o">.</span><span class="na">show</span><span class="o">(</span><span class="n">CopyOfMainActivity</span><span class="o">.</span><span class="na">this</span><span class="o">,</span> <span class="s">&#34;Loading&#34;</span><span class="o">,</span> <span class="s">&#34;Please wait a moment!&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="err"> </span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="kd">public</span> <span class="kt">void</span> <span class="nf">onTaskFinished</span><span class="o">(</span><span class="n">String</span> <span class="n">result</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="k">if</span> <span class="o">(</span><span class="n">progressDialog</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">            </span><span class="n">progressDialog</span><span class="o">.</span><span class="na">dismiss</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The Activity implements the TaskListener interface and provides appropriate implementation for its methods,  displaying the ProgressDialog when the task is started, and dismissing it when the task is finished. The AsyncTask is fired when clicking on a button.</p>
+<p>Now, if you run this example without changing the screen orientation, the AsyncTask will start and finish its work normally. Problems begin to appear when the device orientation is changed while the AsyncTask is in the middle of the work. The application will crash, and an exception similar to these ones will be thrown: java.lang.IllegalArgumentException: View not attached to window manager, or Activity has leaked window com.android.internal.policy….</p>
+<p>The cause relies in the Activity life cycle. A change in device orientation is interpreted as a configuration change which causes the current activity to be destroyed and then recreated. Android calls onPause(), onStop(), and onDestroy() on currently instance of activity, then a new instance of the same activity is recreated calling onCreate(), onStart(), and onResume(). The reason why Android have to do this, is because depending of screen orientation, portrait or landscape, we may need to load and display different resources, and only through re-creation Android can guarantee that all our resources will be re-requested.</p>
+<p>But don’t panic, you are not alone, there are several solutions that will help us to deal with this situation.</p>
+<h3 id="solution-1--think-twice-if-you-really-need-an-asynctask">Solution 1 – Think twice if you really need an AsyncTask.</h3>
+<p>AsyncTasks are good for performing background work, but they are bound to the Activity which adds some complexity. For things like making HTTP requests to a server perhaps you should consider an IntentService. IntentService used in conjunction with a BroadcastReceiver or ResultReceiver to deliver results, could do a better job than an AsyncTask in certain situations.</p>
+<h3 id="solution-2--put-the-asynctask-in-a-fragment">Solution 2 – Put the AsyncTask in a Fragment.</h3>
+<p>Using fragments probably is the cleanest way to handle configuration changes. By default, Android destroys and recreates the fragments just like activities, however, fragments have the ability to retain their instances, simply by calling: <code>setRetainInstance(true)</code>, in one of its callback methods, for example in the onCreate().</p>
+<p>There’s however one aspect that should be taken in consideration in order to achieve the desired result. Our AsyncTask uses a ProgressDialog to signal when the AsyncTask is started, and dismisses it when the task is done. This complicates a bit the things because even if we are using <code>setRetainInstance(true)</code>, we should close all windows and dialogs when the Activity is destroyed, otherwise we will get an: <code>Activity has leaked window com.android.internal.policy…</code>  exception. This happens when you try to show a dialog after you have exited the Activity.</p>
+<p>In order to address this issue, we will add some logic to keep track of AsyncTask status (running/not running). We will dismiss the ProgressDialog when the fragment is detached from activity, and check in <code>onActivityCreated()</code> the status of AsyncTask. If the status is “running”, this means we are returning from a screen orientation and we will just re-create and display the ProgressDialog to show that the AsyncTask is still working.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ExampleFragment</span> <span class="kd">extends</span> <span class="n">Fragment</span> <span class="kd">implements</span> <span class="n">TaskListener</span><span class="o">,</span> <span class="n">OnClickListener</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err"> </span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="kd">private</span> <span class="n">ProgressDialog</span> <span class="n">progressDialog</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="kd">private</span> <span class="kt">boolean</span> <span class="n">isTaskRunning</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="kd">private</span> <span class="n">AsyncTaskExample</span> <span class="n">asyncTask</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="err"> </span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="kd">public</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">(</span><span class="n">savedInstanceState</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="n">setRetainInstance</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="err"> </span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="kd">public</span> <span class="kt">void</span> <span class="nf">onActivityCreated</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="kd">super</span><span class="o">.</span><span class="na">onActivityCreated</span><span class="o">(</span><span class="n">savedInstanceState</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="c1">// If we are returning here from a screen orientation
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="err">        </span><span class="c1">// and the AsyncTask is still working, re-create and display the
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="err">        </span><span class="c1">// progress dialog.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="err">        </span><span class="k">if</span> <span class="o">(</span><span class="n">isTaskRunning</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">            </span><span class="n">progressDialog</span> <span class="o">=</span> <span class="n">ProgressDialog</span><span class="o">.</span><span class="na">show</span><span class="o">(</span><span class="n">getActivity</span><span class="o">(),</span> <span class="s">&#34;Loading&#34;</span><span class="o">,</span> <span class="s">&#34;Please wait a moment!&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="err"> </span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="kd">public</span> <span class="n">View</span> <span class="nf">onCreateView</span><span class="o">(</span><span class="n">LayoutInflater</span> <span class="n">inflater</span><span class="o">,</span> <span class="n">ViewGroup</span> <span class="n">container</span><span class="o">,</span> <span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="n">View</span> <span class="n">view</span> <span class="o">=</span> <span class="n">inflater</span><span class="o">.</span><span class="na">inflate</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">fragment_layout</span><span class="o">,</span> <span class="n">container</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="n">Button</span> <span class="n">button</span> <span class="o">=</span> <span class="o">(</span><span class="n">Button</span><span class="o">)</span> <span class="n">view</span><span class="o">.</span><span class="na">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">start</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="n">button</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="k">return</span> <span class="n">view</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="err"> </span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="k">if</span> <span class="o">(!</span><span class="n">isTaskRunning</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">            </span><span class="n">asyncTask</span> <span class="o">=</span> <span class="k">new</span> <span class="n">AsyncTaskExample</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="err">            </span><span class="n">asyncTask</span><span class="o">.</span><span class="na">execute</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="err"> </span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="kd">public</span> <span class="kt">void</span> <span class="nf">onTaskStarted</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="n">isTaskRunning</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="n">progressDialog</span> <span class="o">=</span> <span class="n">ProgressDialog</span><span class="o">.</span><span class="na">show</span><span class="o">(</span><span class="n">getActivity</span><span class="o">(),</span> <span class="s">&#34;Loading&#34;</span><span class="o">,</span> <span class="s">&#34;Please wait a moment!&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="err"> </span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="kd">public</span> <span class="kt">void</span> <span class="nf">onTaskFinished</span><span class="o">(</span><span class="n">String</span> <span class="n">result</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="k">if</span> <span class="o">(</span><span class="n">progressDialog</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">            </span><span class="n">progressDialog</span><span class="o">.</span><span class="na">dismiss</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="n">isTaskRunning</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="err"> </span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="kd">public</span> <span class="kt">void</span> <span class="nf">onDetach</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="c1">// All dialogs should be closed before leaving the activity in order to avoid
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="err">        </span><span class="c1">// the: Activity has leaked window com.android.internal.policy... exception
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="err">        </span><span class="k">if</span> <span class="o">(</span><span class="n">progressDialog</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">progressDialog</span><span class="o">.</span><span class="na">isShowing</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">            </span><span class="n">progressDialog</span><span class="o">.</span><span class="na">dismiss</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="kd">super</span><span class="o">.</span><span class="na">onDetach</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="solution-3--lock-the-screen-orientation">Solution 3 – Lock the screen orientation</h3>
+<p>You could do this in 2 ways:</p>
+<p>a) permanently locking the screen orientation of the activity, specifying the screenOrientation attribute in the AndroidManifest with “portrait” or “landscape” values:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;activity</span>
+</span></span><span class="line"><span class="cl"><span class="err">   </span><span class="na">android:screenOrientation=</span><span class="s">&#34;portrait&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="err">   ... </span> <span class="nt">/&gt;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>b) or, temporarily locking the screen in <code>onPreExecute()</code>, and unlocking it in <code>onPostExecute()</code>, thus preventing any orientation change while the AsyncTask is working:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">onTaskStarted</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="n">lockScreenOrientation</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="n">progressDialog</span> <span class="o">=</span> <span class="n">ProgressDialog</span><span class="o">.</span><span class="na">show</span><span class="o">(</span><span class="n">CopyOfCopyOfMainActivity</span><span class="o">.</span><span class="na">this</span><span class="o">,</span> <span class="s">&#34;Loading&#34;</span><span class="o">,</span> <span class="s">&#34;Please wait a moment!&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="err"> </span>
+</span></span><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">onTaskFinished</span><span class="o">(</span><span class="n">String</span> <span class="n">result</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="k">if</span> <span class="o">(</span><span class="n">progressDialog</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="n">progressDialog</span><span class="o">.</span><span class="na">dismiss</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="n">unlockScreenOrientation</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="err"> </span>
+</span></span><span class="line"><span class="cl"><span class="kd">private</span> <span class="kt">void</span> <span class="nf">lockScreenOrientation</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="kt">int</span> <span class="n">currentOrientation</span> <span class="o">=</span> <span class="n">getResources</span><span class="o">().</span><span class="na">getConfiguration</span><span class="o">().</span><span class="na">orientation</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="k">if</span> <span class="o">(</span><span class="n">currentOrientation</span> <span class="o">==</span> <span class="n">Configuration</span><span class="o">.</span><span class="na">ORIENTATION_PORTRAIT</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="n">setRequestedOrientation</span><span class="o">(</span><span class="n">ActivityInfo</span><span class="o">.</span><span class="na">SCREEN_ORIENTATION_PORTRAIT</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">        </span><span class="n">setRequestedOrientation</span><span class="o">(</span><span class="n">ActivityInfo</span><span class="o">.</span><span class="na">SCREEN_ORIENTATION_LANDSCAPE</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="err"> </span>
+</span></span><span class="line"><span class="cl"><span class="kd">private</span> <span class="kt">void</span> <span class="nf">unlockScreenOrientation</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="err">    </span><span class="n">setRequestedOrientation</span><span class="o">(</span><span class="n">ActivityInfo</span><span class="o">.</span><span class="na">SCREEN_ORIENTATION_SENSOR</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="solution-4--prevent-the-activity-from-being-recreated">Solution 4 – Prevent the Activity from being recreated.</h3>
+<p>This is the easiest way to handle configuration changes, but the less advised. The only thing you need to do is to specify the configChanges attribute followed by a list of values that specifies when the activity should prevent itself from restarting.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;activity</span>
+</span></span><span class="line"><span class="cl"><span class="err">   </span><span class="na">android:configChanges=</span><span class="s">&#34;orientation|keyboardHidden&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="err">   </span><span class="na">android:name=</span><span class="s">&#34;.MainActivity&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="err">   ....</span> <span class="nt">/&gt;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Using this approach however, is not recommended, and this is clearly stated in the Android documentation: Using this attribute should be avoided and used only as a last-resort.</p>
+<p>You may ask what’s wrong with this approach. Well, if you build the above example against Android 2.2 it will work fine, but if you build it against Android 3.0 and higher, you may notice that the application still crashes on orientation change. This is because starting  with Android 3.0 you need also to handle the <code>screenSize</code>, and <code>smallestScreenSize</code>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;activity</span>
+</span></span><span class="line"><span class="cl"><span class="err">   </span><span class="na">android:configChanges=</span><span class="s">&#34;orientation|keyboardHidden|screenSize|smallestScreenSize&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="err">   </span><span class="na">android:name=</span><span class="s">&#34;.MainActivity&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="err">   ....</span> <span class="nt">/&gt;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>As it turns out, not only a screen orientation causes the Activity to recreate, there are also other events which may produce configuration changes and restart the Activity, and there’s a good chance that we won’t handle them all. This is why the use of this technique is discouraged.</p>
+<p><embed src="http://player.youku.com/player.php/sid/XODExOTY3MzY0/v.swf" allowFullScreen="true" quality="high" width="480" height="400" align="middle" allowScriptAccess="always" type="application/x-shockwave-flash"></embed></p>
+<p><embed src="http://player.youku.com/player.php/sid/XODExOTg2MTgw/v.swf" allowFullScreen="true" quality="high" width="480" height="400" align="middle" allowScriptAccess="always" type="application/x-shockwave-flash"></embed></p>
+<p>REF:</p>
+<ul>
+<li><a href="http://androidresearch.wordpress.com/2013/05/10/dealing-with-asynctask-and-screen-orientation/">Dealing with AsyncTask and Screen Orientation</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Solarex</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2014-10-26
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" targ    et="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/wechatpay.png">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/images/alipay.png">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/2014/10/31/android-multithreading-in-a-ui-environment/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Android Multithreading in a Ui Environment</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/2014/10/24/android-contentprovider/">
+            <span class="next-text nav-default">Android Contentprovider</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    (function() {
+      
+      
+      if (window.location.hostname === 'localhost') return;
+
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      var disqus_shortname = 'solarex-blog';
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:rh.hou.work@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://stackoverflow.com/users/2573305/user2573305" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="https://twitter.com/solarexcn" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://github.com/flyfire" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/solarex" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="https://www.zhihu.com/people/solarex" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="https://space.bilibili.com/8934511" class="iconfont icon-bilibili" title="bilibili"></a>
+      <a href="https://www.douban.com/people/solarexh/" class="iconfont icon-douban" title="douban"></a>
+  <a href="https://flyfire.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  <div class="busuanzi-footer">
+    <span id="busuanzi_container_site_pv"> 本站总访问量 <span id="busuanzi_value_site_pv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 次 </span>
+      <span class="division">|</span>
+    <span id="busuanzi_container_site_uv"> 本站总访客数 <span id="busuanzi_value_site_uv"><img src="/img/spinner.svg" alt="spinner.svg"/></span> 人 </span>
+  </div>
+
+  <span class="copyright-year">
+    &copy; 
+    2012 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Solarex</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/raphael@2.2.7/raphael.min.js" integrity="sha256-67By+NpOtm9ka1R6xpUefeGOY8kWWHHRAKlvaTJ7ONI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/flowchart.js@1.8.0/release/flowchart.min.js" integrity="sha256-zNGWjubXoY6rb5MnmpBNefO0RgoVYfle9p0tvOQM+6k=" crossorigin="anonymous"></script><script></script><script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js" integrity="sha256-4O4pS1SH31ZqrSO2A/2QJTVjTPqVe+jnYgOWUVr7EEc=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.js" integrity="sha256-oI+elz+sIm+jpn8F/qEspKoKveTc5uKeFHNNVexe6d8=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/underscore@1.8.3/underscore-min.js" integrity="sha256-obZACiHd7gkOk9iIL/pimWMTJ4W/pBsKu+oZnSeBIek=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.js" integrity="sha384-8748Vn52gHJYJI0XEuPB2QlPVNUkJlJn9tHqKec6J3q2r9l8fvRxrgn/E5ZHV0sP" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bramp/js-sequence-diagrams@2.0.1/dist/sequence-diagram-min.css" integrity="sha384-6QbLKJMz5dS3adWSeINZe74uSydBGFbnzaAYmp+tKyq60S7H2p6V7g1TysM5lAaF" crossorigin="anonymous">
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-4L7CV05E75', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<script id="baidu_analytics">
+  var _hmt = _hmt || [];
+  (function() {
+    if (window.location.hostname === 'localhost') return;
+    var hm = document.createElement("script"); hm.async = true;
+    hm.src = "https://hm.baidu.com/hm.js?9689f78768a1999a6b08890d53ef1820";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>
