@@ -12,7 +12,7 @@ draft: false
 
 + 标准的观察者模式：一个被观察者，多个观察者。
 
-+ RxJava:多个被观察者，一个观察者。
++ RxJava:多个被观察者，一个最终的观察者，中间有很多对Observer的包装。
 
 + ``ObservableCreate``,``ObservableMap``,``MapObserver``,``CreateEmitter``
 
