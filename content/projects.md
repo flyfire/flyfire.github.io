@@ -98,6 +98,7 @@ draft: false
 + [SolarexRulerViewDemo](https://github.com/flyfire/SolarexRulerViewDemo)
 + [EnergyControlCircleDemo](https://github.com/flyfire/EnergyControlCircleDemo)
 + [RevealAnimationDemo](https://github.com/flyfire/RevealAnimationDemo)
++ [DrawerLayoutDemo](https://github.com/flyfire/DrawerLayoutDemo)
 
 <h3 id='notebook'>学习笔记</h3>
 
@@ -120,6 +121,7 @@ draft: false
 <h3 id='python'>Python练习</h3>
 
 + [Python Practice](https://github.com/flyfire/PythonPractice)
++ [python toys](https://github.com/flyfire/python-toys)
 
 <h3 id='demo'>Demo</h3>
 
@@ -144,6 +146,7 @@ draft: false
 
 + [AndroidJobHunting(private)](https://github.com/flyfire/AndroidJobHunting)
 + [LearningStepByStep(private)](https://github.com/flyfire/learning-step-by-step)
++ [android-interview-notes](https://github.com/flyfire/android-interview-notes)
 
 <h3 id='bintray'>Bintray</h3>
 
