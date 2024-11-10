@@ -19,6 +19,7 @@ draft: false
 + [模仿OkHttp的http框架](https://github.com/flyfire/SolarexOkHttpDemo)
 + [模仿ARouter的路由框架](https://github.com/flyfire/SolarexRouterDemo)
 + [模仿RxJava部分操作符](https://github.com/flyfire/SolarexRxJavaDemo)
++ [koin](https://github.com/flyfire/JavaWithKotlin/blob/master/src/main/java/com/solarexsoft/javawithkotlin/koin/Koin.kt)
 
 <h3 id='designpatterns'>设计模式</h3>
 
