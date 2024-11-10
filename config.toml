@@ -182,7 +182,7 @@ copyright = ""            # default: author.name ↓        # 默认为下面配
     alipay = "/images/alipay.png"           # 支付宝二维码
 
   [params.social]                                         # 社交链接
-    a-email = "mailto:rh.hou.work@email.com"
+    a-email = "mailto:rh.hou.work@gmail.com"
     b-stack-overflow = "https://stackoverflow.com/users/2573305/user2573305"
     c-twitter = "https://twitter.com/solarexcn"
     d-github = "https://github.com/flyfire"
