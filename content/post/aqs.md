@@ -192,3 +192,4 @@ JUC框架中几个使用AQS的同步器类的内部实现。
 + [aqs.pdf](http://gee.cs.oswego.edu/dl/papers/aqs.pdf)
 + [CLH.pdf](http://www.cs.tau.ac.il/~shanir/nir-pubs-web/Papers/CLH.pdf)
 + [自旋锁、排队自旋锁、MCS锁、CLH锁](https://coderbee.net/index.php/concurrent/20131115/577)
++ [aqs.pdf](/files/aqs.pdf)
