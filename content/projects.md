@@ -60,6 +60,7 @@ draft: false
 + [HelloDart](https://github.com/flyfire/HelloDart)
 + [SolaexFlutterQuiz](https://github.com/flyfire/SolarexFlutterQuiz)
 + [SolarexFlutterDemo](https://github.com/flyfire/SolarexFlutterDemo)
++ [learning_dart](https://github.com/flyfire/learning_dart)
 
 <h3 id='kotlin'>Kotlin</h3>
 
