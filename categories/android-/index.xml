@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Android  on Solarex&#39;s Blog</title>
+    <link>https://flyfire.github.io/categories/android-/</link>
+    <description>Recent content in Android  on Solarex&#39;s Blog</description>
+    <generator>Hugo</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Thu, 10 Dec 2015 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://flyfire.github.io/categories/android-/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>A First Glance at Recyclerview</title>
+      <link>https://flyfire.github.io/post/2015/12/10/a-first-glance-at-recyclerview/</link>
+      <pubDate>Thu, 10 Dec 2015 00:00:00 +0000</pubDate>
+      <guid>https://flyfire.github.io/post/2015/12/10/a-first-glance-at-recyclerview/</guid>
+      <description>At this year’s Google I/O, Google released a preview to the upcoming Android version. The so called L Developer Preview. This is a very big improvement over previous releases and I really love that Google is doing this. I think we all benefit by this decision. As developers and as consumers alike!&#xA;Part of this preview are two new views: RecyclerView and CardView. This post gives you an introduction to the RecyclerView, it’s many internal classes and interfaces, how they interact and how you can use them.</description>
+    </item>
+    <item>
+      <title>Android Main Thread</title>
+      <link>https://flyfire.github.io/post/2014/10/13/android-main-thread/</link>
+      <pubDate>Mon, 13 Oct 2014 00:00:00 +0000</pubDate>
+      <guid>https://flyfire.github.io/post/2014/10/13/android-main-thread/</guid>
+      <description>When facing bugs that were related to how we interact with the main thread, I decided to get a closer look at what the main thread really is.&#xA;1 2 3 4 5 public class BigBang { public static void main(String... args) { // The Java universe starts here. } } All Java programs start with a call to a public static void main() method. This is true for Java Desktop programs, JEE servlet containers, and Android applications.</description>
+    </item>
+  </channel>
+</rss>
